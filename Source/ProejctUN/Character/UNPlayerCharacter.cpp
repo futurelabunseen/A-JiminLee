@@ -96,11 +96,6 @@ void AUNPlayerCharacter::PossessedBy(AController* NewController)
 		ASC = GASPS->GetAbilitySystemComponent();
 		ASC->InitAbilityActorInfo(GASPS, this);
 
-		for (const auto& StartAbility : StartAbilities)
-		{
-			FGameplayAbilitySpec StartSpec(StartAbility);
-			ASC->GiveAbility(StartSpec);
-		}
 		for (const auto& StartInputAbility : StartInputAbilities)
 		{
 			FGameplayAbilitySpec StartSpec(StartInputAbility.Value);

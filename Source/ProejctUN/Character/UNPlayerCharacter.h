@@ -68,10 +68,7 @@ protected:
 	//TObjectPtr<class UAnimMontage> ComboActionMontage;
 
 	UPROPERTY(EditAnywhere, Category = GAS)
-	TArray<TSubclassOf<class UGameplayAbility>> StartAbilities;
-
-	UPROPERTY(EditAnywhere, Category = GAS)
-	TMap < int32, TSubclassOf<UGameplayAbility>> StartInputAbilities;
+	TMap < int32, TSubclassOf<class UGameplayAbility>> StartInputAbilities;
 
 	void GASInputPressed(int32 InputId);
 	void GASInputReleased(int32 InputId);
