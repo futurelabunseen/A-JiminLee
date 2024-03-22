@@ -33,9 +33,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* SetDestinationClickAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* AttackAction;
+
+	UPROPERTY(EditAnywhere)
+	APlayerController* PlayerController;
+
 
 protected:
-
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	virtual void BeginPlay();
@@ -46,15 +51,31 @@ protected:
 	void OnSetDestinationTriggered();
 	void OnSetDestinationReleased();
 
+	void SetupPlayerGASInputComponent();
+
+// Not UPROPERTY variable
 private:
 	FVector CachedDestination;
 
 	float FollowTime;
 
+// GAS
 protected:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<class UAbilitySystemComponent> ASC;
 
-	UPROPERTY(EditAnywhere)
-	APlayerController* PlayerController;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
+	//TObjectPtr<class UAnimMontage> ComboActionMontage;
+
+	UPROPERTY(EditAnywhere, Category = GAS)
+	TArray<TSubclassOf<class UGameplayAbility>> StartAbilities;
+
+	UPROPERTY(EditAnywhere, Category = GAS)
+	TMap < int32, TSubclassOf<UGameplayAbility>> StartInputAbilities;
+
+	void GASInputPressed(int32 InputId);
+	void GASInputReleased(int32 InputId);
+
+	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = "true"))
+	//TObjectPtr<class UABComboActionData> ComboActionData;
 };

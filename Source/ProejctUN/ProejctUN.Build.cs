@@ -10,7 +10,7 @@ public class ProejctUN : ModuleRules
 
         PublicIncludePaths.AddRange(new string[] { "ProjectUN" });
 
-        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "NavigationSystem", "AIModule", "Niagara", "EnhancedInput", "GameplayAbilities" });
+        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "NavigationSystem", "AIModule", "Niagara", "EnhancedInput", "GameplayAbilities", "GameplayTasks", "GameplayTags", "GameFeatures" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
