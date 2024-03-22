@@ -53,7 +53,7 @@ protected:
 
 	void SetupPlayerGASInputComponent();
 
-// Not UPROPERTY variable
+// UnUPROPERTY variable
 private:
 	FVector CachedDestination;
 
@@ -64,15 +64,9 @@ protected:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<class UAbilitySystemComponent> ASC;
 
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
-	//TObjectPtr<class UAnimMontage> ComboActionMontage;
-
 	UPROPERTY(EditAnywhere, Category = GAS)
 	TMap < int32, TSubclassOf<class UGameplayAbility>> StartInputAbilities;
 
 	void GASInputPressed(int32 InputId);
 	void GASInputReleased(int32 InputId);
-
-	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = "true"))
-	//TObjectPtr<class UABComboActionData> ComboActionData;
 };
