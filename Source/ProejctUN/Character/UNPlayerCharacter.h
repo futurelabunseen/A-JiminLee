@@ -40,6 +40,8 @@ protected:
 
 	virtual void BeginPlay();
 
+	virtual void PossessedBy(AController* NewController) override;
+
 	void OnInputStarted();
 	void OnSetDestinationTriggered();
 	void OnSetDestinationReleased();
@@ -51,5 +53,8 @@ private:
 
 protected:
 	UPROPERTY(EditAnywhere)
-	TObjectPtr<class UAbilitySystemComponent> ASC;	
+	TObjectPtr<class UAbilitySystemComponent> ASC;
+
+	UPROPERTY(EditAnywhere)
+	APlayerController* PlayerController;
 };

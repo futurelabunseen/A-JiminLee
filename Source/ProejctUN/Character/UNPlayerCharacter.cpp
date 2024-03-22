@@ -60,15 +60,19 @@ void AUNPlayerCharacter::BeginPlay()
 	}
 }
 
+void AUNPlayerCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+	PlayerController = CastChecked<APlayerController>(GetController());
+}
+
 void AUNPlayerCharacter::OnInputStarted()
 {
-	APlayerController* PlayerController = CastChecked<APlayerController>(GetController());
 	PlayerController->StopMovement();
 }
 
 void AUNPlayerCharacter::OnSetDestinationTriggered()
 {
-	APlayerController* PlayerController = CastChecked<APlayerController>(GetController());
 	FollowTime += GetWorld()->GetDeltaSeconds();
 
 	FHitResult Hit;
@@ -92,7 +96,6 @@ void AUNPlayerCharacter::OnSetDestinationReleased()
 {
 	if (FollowTime <= ShortPressThreshold)
 	{
-		APlayerController* PlayerController = CastChecked<APlayerController>(GetController());
 		UAIBlueprintHelperLibrary::SimpleMoveToLocation(PlayerController, CachedDestination);
 	}
 
