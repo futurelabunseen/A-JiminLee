@@ -7,6 +7,7 @@
 AUNGASPlayerState::AUNGASPlayerState()
 {
 	ASC = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("ASC"));
+	ASC->SetIsReplicated(true);
 }
 
 UAbilitySystemComponent* AUNGASPlayerState::GetAbilitySystemComponent() const

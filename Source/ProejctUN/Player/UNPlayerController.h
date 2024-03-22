@@ -6,8 +6,8 @@
 #include "GameFramework/PlayerController.h"
 #include "UNPlayerController.generated.h"
 
-class UInputAction;
-class UInputMappingContext;
+//class UInputAction;
+//class UInputMappingContext;
 /**
  * 
  */
@@ -21,29 +21,29 @@ class PROEJCTUN_API AUNPlayerController : public APlayerController
 public:
 	AUNPlayerController();
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
-	float ShortPressThreshold;
+	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	//float ShortPressThreshold;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UInputMappingContext> DefaultMappingContext;
+	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	//TObjectPtr<class UInputMappingContext> DefaultMappingContext;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* SetDestinationClickAction;
+	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	//UInputAction* SetDestinationClickAction;
 
 protected:
 
 	uint32 bMoveToMouseCursor : 1;
 
-	virtual void SetupInputComponent() override;
+	//virtual void SetupInputComponent() override;
 
 	virtual void BeginPlay();
 
-	void OnInputStarted();
-	void OnSetDestinationTriggered();
-	void OnSetDestinationReleased();
+	//void OnInputStarted();
+	//void OnSetDestinationTriggered();
+	//void OnSetDestinationReleased();
 
-private:
-	FVector CachedDestination;
-
-	float FollowTime;
+//private:
+//	FVector CachedDestination;
+//
+//	float FollowTime;
 };

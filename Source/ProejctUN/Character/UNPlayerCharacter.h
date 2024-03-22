@@ -4,14 +4,52 @@
 
 #include "CoreMinimal.h"
 #include "../Character/UNCharacter.h"
+#include "AbilitySystemInterface.h"
 #include "UNPlayerCharacter.generated.h"
+
+class UInputAction;
+class UInputMappingContext;
 
 /**
  * 
  */
 UCLASS()
-class PROEJCTUN_API AUNPlayerCharacter : public AUNCharacter
+class PROEJCTUN_API AUNPlayerCharacter : public AUNCharacter, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 	
+public:
+	AUNPlayerCharacter();
+
+	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	float ShortPressThreshold;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputMappingContext> DefaultMappingContext;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* SetDestinationClickAction;
+
+
+protected:
+
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	virtual void BeginPlay();
+
+	void OnInputStarted();
+	void OnSetDestinationTriggered();
+	void OnSetDestinationReleased();
+
+private:
+	FVector CachedDestination;
+
+	float FollowTime;
+
+protected:
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<class UAbilitySystemComponent> ASC;	
 };
