@@ -1,0 +1,35 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "Abilities/GameplayAbilityTargetActor.h"
+#include "UNTA_Trace.generated.h"
+
+/**
+ * 
+ */
+UCLASS()
+class PROEJCTUN_API AUNTA_Trace : public AGameplayAbilityTargetActor
+{
+	GENERATED_BODY()
+	
+public:
+	AUNTA_Trace();
+
+	virtual void StartTargeting(UGameplayAbility* Ability) override;
+
+	virtual void ConfirmTargetingAndContinue() override;
+
+protected:
+	virtual FGameplayAbilityTargetDataHandle MakeTargetData() const;
+
+//Debug
+
+protected:
+	bool bShowDebug = false;
+
+public:
+	void SetShowDebug(bool InshowDebug) { bShowDebug = InshowDebug; }
+
+};

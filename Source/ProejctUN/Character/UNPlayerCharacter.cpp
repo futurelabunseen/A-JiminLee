@@ -4,6 +4,7 @@
 #include "../Character/UNPlayerCharacter.h"
 #include "AbilitySystemComponent.h"
 #include "../Player/UNGASPlayerState.h"
+#include "../Character/UNComboActionData.h"
 #include "EnhancedInputComponent.h"
 #include "InputMappingContext.h"
 #include "InputActionValue.h"
@@ -34,6 +35,18 @@ AUNPlayerCharacter::AUNPlayerCharacter()
 	if (nullptr != InputActionAttackRef.Object)
 	{
 		AttackAction = InputActionAttackRef.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> ComboActionMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/Animation/AM_ComboAttack.AM_ComboAttack'"));
+	if (ComboActionMontageRef.Object)
+	{
+		ComboActionMontage = ComboActionMontageRef.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UUNComboActionData> ComboActionDataRef(TEXT("/Script/ProejctUN.UNComboActionData'/Game/CharacterAction/UNA_ComboAttackData.UNA_ComboAttackData'"));
+	if (ComboActionDataRef.Object)
+	{
+		ComboActionData = ComboActionDataRef.Object;
 	}
 }
 
@@ -88,6 +101,12 @@ void AUNPlayerCharacter::PossessedBy(AController* NewController)
 	{
 		ASC = GASPS->GetAbilitySystemComponent();
 		ASC->InitAbilityActorInfo(GASPS, this);
+
+		for (const auto& StartAbility : StartAbilities)
+		{
+			FGameplayAbilitySpec StartSpec(StartAbility);
+			ASC->GiveAbility(StartSpec);
+		}
 
 		for (const auto& StartInputAbility : StartInputAbilities)
 		{

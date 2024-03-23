@@ -2,7 +2,7 @@
 
 
 #include "../GA/UNGA_Attack.h"
-#include "../Character/UNCharacter.h"
+#include "../Character/UNPlayerCharacter.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "../Character/UNComboActionData.h"
@@ -16,7 +16,7 @@ void UUNGA_Attack::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	AUNCharacter* UNCharacter = CastChecked<AUNCharacter>(ActorInfo->AvatarActor.Get());
+	AUNPlayerCharacter* UNCharacter = CastChecked<AUNPlayerCharacter>(ActorInfo->AvatarActor.Get());
 	CurrentComboData = UNCharacter->GetComboActionData();
 	UNCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 
@@ -49,7 +49,7 @@ void UUNGA_Attack::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGa
 {
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 
-	AUNCharacter* UNCharacter = CastChecked<AUNCharacter>(ActorInfo->AvatarActor.Get());
+	AUNPlayerCharacter* UNCharacter = CastChecked<AUNPlayerCharacter>(ActorInfo->AvatarActor.Get());
 	UNCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 
 	CurrentComboData = nullptr;

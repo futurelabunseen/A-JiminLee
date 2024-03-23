@@ -23,6 +23,8 @@ public:
 
 	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
+	FORCEINLINE virtual class UAnimMontage* GetComboActionMontage() const { return ComboActionMontage; }
+	FORCEINLINE class UUNComboActionData* GetComboActionData() const { return ComboActionData; }
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	float ShortPressThreshold;
@@ -53,6 +55,13 @@ protected:
 
 	void SetupPlayerGASInputComponent();
 
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
+	TObjectPtr<class UAnimMontage> ComboActionMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UUNComboActionData> ComboActionData;
+
 // UnUPROPERTY variable
 private:
 	FVector CachedDestination;
@@ -63,6 +72,9 @@ private:
 protected:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<class UAbilitySystemComponent> ASC;
+
+	UPROPERTY(EditAnywhere, Category = GAS)
+	TArray<TSubclassOf<class UGameplayAbility>> StartAbilities;
 
 	UPROPERTY(EditAnywhere, Category = GAS)
 	TMap < int32, TSubclassOf<class UGameplayAbility>> StartInputAbilities;
