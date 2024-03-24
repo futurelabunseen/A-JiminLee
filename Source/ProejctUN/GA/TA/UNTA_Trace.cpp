@@ -7,6 +7,7 @@
 #include "Components/CapsuleComponent.h"
 #include "../../Physics/UNCollision.h"
 #include "DrawDebugHelpers.h"
+#include "Engine/DamageEvents.h"
 
 AUNTA_Trace::AUNTA_Trace()
 {
@@ -46,6 +47,9 @@ FGameplayAbilityTargetDataHandle AUNTA_Trace::MakeTargetData() const
 	FGameplayAbilityTargetDataHandle DataHandle;
 	if (HitDetected)
 	{
+		FDamageEvent DamageEvent;
+		OutHitResult.GetActor()->TakeDamage(5.f, DamageEvent, SourceActor->GetInstigatorController(), SourceActor);
+
 		FGameplayAbilityTargetData_SingleTargetHit* TargetData = new FGameplayAbilityTargetData_SingleTargetHit(OutHitResult);
 		DataHandle.Add(TargetData);
 	}

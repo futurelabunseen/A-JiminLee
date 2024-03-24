@@ -6,12 +6,14 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "../Physics/UNCollision.h"
 //#include "../Character/UNComboActionData.h"
 
 AUNCharacter::AUNCharacter()
 {
 	//기본 세팅
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
+	GetCapsuleComponent()->SetCollisionProfileName(CPROFILE_UNCAPSULE);
 
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
@@ -39,10 +41,13 @@ AUNCharacter::AUNCharacter()
 	TopDownCameraComponent->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	TopDownCameraComponent->bUsePawnControlRotation = false;
 
-	//메쉬
+	// 메쉬
 	GetMesh()->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, -100.0f), FRotator(0.0f, -90.0f, 0.0f));
 	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
 	GetMesh()->SetCollisionProfileName(TEXT("NoCollision"));
+	
+	// 프로퍼티 기본값
+	DeadEventDelayTime = 5.f;
 
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> CharacterMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/InfinityBladeWarriors/Character/CompleteCharacters/SK_CharM_Cardboard.SK_CharM_Cardboard'"));
 	if (CharacterMeshRef.Object)
@@ -54,6 +59,12 @@ AUNCharacter::AUNCharacter()
 	if (AnimInstanceClassRef.Class)
 	{
 		GetMesh()->SetAnimInstanceClass(AnimInstanceClassRef.Class);
+	}
+
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> DeadMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/Animation/AM_Dead.AM_Dead'"));
+	if (DeadMontageRef.Object)
+	{
+		DeadMontage = DeadMontageRef.Object;
 	}
 
 	//static ConstructorHelpers::FObjectFinder<UAnimMontage> ComboActionMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/Animation/AM_ComboAttack.AM_ComboAttack'"));
@@ -73,4 +84,34 @@ void AUNCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
+
+float AUNCharacter::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
+	
+	SetDead();
+
+	return Damage;
+}
+
+void AUNCharacter::SetDead()
+{
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+	PlayDeadAnimaition();
+	SetActorEnableCollision(false);
+
+	FTimerHandle DeadTimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(DeadTimerHandle, FTimerDelegate::CreateLambda([&]
+		{
+			Destroy();
+		}), DeadEventDelayTime, false);
+}
+
+void AUNCharacter::PlayDeadAnimaition()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	AnimInstance->StopAllMontages(0.f);
+	AnimInstance->Montage_Play(DeadMontage, 1.f);
+}
+
 
