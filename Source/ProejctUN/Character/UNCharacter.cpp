@@ -6,12 +6,14 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "../Physics/UNCollision.h"
 //#include "../Character/UNComboActionData.h"
 
 AUNCharacter::AUNCharacter()
 {
 	//기본 세팅
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
+	GetCapsuleComponent()->SetCollisionProfileName(CPROFILE_UNCAPSULE);
 
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
@@ -56,6 +58,12 @@ AUNCharacter::AUNCharacter()
 		GetMesh()->SetAnimInstanceClass(AnimInstanceClassRef.Class);
 	}
 
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> DeadMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/Animation/AM_Dead.AM_Dead'"));
+	if (DeadMontageRef.Object)
+	{
+		DeadMontage = DeadMontageRef.Object;
+	}
+
 	//static ConstructorHelpers::FObjectFinder<UAnimMontage> ComboActionMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/Animation/AM_ComboAttack.AM_ComboAttack'"));
 	//if (ComboActionMontageRef.Object)
 	//{
@@ -73,4 +81,28 @@ void AUNCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
+
+float AUNCharacter::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
+	
+	SetDead();
+
+	return Damage;
+}
+
+void AUNCharacter::SetDead()
+{
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+	PlayDeadAnimaition();
+	SetActorEnableCollision(false);
+}
+
+void AUNCharacter::PlayDeadAnimaition()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	AnimInstance->StopAllMontages(0.f);
+	AnimInstance->Montage_Play(DeadMontage, 1.f);
+}
+
 
