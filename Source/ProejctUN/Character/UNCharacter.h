@@ -45,4 +45,7 @@ protected:
 
 	virtual void SetDead();
 	void PlayDeadAnimaition();
+
+	UPROPERTY(EditAnywhere)
+	float DeadEventDelayTime;
 };
