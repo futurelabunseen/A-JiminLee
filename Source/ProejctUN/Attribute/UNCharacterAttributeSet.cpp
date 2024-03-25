@@ -3,6 +3,7 @@
 
 #include "../Attribute/UNCharacterAttributeSet.h"
 #include "GameplayEffectExtension.h"
+#include "../Tag/UNGameplayTag.h"
 
 UUNCharacterAttributeSet::UUNCharacterAttributeSet() :
 	AttackRange(100.f),
@@ -48,6 +49,14 @@ void UUNCharacterAttributeSet::PostGameplayEffectExecute(const FGameplayEffectMo
 		SetHealth(FMath::Clamp(GetHealth() - GetDamage(), MinimumHealth, GetMaxHealth()));
 		SetDamage(0.f);
 	}
+
+	if ((GetHealth() <= 0.f) && !bOutOfHealth)
+	{
+		Data.Target.AddLooseGameplayTag(UNTAG_CHARACTER_STATE_ISDEAD);
+		OnOutOfHealth.Broadcast();
+	}
+
+	bOutOfHealth = (GetHealth() <= 0.f);
 }
 
 //void UUNCharacterAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue)

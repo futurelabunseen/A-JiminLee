@@ -10,6 +10,7 @@
 #include "InputActionValue.h"
 #include "EnhancedInputSubsystems.h"
 #include "Blueprint/AIBlueprintHelperLibrary.h"
+#include "../Attribute/UNCharacterAttributeSet.h"
 
 AUNPlayerCharacter::AUNPlayerCharacter()
 {
@@ -101,6 +102,13 @@ void AUNPlayerCharacter::PossessedBy(AController* NewController)
 	{
 		ASC = GASPS->GetAbilitySystemComponent();
 		ASC->InitAbilityActorInfo(GASPS, this);
+
+		const UUNCharacterAttributeSet* CurrentAttributeSet = ASC->GetSet<UUNCharacterAttributeSet>();
+		if (CurrentAttributeSet)
+		{
+			CurrentAttributeSet->OnOutOfHealth.AddDynamic(this, &AUNPlayerCharacter::OnOutOfHealth);
+		}
+		
 
 		for (const auto& StartAbility : StartAbilities)
 		{

@@ -13,7 +13,7 @@
  	GAMEPLAYATTRIBUTE_VALUE_SETTER(PropertyName) \
  	GAMEPLAYATTRIBUTE_VALUE_INITTER(PropertyName)
 
-//ATTRIBUTE_ACCESSORS(UMyHealthSet, Health)
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOutOfHealthDelegate);
 /**
  * 
  */
@@ -40,6 +40,8 @@ public:
 
 	//virtual bool PreGameplayEffectExecute(struct FGameplayEffectModCallbackData& Data) override;
 	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
+
+	mutable FOutOfHealthDelegate OnOutOfHealth;
 
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Attack", Meta = (AllowPrivateAccess = true))
@@ -68,6 +70,8 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Attack", Meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData Damage;
+
+	bool bOutOfHealth = false;
 
 	friend class UUNGE_AttackDamage;
 };

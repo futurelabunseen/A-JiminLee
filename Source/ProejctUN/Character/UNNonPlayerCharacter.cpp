@@ -25,6 +25,7 @@ void AUNNonPlayerCharacter::PossessedBy(AController* NewController)
 	Super::PossessedBy(NewController);
 
 	ASC->InitAbilityActorInfo(this, this);
+	AttributeSet->OnOutOfHealth.AddDynamic(this, &AUNNonPlayerCharacter::OnOutOfHealth);
 
 	FGameplayEffectContextHandle EffectContectHandle = ASC->MakeEffectContext();
 	EffectContectHandle.AddSourceObject(this);

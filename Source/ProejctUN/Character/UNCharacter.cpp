@@ -100,6 +100,11 @@ void AUNCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+void AUNCharacter::OnOutOfHealth()
+{
+	SetDead();
+}
+
 float AUNCharacter::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
