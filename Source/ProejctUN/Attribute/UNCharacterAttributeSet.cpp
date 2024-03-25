@@ -31,6 +31,28 @@ void UUNCharacterAttributeSet::PreAttributeChange(const FGameplayAttribute& Attr
 	}
 }
 
+bool UUNCharacterAttributeSet::PreGameplayEffectExecute(FGameplayEffectModCallbackData& Data)
+{
+	if (!Super::PreGameplayEffectExecute(Data))
+	{
+		return false;
+	}
+
+	if (Data.EvaluatedData.Attribute == GetDamageAttribute())
+	{
+		if (Data.EvaluatedData.Magnitude > 0.f)
+		{
+			if (Data.Target.HasMatchingGameplayTag(UNTAG_CHARACTER_STATE_INVINSIBLE))
+			{
+				Data.EvaluatedData.Magnitude = 0.f;
+				return false;
+			}
+		}
+	}
+
+	return true;
+}
+
 void UUNCharacterAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
 {
 	Super::PostGameplayEffectExecute(Data);

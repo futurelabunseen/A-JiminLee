@@ -20,6 +20,7 @@ protected:
 
 	virtual void OnHealthChange(const FOnAttributeChangeData& ChangeData);
 	virtual void OnMaxHealthChange(const FOnAttributeChangeData& ChangeData);
+	virtual void OnInvinsibleTagChange(const FGameplayTag CallbackTag, int32 NewCount);
 
 	void UpdateHpBar();
 
@@ -33,4 +34,7 @@ protected:
 
 	float CurrentHealth = 0.f;
 	float CurrentMaxHealth = 0.1f;
+
+	FLinearColor HealthColor = FLinearColor::Red;
+	FLinearColor InvinsibleColor = FLinearColor::Blue;
 };

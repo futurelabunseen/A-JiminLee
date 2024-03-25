@@ -6,6 +6,7 @@
 #include "../Attribute/UNCharacterAttributeSet.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
+#include "../Tag/UNGameplayTag.h"
 
 void UUNGASHpBarUserWidget::SetAbilitySystemComponent(AActor* InOwner)
 {
@@ -15,6 +16,9 @@ void UUNGASHpBarUserWidget::SetAbilitySystemComponent(AActor* InOwner)
 	{
 		ASC->GetGameplayAttributeValueChangeDelegate(UUNCharacterAttributeSet::GetHealthAttribute()).AddUObject(this, &UUNGASHpBarUserWidget::OnHealthChange);
 		ASC->GetGameplayAttributeValueChangeDelegate(UUNCharacterAttributeSet::GetMaxHealthAttribute()).AddUObject(this, &UUNGASHpBarUserWidget::OnMaxHealthChange);
+		ASC->RegisterGameplayTagEvent(UNTAG_CHARACTER_STATE_INVINSIBLE, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &UUNGASHpBarUserWidget::OnInvinsibleTagChange);
+
+		PbHpBar->SetFillColorAndOpacity(HealthColor);
 
 		const UUNCharacterAttributeSet* CurrentAttributeSet = ASC->GetSet<UUNCharacterAttributeSet>();
 		if (CurrentAttributeSet)
@@ -39,6 +43,20 @@ void UUNGASHpBarUserWidget::OnMaxHealthChange(const FOnAttributeChangeData& Chan
 {
 	CurrentMaxHealth = ChangeData.NewValue;
 	UpdateHpBar();
+}
+
+void UUNGASHpBarUserWidget::OnInvinsibleTagChange(const FGameplayTag CallbackTag, int32 NewCount)
+{
+	if (NewCount > 0)
+	{
+		PbHpBar->SetFillColorAndOpacity(InvinsibleColor);
+		PbHpBar->SetPercent(1.f);
+	}
+	else
+	{
+		PbHpBar->SetFillColorAndOpacity(HealthColor);
+		UpdateHpBar();
+	}
 }
 
 void UUNGASHpBarUserWidget::UpdateHpBar()
