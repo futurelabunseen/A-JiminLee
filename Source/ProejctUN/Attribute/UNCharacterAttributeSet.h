@@ -33,11 +33,13 @@ public:
 	ATTRIBUTE_ACCESSORS(UUNCharacterAttributeSet, MaxAttackRate);
 	ATTRIBUTE_ACCESSORS(UUNCharacterAttributeSet, Health);
 	ATTRIBUTE_ACCESSORS(UUNCharacterAttributeSet, MaxHealth);
+	ATTRIBUTE_ACCESSORS(UUNCharacterAttributeSet, Damage);
 
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
+	//virtual void PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) override;
 
-	virtual void PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) override;
-
+	//virtual bool PreGameplayEffectExecute(struct FGameplayEffectModCallbackData& Data) override;
+	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
 
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Attack", Meta = (AllowPrivateAccess = true))
@@ -64,4 +66,8 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Attack", Meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData MaxHealth;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Attack", Meta = (AllowPrivateAccess = true))
+	FGameplayAttributeData Damage;
+
+	friend class UUNGE_AttackDamage;
 };
