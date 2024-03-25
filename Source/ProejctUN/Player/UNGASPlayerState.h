@@ -22,4 +22,7 @@ public:
 protected:
 	UPROPERTY()
 	TObjectPtr<class UAbilitySystemComponent> ASC;
+
+	UPROPERTY()
+	TObjectPtr<class UUNCharacterAttributeSet> AttributeSet;
 };

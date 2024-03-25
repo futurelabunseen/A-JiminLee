@@ -5,6 +5,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "../GA/AT/UNAT_Trace.h"
 #include "../GA/TA/UNTA_Trace.h"
+#include "../Attribute/UNCharacterAttributeSet.h"
 
 UUNGA_AttackHitCheck::UUNGA_AttackHitCheck()
 {
@@ -26,6 +27,25 @@ void UUNGA_AttackHitCheck::OnTraceResultCallback(const FGameplayAbilityTargetDat
 	{
 		FHitResult HitResult = UAbilitySystemBlueprintLibrary::GetHitResultFromTargetData(TargetDataHandle, 0);
 		UE_LOG(LogTemp, Log, TEXT("Target %s Detected!"), *(HitResult.GetActor()->GetName()));
+
+		UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo_Checked();
+		UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(HitResult.GetActor());
+		if (!SourceASC || !TargetASC)
+		{
+			UE_LOG(LogTemp, Log, TEXT("Not Have ASC!"));
+			return;
+		}
+
+		const UUNCharacterAttributeSet* SourceAttribute = SourceASC->GetSet<UUNCharacterAttributeSet>();
+		UUNCharacterAttributeSet* TargetAttribute = const_cast<UUNCharacterAttributeSet*>(TargetASC->GetSet<UUNCharacterAttributeSet>());
+		if (!SourceAttribute|| !TargetAttribute)
+		{
+			UE_LOG(LogTemp, Log, TEXT("Not Have ATT!"));
+			return;
+		}
+
+		const float AttackDamage = SourceAttribute->GetAttackRate();
+		TargetAttribute->SetHealth(TargetAttribute->GetHealth() - AttackDamage);
 	}
 
 	bool bReplicatedEndAbility = true;
