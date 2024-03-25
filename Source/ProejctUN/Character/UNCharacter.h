@@ -48,4 +48,7 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	float DeadEventDelayTime;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<class UUNGASWidgetComponent> HpBar;
 };

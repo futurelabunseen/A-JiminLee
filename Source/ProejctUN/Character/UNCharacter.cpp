@@ -9,6 +9,9 @@
 #include "../Physics/UNCollision.h"
 //#include "../Character/UNComboActionData.h"
 
+#include "../UI/UNGASWidgetComponent.h"
+#include "../UI/UNGASUserWidget.h"
+
 AUNCharacter::AUNCharacter()
 {
 	//기본 세팅
@@ -78,6 +81,18 @@ AUNCharacter::AUNCharacter()
 	//{
 	//	ComboActionData = ComboActionDataRef.Object;
 	//}
+
+	HpBar = CreateDefaultSubobject<UUNGASWidgetComponent>(TEXT("Widget"));
+	HpBar->SetupAttachment(GetMesh());
+	HpBar->SetRelativeLocation(FVector(0.f, 0.f, 180.f));
+	static ConstructorHelpers::FClassFinder<UUserWidget> HpBarWidgetRef(TEXT("/Game/UI/WBP_HpBar.WBP_HpBar_C"));
+	if (HpBarWidgetRef.Class)
+	{
+		HpBar->SetWidgetClass(HpBarWidgetRef.Class);
+		HpBar->SetWidgetSpace(EWidgetSpace::Screen);
+		HpBar->SetDrawSize(FVector2D(200.f, 20.f));
+		HpBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
 }
 
 void AUNCharacter::Tick(float DeltaTime)
