@@ -11,6 +11,8 @@ AUNNonPlayerCharacter::AUNNonPlayerCharacter()
 	AttributeSet = CreateDefaultSubobject<UUNCharacterAttributeSet>(TEXT("AttributeSet"));
 
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+
+	Level = 1.f;
 }
 
 UAbilitySystemComponent* AUNNonPlayerCharacter::GetAbilitySystemComponent() const
@@ -23,4 +25,12 @@ void AUNNonPlayerCharacter::PossessedBy(AController* NewController)
 	Super::PossessedBy(NewController);
 
 	ASC->InitAbilityActorInfo(this, this);
+
+	FGameplayEffectContextHandle EffectContectHandle = ASC->MakeEffectContext();
+	EffectContectHandle.AddSourceObject(this);
+	FGameplayEffectSpecHandle EffectSpecHandle = ASC->MakeOutgoingSpec(InitStatEffect, Level, EffectContectHandle);
+	if (EffectSpecHandle.IsValid())
+	{
+		ASC->BP_ApplyGameplayEffectSpecToSelf(EffectSpecHandle);
+	}
 }
