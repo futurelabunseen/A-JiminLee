@@ -8,6 +8,9 @@
 #include "../../Physics/UNCollision.h"
 #include "DrawDebugHelpers.h"
 #include "Engine/DamageEvents.h"
+#include "AbilitySystemComponent.h"
+#include "../../Attribute/UNCharacterAttributeSet.h"
+#include "AbilitySystemBlueprintLibrary.h"
 
 AUNTA_Trace::AUNTA_Trace()
 {
@@ -33,9 +36,22 @@ FGameplayAbilityTargetDataHandle AUNTA_Trace::MakeTargetData() const
 {
 	ACharacter* Character = CastChecked<ACharacter>(SourceActor);
 
+	UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(SourceActor);
+	if (!ASC)
+	{
+		return FGameplayAbilityTargetDataHandle();
+	}
+
+	const UUNCharacterAttributeSet* AttributeSet = ASC->GetSet<UUNCharacterAttributeSet>();
+	if (!AttributeSet)
+	{
+		return FGameplayAbilityTargetDataHandle();
+	}
+
 	FHitResult OutHitResult;
-	const float AttackRange = 100.f;
-	const float AttackRadius = 50.f;
+	const float AttackRange = AttributeSet->GetAttackRange();
+	const float AttackRadius = AttributeSet->GetAttackRadius();
+
 
 	FCollisionQueryParams Params(SCENE_QUERY_STAT(UUNAT_Trace), false, Character);
 	const FVector Forward = Character->GetActorForwardVector();
@@ -47,8 +63,8 @@ FGameplayAbilityTargetDataHandle AUNTA_Trace::MakeTargetData() const
 	FGameplayAbilityTargetDataHandle DataHandle;
 	if (HitDetected)
 	{
-		FDamageEvent DamageEvent;
-		OutHitResult.GetActor()->TakeDamage(5.f, DamageEvent, SourceActor->GetInstigatorController(), SourceActor);
+		//FDamageEvent DamageEvent;
+		//OutHitResult.GetActor()->TakeDamage(5.f, DamageEvent, SourceActor->GetInstigatorController(), SourceActor);
 
 		FGameplayAbilityTargetData_SingleTargetHit* TargetData = new FGameplayAbilityTargetData_SingleTargetHit(OutHitResult);
 		DataHandle.Add(TargetData);

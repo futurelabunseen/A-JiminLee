@@ -30,6 +30,10 @@ private:
 	class USpringArmComponent* CameraBoom;
 
 protected:
+
+	UFUNCTION()
+	virtual void OnOutOfHealth();
+
 	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
 	//TObjectPtr<class UAnimMontage> ComboActionMontage;
 
@@ -48,4 +52,7 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	float DeadEventDelayTime;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<class UUNGASWidgetComponent> HpBar;
 };

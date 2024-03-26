@@ -3,26 +3,23 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/PlayerState.h"
+#include "Blueprint/UserWidget.h"
 #include "AbilitySystemInterface.h"
-#include "UNGASPlayerState.generated.h"
+#include "UNGASUserWidget.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class PROEJCTUN_API AUNGASPlayerState : public APlayerState, public IAbilitySystemInterface
+class PROEJCTUN_API UUNGASUserWidget : public UUserWidget, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
-
+	
 public:
-	AUNGASPlayerState();
-
+	virtual void SetAbilitySystemComponent(AActor* InOwner);
 	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
-protected:
-	UPROPERTY()
-	TObjectPtr<class UAbilitySystemComponent> ASC;
 
-	UPROPERTY()
-	TObjectPtr<class UUNCharacterAttributeSet> AttributeSet;
+protected:
+	UPROPERTY(EditAnywhere, Category = GAS)
+	TObjectPtr<class UAbilitySystemComponent> ASC;
 };
