@@ -8,11 +8,11 @@ public class ProejctUN : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-        PublicIncludePaths.AddRange(new string[] { "ProjectUN" });
+        PublicIncludePaths.AddRange(new string[] { "ProejctUN" });
 
-        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "NavigationSystem", "AIModule", "Niagara", "EnhancedInput", "GameplayAbilities", "GameplayTasks", "GameplayTags", "GameFeatures" });
+        PublicDependencyModuleNames.AddRange(new string[] {"ProejctUN", "Core", "CoreUObject", "Engine", "InputCore", "NavigationSystem", "AIModule", "Niagara", "EnhancedInput", "GameplayAbilities", "GameplayTasks", "GameplayTags", "GameFeatures" });
 
-		PrivateDependencyModuleNames.AddRange(new string[] {  });
+		PrivateDependencyModuleNames.AddRange(new string[] { "ProejctUN" });
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
