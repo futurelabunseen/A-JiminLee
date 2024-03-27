@@ -40,6 +40,12 @@ AUNPlayerCharacter::AUNPlayerCharacter()
 		AttackAction = InputActionAttackRef.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionSkillRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Action/IA_Skill.IA_Skill'"));
+	if (nullptr != InputActionSkillRef.Object)
+	{
+		SkillAction = InputActionSkillRef.Object;
+	}
+
 	static ConstructorHelpers::FObjectFinder<UAnimMontage> ComboActionMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/Animation/AM_ComboAttack.AM_ComboAttack'"));
 	if (ComboActionMontageRef.Object)
 	{
@@ -52,7 +58,7 @@ AUNPlayerCharacter::AUNPlayerCharacter()
 		ComboActionData = ComboActionDataRef.Object;
 	}
 
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> SkillActionMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/Animation/AM_ComboAttack.AM_ComboAttack'"));
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> SkillActionMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/Animation/AM_Dead.AM_Dead'"));
 	if (SkillActionMontageRef.Object)
 	{
 		SkillActionMontage = SkillActionMontageRef.Object;
@@ -99,6 +105,7 @@ void AUNPlayerCharacter::SetupPlayerGASInputComponent()
 		UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
 
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::GASInputPressed, 0);
+		EnhancedInputComponent->BindAction(SkillAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::GASInputPressed, 1);
 	}
 }
 
@@ -227,6 +234,14 @@ void AUNPlayerCharacter::EquipWeapon(const FGameplayEventData* EventData)
 	{
 		Weapon->SetSkeletalMesh(WeaponMesh);
 
+		FGameplayAbilitySpec NewSkillSpec(SkillAbilityClass);
+		NewSkillSpec.InputID = 1;
+
+		if (!ASC->FindAbilitySpecFromClass(SkillAbilityClass))
+		{
+			ASC->GiveAbility(NewSkillSpec);
+		}
+
 		const float CurrentAttackRange = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute());
 		const float CurrentAttackRate = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute());
 
@@ -240,6 +255,13 @@ void AUNPlayerCharacter::UnEquipWeapon(const FGameplayEventData* EventData)
 	if (Weapon)
 	{
 		Weapon->SetSkeletalMesh(nullptr);
+
+		FGameplayAbilitySpec* SKillAbilitySpec = ASC->FindAbilitySpecFromClass(SkillAbilityClass);
+
+		if (SKillAbilitySpec)
+		{
+			ASC->ClearAbility(SKillAbilitySpec->Handle);
+		}
 
 		const float CurrentAttackRange = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute());
 		const float CurrentAttackRate = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute());
