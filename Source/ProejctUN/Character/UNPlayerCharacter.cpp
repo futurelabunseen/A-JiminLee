@@ -58,7 +58,7 @@ AUNPlayerCharacter::AUNPlayerCharacter()
 		ComboActionData = ComboActionDataRef.Object;
 	}
 
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> SkillActionMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/Animation/AM_Dead.AM_Dead'"));
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> SkillActionMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/Animation/AM_SkillAttack.AM_SkillAttack'"));
 	if (SkillActionMontageRef.Object)
 	{
 		SkillActionMontage = SkillActionMontageRef.Object;
