@@ -49,6 +49,12 @@ AUNPlayerCharacter::AUNPlayerCharacter()
 	{
 		ComboActionData = ComboActionDataRef.Object;
 	}
+
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> SkillActionMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/Animation/AM_ComboAttack.AM_ComboAttack'"));
+	if (SkillActionMontageRef.Object)
+	{
+		SkillActionMontage = SkillActionMontageRef.Object;
+	}
 }
 
 UAbilitySystemComponent* AUNPlayerCharacter::GetAbilitySystemComponent() const

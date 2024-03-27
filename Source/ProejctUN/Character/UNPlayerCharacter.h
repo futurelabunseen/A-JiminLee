@@ -25,6 +25,8 @@ public:
 
 	FORCEINLINE virtual class UAnimMontage* GetComboActionMontage() const { return ComboActionMontage; }
 	FORCEINLINE class UUNComboActionData* GetComboActionData() const { return ComboActionData; }
+
+	FORCEINLINE virtual class UAnimMontage* GetSkillActionMontage() const { return SkillActionMontage; }
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	float ShortPressThreshold;
@@ -78,6 +80,12 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = GAS)
 	TMap < int32, TSubclassOf<class UGameplayAbility>> StartInputAbilities;
+
+	UPROPERTY(EditAnywhere, Category = GAS)
+	TSubclassOf<class UGameplayAbility> SkillAbilityClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
+	TObjectPtr<class UAnimMontage> SkillActionMontage;
 
 	void GASInputPressed(int32 InputId);
 	void GASInputReleased(int32 InputId);
