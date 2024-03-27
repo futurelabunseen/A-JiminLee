@@ -11,6 +11,8 @@
 #include "EnhancedInputSubsystems.h"
 #include "Blueprint/AIBlueprintHelperLibrary.h"
 #include "../Attribute/UNCharacterAttributeSet.h"
+#include "Tag/UNGameplayTag.h"
+
 
 AUNPlayerCharacter::AUNPlayerCharacter()
 {
@@ -55,6 +57,18 @@ AUNPlayerCharacter::AUNPlayerCharacter()
 	{
 		SkillActionMontage = SkillActionMontageRef.Object;
 	}
+
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> WeaponMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/InfinityBladeWeapons/Weapons/Blunt/Blunt_Hellhammer/SK_Blunt_HellHammer.SK_Blunt_HellHammer'"));
+	if (WeaponMeshRef.Object)
+	{
+		WeaponMesh = WeaponMeshRef.Object;
+	}
+
+	Weapon = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Weapon"));
+	Weapon->SetupAttachment(GetMesh(), TEXT("hand_rSocket"));
+
+	WeaponRange = 75.f;
+	WeaponAttackRate = 100.f;
 }
 
 UAbilitySystemComponent* AUNPlayerCharacter::GetAbilitySystemComponent() const
@@ -109,6 +123,9 @@ void AUNPlayerCharacter::PossessedBy(AController* NewController)
 		ASC = GASPS->GetAbilitySystemComponent();
 		ASC->InitAbilityActorInfo(GASPS, this);
 
+		ASC->GenericGameplayEventCallbacks.FindOrAdd(UNTAG_EVENT_CHARACTER_WEAPONEQUIP).AddUObject(this, &AUNPlayerCharacter::EquipWeapon);
+		ASC->GenericGameplayEventCallbacks.FindOrAdd(UNTAG_EVENT_CHARACTER_WEAPONUNEQUIP).AddUObject(this, &AUNPlayerCharacter::UnEquipWeapon);
+
 		const UUNCharacterAttributeSet* CurrentAttributeSet = ASC->GetSet<UUNCharacterAttributeSet>();
 		if (CurrentAttributeSet)
 		{
@@ -132,6 +149,10 @@ void AUNPlayerCharacter::PossessedBy(AController* NewController)
 		SetupPlayerGASInputComponent();
 		PlayerController = CastChecked<APlayerController>(GetController());
 		PlayerController->ConsoleCommand(TEXT("showdebug abilitysystem"));
+
+
+		//임시 무기 장착
+		EquipWeapon(nullptr);
 	}
 }
 
@@ -196,5 +217,34 @@ void AUNPlayerCharacter::GASInputReleased(int32 InputId)
 		{
 			ASC->AbilitySpecInputReleased(*Spec);
 		}
+	}
+}
+
+
+void AUNPlayerCharacter::EquipWeapon(const FGameplayEventData* EventData)
+{
+	if (Weapon)
+	{
+		Weapon->SetSkeletalMesh(WeaponMesh);
+
+		const float CurrentAttackRange = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute());
+		const float CurrentAttackRate = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute());
+
+		ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute(), CurrentAttackRange + WeaponRange);
+		ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute(), CurrentAttackRate + WeaponAttackRate);
+	}
+}
+
+void AUNPlayerCharacter::UnEquipWeapon(const FGameplayEventData* EventData)
+{
+	if (Weapon)
+	{
+		Weapon->SetSkeletalMesh(nullptr);
+
+		const float CurrentAttackRange = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute());
+		const float CurrentAttackRate = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute());
+
+		ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute(), CurrentAttackRange - WeaponRange);
+		ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute(), CurrentAttackRate - WeaponAttackRate);
 	}
 }

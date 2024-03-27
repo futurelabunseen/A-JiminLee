@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "../Character/UNCharacter.h"
 #include "AbilitySystemInterface.h"
+#include "Abilities/GameplayAbilityTypes.h"
 #include "UNPlayerCharacter.generated.h"
 
 class UInputAction;
@@ -69,6 +70,23 @@ private:
 	FVector CachedDestination;
 
 	float FollowTime;
+
+// Weapon
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Equipment, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class USkeletalMeshComponent> Weapon;
+
+	UPROPERTY(EditAnywhere, Category = Weapon)
+	TObjectPtr<class USkeletalMesh> WeaponMesh;
+
+	UPROPERTY(EditAnywhere, Category = Weapon)
+	float WeaponRange;
+	
+	UPROPERTY(EditAnywhere, Category = Weapon)
+	float WeaponAttackRate;
+
+	void EquipWeapon(const FGameplayEventData* EventData);
+	void UnEquipWeapon(const FGameplayEventData* EventData);
 
 // GAS
 protected:
