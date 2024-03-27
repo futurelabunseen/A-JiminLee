@@ -7,6 +7,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "Physics/UNCollision.h"
 #include "DrawDebugHelpers.h"
+#include "Attribute/UNCharacterSkillAttributeSet.h"
 
 FGameplayAbilityTargetDataHandle AUNTA_SphereMultiTrace::MakeTargetData() const
 {
@@ -19,8 +20,15 @@ FGameplayAbilityTargetDataHandle AUNTA_SphereMultiTrace::MakeTargetData() const
 		return FGameplayAbilityTargetDataHandle();
 	}
 
+	const UUNCharacterSkillAttributeSet* SkillAttribute = ASC->GetSet<UUNCharacterSkillAttributeSet>();
+	if (!SkillAttribute)
+	{
+		UE_LOG(LogTemp, Log, TEXT("SkillAttribute Not Found!"));
+		return FGameplayAbilityTargetDataHandle();
+	}
+
 	TArray<FOverlapResult> Overlaps;
-	const float SkillRadius = 800.f;
+	const float SkillRadius = SkillAttribute->GetSKillRange();
 
 	FVector Origin = Character->GetActorLocation();
 	FCollisionQueryParams Params(SCENE_QUERY_STAT(AUNTA_SphereMultiTrace), false, Character);
