@@ -25,4 +25,8 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<class UUNCharacterAttributeSet> AttributeSet;
+
+	UPROPERTY()
+	TObjectPtr<class UUNCharacterSkillAttributeSet> SkillAttributeSet;
+
 };

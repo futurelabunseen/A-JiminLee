@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "../Character/UNCharacter.h"
 #include "AbilitySystemInterface.h"
+#include "Abilities/GameplayAbilityTypes.h"
 #include "UNPlayerCharacter.generated.h"
 
 class UInputAction;
@@ -25,6 +26,8 @@ public:
 
 	FORCEINLINE virtual class UAnimMontage* GetComboActionMontage() const { return ComboActionMontage; }
 	FORCEINLINE class UUNComboActionData* GetComboActionData() const { return ComboActionData; }
+
+	FORCEINLINE virtual class UAnimMontage* GetSkillActionMontage() const { return SkillActionMontage; }
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	float ShortPressThreshold;
@@ -37,6 +40,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* AttackAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* SkillAction;
 
 	UPROPERTY(EditAnywhere)
 	APlayerController* PlayerController;
@@ -68,6 +74,23 @@ private:
 
 	float FollowTime;
 
+// Weapon
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Equipment, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class USkeletalMeshComponent> Weapon;
+
+	UPROPERTY(EditAnywhere, Category = Weapon)
+	TObjectPtr<class USkeletalMesh> WeaponMesh;
+
+	UPROPERTY(EditAnywhere, Category = Weapon)
+	float WeaponRange;
+	
+	UPROPERTY(EditAnywhere, Category = Weapon)
+	float WeaponAttackRate;
+
+	void EquipWeapon(const FGameplayEventData* EventData);
+	void UnEquipWeapon(const FGameplayEventData* EventData);
+
 // GAS
 protected:
 	UPROPERTY(EditAnywhere)
@@ -78,6 +101,12 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = GAS)
 	TMap < int32, TSubclassOf<class UGameplayAbility>> StartInputAbilities;
+
+	UPROPERTY(EditAnywhere, Category = GAS)
+	TSubclassOf<class UGameplayAbility> SkillAbilityClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
+	TObjectPtr<class UAnimMontage> SkillActionMontage;
 
 	void GASInputPressed(int32 InputId);
 	void GASInputReleased(int32 InputId);
