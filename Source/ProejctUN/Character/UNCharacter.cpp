@@ -36,7 +36,7 @@ AUNCharacter::AUNCharacter()
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->SetUsingAbsoluteRotation(true);
 	CameraBoom->TargetArmLength = 800.f;
-	CameraBoom->SetRelativeRotation(FRotator(-60.f, 0.f, 0.f));
+	CameraBoom->SetRelativeRotation(FRotator(-60.f, -45.f, 0.f));
 	CameraBoom->bDoCollisionTest = false;
 
 	// Ä«¸Þ¶ó
