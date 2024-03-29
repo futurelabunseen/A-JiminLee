@@ -32,17 +32,12 @@ FGameplayAbilityTargetDataHandle AUNTA_SphereMultiTrace::MakeTargetData() const
 
 	FVector Origin = Character->GetActorLocation();
 	FCollisionQueryParams Params(SCENE_QUERY_STAT(AUNTA_SphereMultiTrace), false, Character);
-	GetWorld()->OverlapMultiByChannel(Overlaps, Origin, FQuat::Identity, CCHANNEL_UNACTION, FCollisionShape::MakeSphere(SkillRadius));
+	GetWorld()->OverlapMultiByChannel(Overlaps, Origin, FQuat::Identity, CCHANNEL_UNACTION, FCollisionShape::MakeSphere(SkillRadius), Params);
 
 	TArray<TWeakObjectPtr<AActor>> HitActors;
 	for (const FOverlapResult& Overlap : Overlaps)
 	{
 		AActor* HitActor = Overlap.OverlapObjectHandle.FetchActor<AActor>();
-
-		if (SourceActor == HitActor)
-		{
-			continue;
-		}
 
 		if (HitActor && !HitActors.Contains(HitActor))
 		{
