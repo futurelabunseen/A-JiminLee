@@ -33,9 +33,14 @@ void UUNGA_AttackHitCheck::OnTraceResultCallback(const FGameplayAbilityTargetDat
 
 		UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo_Checked();
 		UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(HitResult.GetActor());
+
 		if (!SourceASC || !TargetASC)
 		{
 			UE_LOG(LogTemp, Log, TEXT("Not Have ASC!"));
+
+			bool bReplicatedEndAbility = true;
+			bool bWasCancelled = true;
+			EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, bReplicatedEndAbility, bWasCancelled);
 			return;
 		}
 
