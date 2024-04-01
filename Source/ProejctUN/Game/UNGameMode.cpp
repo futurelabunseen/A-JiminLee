@@ -2,8 +2,11 @@
 
 
 #include "UNGameMode.h"
+#include "Player/UNPlayerController.h"
 #include "ProejctUN.h"
-#include "../Player/UNPlayerController.h"
+#include "Game/UNGameState.h"
+#include "Player/UNGASPlayerState.h"
+#include "Player/UNPlayerController.h"
 
 AUNGameMode::AUNGameMode()
 {
@@ -18,18 +21,45 @@ AUNGameMode::AUNGameMode()
 	{
 		PlayerControllerClass = PlayerControllerClassRef.Class;
 	}
+
+	GameStateClass = AUNGameState::StaticClass();
+	PlayerStateClass = AUNGASPlayerState::StaticClass();
 }
 
-void AUNGameMode::BeginPlay()
+void AUNGameMode::PreLogin(const FString& Options, const FString& Address, const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage)
 {
-	Super::BeginPlay();
 	UN_LOG(LogUNNetwork, Log, TEXT("%s"), TEXT("Begin"));
+	Super::PreLogin(Options, Address, UniqueId, ErrorMessage);
+	UN_LOG(LogUNNetwork, Log, TEXT("%s"), TEXT("End"));
 }
 
-//APlayerController* AUNGameMode::Login(UPlayer* NewPlayer, ENetRole InRemoteRole, const FString& Portal, const FString& Options, const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage)
-//{
-//	UN_LOG(LogUNNetwork, Log, TEXT("%s"), TEXT("Begin"));
-//	APlayerController* NewPlayerController = Super::Login(NewPlayer, InRemoteRole, Portal, Options, UniqueId, ErrorMessage);
-//	UN_LOG(LogUNNetwork, Log, TEXT("%s"), TEXT("End"));
-//	return nullptr;
-//}
+APlayerController* AUNGameMode::Login(UPlayer* NewPlayer, ENetRole InRemoteRole, const FString& Portal, const FString& Options, const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage)
+{
+	UN_LOG(LogUNNetwork, Log, TEXT("%s"), TEXT("Begin"));
+	APlayerController* NewPlayerController = Super::Login(NewPlayer, InRemoteRole, Portal, Options, UniqueId, ErrorMessage);
+	UN_LOG(LogUNNetwork, Log, TEXT("%s"), TEXT("End"));
+	return NewPlayerController;
+}
+
+void AUNGameMode::PostLogin(APlayerController* NewPlayer)
+{
+	UN_LOG(LogUNNetwork, Log, TEXT("%s"), TEXT("Begin"));
+	Super::PostLogin(NewPlayer);
+
+	UNetDriver* NetDriver = GetNetDriver();
+	if (NetDriver)
+	{
+		if (NetDriver->ClientConnections.Num() == 0)
+		{
+			UN_LOG(LogUNNetwork, Log, TEXT("%s"), TEXT("No Client Connection"));
+		}
+		else
+		{
+			for (const auto& Connection : NetDriver->ClientConnections)
+			{
+				UN_LOG(LogUNNetwork, Log, TEXT("Client Connection: %s"), *Connection->GetName());
+			}
+		}
+	}
+	UN_LOG(LogUNNetwork, Log, TEXT("%s"), TEXT("End"));
+}
