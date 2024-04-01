@@ -120,7 +120,6 @@ void AUNPlayerCharacter::BeginPlay()
 	if (PlayerController)
 	{
 		EnableInput(PlayerController);
-		UN_LOG(LogUNNetwork, Log, TEXT("Have PlayerController"));
 	}
 
 	SetCharacterControl();
@@ -176,7 +175,6 @@ void AUNPlayerCharacter::SetCharacterControl()
 	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
 	if (!IsLocallyControlled())
 	{
-		UN_LOG(LogUNNetwork, Log, TEXT("!IsLocallyControlled. so return"));
 		return;
 	}
 
