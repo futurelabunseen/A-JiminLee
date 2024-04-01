@@ -55,6 +55,7 @@ protected:
 
 	virtual void PossessedBy(AController* NewController) override;
 
+	void SetCharacterControl();
 	void OnInputStarted();
 	void OnSetDestinationTriggered();
 	void OnSetDestinationReleased();

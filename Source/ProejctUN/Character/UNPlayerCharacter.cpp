@@ -13,6 +13,8 @@
 #include "../Attribute/UNCharacterAttributeSet.h"
 #include "Tag/UNGameplayTag.h"
 
+#include "ProejctUN.h"
+
 
 AUNPlayerCharacter::AUNPlayerCharacter()
 {
@@ -111,13 +113,19 @@ void AUNPlayerCharacter::SetupPlayerGASInputComponent()
 
 void AUNPlayerCharacter::BeginPlay()
 {
+	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
 	Super::BeginPlay();
 
-	PlayerController = CastChecked<APlayerController>(GetController());
-	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+	PlayerController = Cast<APlayerController>(GetController());
+	if (PlayerController)
 	{
-		Subsystem->AddMappingContext(DefaultMappingContext, 0);
+		EnableInput(PlayerController);
+		UN_LOG(LogUNNetwork, Log, TEXT("Have PlayerController"));
 	}
+
+	SetCharacterControl();
+
+	UN_LOG(LogUNNetwork, Log, TEXT("End"));
 }
 
 void AUNPlayerCharacter::PossessedBy(AController* NewController)
@@ -161,6 +169,23 @@ void AUNPlayerCharacter::PossessedBy(AController* NewController)
 		//임시 무기 장착
 		EquipWeapon(nullptr);
 	}
+}
+
+void AUNPlayerCharacter::SetCharacterControl()
+{
+	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
+	if (!IsLocallyControlled())
+	{
+		UN_LOG(LogUNNetwork, Log, TEXT("!IsLocallyControlled. so return"));
+		return;
+	}
+
+	PlayerController = CastChecked<APlayerController>(GetController());
+	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+	{
+		Subsystem->AddMappingContext(DefaultMappingContext, 0);
+	}
+	UN_LOG(LogUNNetwork, Log, TEXT("End"));
 }
 
 void AUNPlayerCharacter::OnInputStarted()
