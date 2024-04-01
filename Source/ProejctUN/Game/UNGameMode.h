@@ -14,5 +14,11 @@ class PROEJCTUN_API AUNGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
 	
+public:
+	
 	AUNGameMode();
+
+	//virtual APlayerController* Login(UPlayer* NewPlayer, ENetRole InRemoteRole, const FString& Portal, const FString& Options, const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage) override;
+
+	virtual void BeginPlay() override;
 };
