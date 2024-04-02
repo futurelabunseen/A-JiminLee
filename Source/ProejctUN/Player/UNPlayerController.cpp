@@ -37,5 +37,7 @@ void AUNPlayerController::BeginPlay()
 
 void AUNPlayerController::OnPossess(APawn* InPawn)
 {
+	UN_LOG(LogUNNetwork, Log, TEXT("%s"), TEXT("Begin"));
 	Super::OnPossess(InPawn);
+	UN_LOG(LogUNNetwork, Log, TEXT("%s"), TEXT("End"));
 }

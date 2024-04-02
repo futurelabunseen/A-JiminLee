@@ -102,13 +102,18 @@ void AUNPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 
 void AUNPlayerCharacter::SetupPlayerGASInputComponent()
 {
+	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
 	if (IsValid(ASC) && IsValid(InputComponent))
 	{
 		UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
 
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::GASInputPressed, 0);
 		EnhancedInputComponent->BindAction(SkillAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::GASInputPressed, 1);
+
+		UN_LOG(LogUNNetwork, Log, TEXT("GAS Input Bind Complete"));
 	}
+
+	UN_LOG(LogUNNetwork, Log, TEXT("End"));
 }
 
 void AUNPlayerCharacter::BeginPlay()
@@ -119,6 +124,7 @@ void AUNPlayerCharacter::BeginPlay()
 	PlayerController = Cast<APlayerController>(GetController());
 	if (PlayerController)
 	{
+		UN_LOG(LogUNNetwork, Log, TEXT("%s"), TEXT("Have Controller"));
 		EnableInput(PlayerController);
 	}
 
@@ -129,46 +135,42 @@ void AUNPlayerCharacter::BeginPlay()
 
 void AUNPlayerCharacter::PossessedBy(AController* NewController)
 {
+	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
 	Super::PossessedBy(NewController);
 
-	AUNGASPlayerState* GASPS = GetPlayerState<AUNGASPlayerState>();
-	if (GASPS)
+	GiveAbility();
+
+	UN_LOG(LogUNNetwork, Log, TEXT("End"));
+}
+
+void AUNPlayerCharacter::OnRep_Owner()
+{
+	UN_LOG(LogUNNetwork, Log, TEXT("%s %s"), *GetName(), TEXT("Begin"));
+	Super::OnRep_Owner();
+
+	AActor* OwnerActor = GetOwner();
+	if (OwnerActor)
 	{
-		ASC = GASPS->GetAbilitySystemComponent();
-		ASC->InitAbilityActorInfo(GASPS, this);
-
-		ASC->GenericGameplayEventCallbacks.FindOrAdd(UNTAG_EVENT_CHARACTER_WEAPONEQUIP).AddUObject(this, &AUNPlayerCharacter::EquipWeapon);
-		ASC->GenericGameplayEventCallbacks.FindOrAdd(UNTAG_EVENT_CHARACTER_WEAPONUNEQUIP).AddUObject(this, &AUNPlayerCharacter::UnEquipWeapon);
-
-		const UUNCharacterAttributeSet* CurrentAttributeSet = ASC->GetSet<UUNCharacterAttributeSet>();
-		if (CurrentAttributeSet)
-		{
-			CurrentAttributeSet->OnOutOfHealth.AddDynamic(this, &AUNPlayerCharacter::OnOutOfHealth);
-		}
-		
-
-		for (const auto& StartAbility : StartAbilities)
-		{
-			FGameplayAbilitySpec StartSpec(StartAbility);
-			ASC->GiveAbility(StartSpec);
-		}
-
-		for (const auto& StartInputAbility : StartInputAbilities)
-		{
-			FGameplayAbilitySpec StartSpec(StartInputAbility.Value);
-			StartSpec.InputID = (StartInputAbility.Key);
-			ASC->GiveAbility(StartSpec);
-		}
-
-		SetupPlayerGASInputComponent();
-		PlayerController = CastChecked<APlayerController>(GetController());
-		PlayerController->ConsoleCommand(TEXT("showdebug abilitysystem"));
-
-
-		//임시 무기 장착
-		UN_LOG(LogUNNetwork, Log, TEXT("EquipWeapon"));
-		EquipWeapon(nullptr);
+		UN_LOG(LogUNNetwork, Log, TEXT("Owner : %s"), *OwnerActor->GetName());
 	}
+	else
+	{
+		UN_LOG(LogUNNetwork, Log, TEXT("%s"), TEXT("No Owner"));
+	}
+
+	UN_LOG(LogUNNetwork, Log, TEXT("%s"), TEXT("End"));
+}
+
+void AUNPlayerCharacter::OnRep_PlayerState()
+{
+	UN_LOG(LogUNNetwork, Log, TEXT("%s") TEXT("Begin"));
+	Super::OnRep_PlayerState();
+
+	if (IsLocallyControlled())
+	{
+		GiveAbility();
+	}
+	UN_LOG(LogUNNetwork, Log, TEXT("%s") TEXT("End"));
 }
 
 void AUNPlayerCharacter::SetCharacterControl()
@@ -248,6 +250,58 @@ void AUNPlayerCharacter::GASInputReleased(int32 InputId)
 		{
 			ASC->AbilitySpecInputReleased(*Spec);
 		}
+	}
+}
+
+void AUNPlayerCharacter::GiveAbility()
+{
+	AActor* OwnerActor = GetOwner();
+	if (OwnerActor)
+	{
+		UN_LOG(LogUNNetwork, Log, TEXT("Owner : %s"), *OwnerActor->GetName());
+	}
+
+	AUNGASPlayerState* GASPS = GetPlayerState<AUNGASPlayerState>();
+	if (GASPS)
+	{
+		ASC = GASPS->GetAbilitySystemComponent();
+		ASC->InitAbilityActorInfo(GASPS, this);
+
+		ASC->GenericGameplayEventCallbacks.FindOrAdd(UNTAG_EVENT_CHARACTER_WEAPONEQUIP).AddUObject(this, &AUNPlayerCharacter::EquipWeapon);
+		ASC->GenericGameplayEventCallbacks.FindOrAdd(UNTAG_EVENT_CHARACTER_WEAPONUNEQUIP).AddUObject(this, &AUNPlayerCharacter::UnEquipWeapon);
+
+		const UUNCharacterAttributeSet* CurrentAttributeSet = ASC->GetSet<UUNCharacterAttributeSet>();
+		if (CurrentAttributeSet)
+		{
+			CurrentAttributeSet->OnOutOfHealth.AddDynamic(this, &AUNPlayerCharacter::OnOutOfHealth);
+		}
+
+
+		for (const auto& StartAbility : StartAbilities)
+		{
+			FGameplayAbilitySpec StartSpec(StartAbility);
+			ASC->GiveAbility(StartSpec);
+		}
+
+		for (const auto& StartInputAbility : StartInputAbilities)
+		{
+			FGameplayAbilitySpec StartSpec(StartInputAbility.Value);
+			StartSpec.InputID = (StartInputAbility.Key);
+			ASC->GiveAbility(StartSpec);
+		}
+
+		SetupPlayerGASInputComponent();
+		PlayerController = CastChecked<APlayerController>(GetController());
+		PlayerController->ConsoleCommand(TEXT("showdebug abilitysystem"));
+
+
+		//임시 무기 장착
+		UN_LOG(LogUNNetwork, Log, TEXT("EquipWeapon"));
+		EquipWeapon(nullptr);
+	}
+	else
+	{
+		UN_LOG(LogUNNetwork, Log, TEXT("Not GASPS"));
 	}
 }
 

@@ -50,10 +50,10 @@ public:
 
 protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
 	virtual void BeginPlay();
-
 	virtual void PossessedBy(AController* NewController) override;
+	virtual void OnRep_Owner() override;
+	virtual void OnRep_PlayerState() override;
 
 	void SetCharacterControl();
 	void OnInputStarted();
@@ -111,4 +111,6 @@ protected:
 
 	void GASInputPressed(int32 InputId);
 	void GASInputReleased(int32 InputId);
+	
+	void GiveAbility();
 };
