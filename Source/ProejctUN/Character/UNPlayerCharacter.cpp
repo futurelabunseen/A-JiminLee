@@ -170,6 +170,11 @@ void AUNPlayerCharacter::OnRep_PlayerState()
 	{
 		GiveAbility();
 	}
+	else
+	{
+		UN_LOG(LogUNNetwork, Log, TEXT("SetWeaponSkeletalMesh"));
+		Weapon->SetSkeletalMesh(WeaponMesh);
+	}
 	UN_LOG(LogUNNetwork, Log, TEXT("%s") TEXT("End"));
 }
 
@@ -298,10 +303,6 @@ void AUNPlayerCharacter::GiveAbility()
 		//임시 무기 장착
 		UN_LOG(LogUNNetwork, Log, TEXT("EquipWeapon"));
 		EquipWeapon(nullptr);
-	}
-	else
-	{
-		UN_LOG(LogUNNetwork, Log, TEXT("Not GASPS"));
 	}
 }
 
