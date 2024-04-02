@@ -166,6 +166,7 @@ void AUNPlayerCharacter::PossessedBy(AController* NewController)
 
 
 		//임시 무기 장착
+		UN_LOG(LogUNNetwork, Log, TEXT("EquipWeapon"));
 		EquipWeapon(nullptr);
 	}
 }
@@ -253,8 +254,10 @@ void AUNPlayerCharacter::GASInputReleased(int32 InputId)
 
 void AUNPlayerCharacter::EquipWeapon(const FGameplayEventData* EventData)
 {
+	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
 	if (Weapon)
 	{
+		UN_LOG(LogUNNetwork, Log, TEXT("SetWeaponSkeletalMesh"));
 		Weapon->SetSkeletalMesh(WeaponMesh);
 
 		FGameplayAbilitySpec NewSkillSpec(SkillAbilityClass);
