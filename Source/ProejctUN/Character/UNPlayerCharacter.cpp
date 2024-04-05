@@ -75,7 +75,7 @@ AUNPlayerCharacter::AUNPlayerCharacter()
 	Weapon = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Weapon"));
 	Weapon->SetupAttachment(GetMesh(), TEXT("hand_rSocket"));
 
-	WeaponRange = 75.f;
+	WeaponRange = 175.f;
 	WeaponAttackRate = 100.f;
 }
 
@@ -86,6 +86,7 @@ UAbilitySystemComponent* AUNPlayerCharacter::GetAbilitySystemComponent() const
 
 void AUNPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
+	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
@@ -98,6 +99,7 @@ void AUNPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	}
 	SetupPlayerGASInputComponent();
 
+	UN_LOG(LogUNNetwork, Log, TEXT("End"));
 }
 
 void AUNPlayerCharacter::SetupPlayerGASInputComponent()
@@ -137,8 +139,28 @@ void AUNPlayerCharacter::PossessedBy(AController* NewController)
 {
 	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
 	Super::PossessedBy(NewController);
+	
+	AUNGASPlayerState* GASPS = GetPlayerState<AUNGASPlayerState>();
+	if (GASPS)
+	{
+		ASC = Cast<UAbilitySystemComponent>(GASPS->GetAbilitySystemComponent());
+		ASC->InitAbilityActorInfo(GASPS, this);
 
-	GiveAbility();
+		ASC->GenericGameplayEventCallbacks.FindOrAdd(UNTAG_EVENT_CHARACTER_WEAPONEQUIP).AddUObject(this, &AUNPlayerCharacter::EquipWeapon);
+		ASC->GenericGameplayEventCallbacks.FindOrAdd(UNTAG_EVENT_CHARACTER_WEAPONUNEQUIP).AddUObject(this, &AUNPlayerCharacter::UnEquipWeapon);
+	}
+	else
+	{
+		UN_LOG(LogUNNetwork, Log, TEXT("Not Have GAS"));
+	}
+	
+	PlayerController = CastChecked<APlayerController>(GetController());
+	UN_LOG(LogUNNetwork, Log, TEXT("PlayerController : %s"), *PlayerController->GetName());
+	PlayerController->ConsoleCommand(TEXT("showdebug abilitysystem"));
+
+	InitializeAttributes();
+	InitalizeGameplayAbilities();
+	EquipWeapon(nullptr);
 
 	UN_LOG(LogUNNetwork, Log, TEXT("End"));
 }
@@ -147,6 +169,9 @@ void AUNPlayerCharacter::OnRep_Owner()
 {
 	UN_LOG(LogUNNetwork, Log, TEXT("%s %s"), *GetName(), TEXT("Begin"));
 	Super::OnRep_Owner();
+
+	PlayerController = CastChecked<APlayerController>(GetController());
+	PlayerController->ConsoleCommand(TEXT("showdebug abilitysystem"));
 
 	AActor* OwnerActor = GetOwner();
 	if (OwnerActor)
@@ -163,19 +188,24 @@ void AUNPlayerCharacter::OnRep_Owner()
 
 void AUNPlayerCharacter::OnRep_PlayerState()
 {
-	UN_LOG(LogUNNetwork, Log, TEXT("%s") TEXT("Begin"));
+	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
 	Super::OnRep_PlayerState();
 
-	if (IsLocallyControlled())
+	AUNGASPlayerState* GASPS = GetPlayerState<AUNGASPlayerState>();
+	if (GASPS)
 	{
-		GiveAbility();
+		ASC = Cast<UAbilitySystemComponent>(GASPS->GetAbilitySystemComponent());
+		ASC->InitAbilityActorInfo(GASPS, this);
+
+		ASC->GenericGameplayEventCallbacks.FindOrAdd(UNTAG_EVENT_CHARACTER_WEAPONEQUIP).AddUObject(this, &AUNPlayerCharacter::EquipWeapon);
+		ASC->GenericGameplayEventCallbacks.FindOrAdd(UNTAG_EVENT_CHARACTER_WEAPONUNEQUIP).AddUObject(this, &AUNPlayerCharacter::UnEquipWeapon);
 	}
-	else
-	{
-		UN_LOG(LogUNNetwork, Log, TEXT("SetWeaponSkeletalMesh"));
-		Weapon->SetSkeletalMesh(WeaponMesh);
-	}
-	UN_LOG(LogUNNetwork, Log, TEXT("%s") TEXT("End"));
+
+	InitializeAttributes();
+	InitalizeGameplayAbilities();
+	EquipWeapon(nullptr);
+
+	UN_LOG(LogUNNetwork, Log, TEXT("End"));
 }
 
 void AUNPlayerCharacter::SetCharacterControl()
@@ -211,7 +241,6 @@ void AUNPlayerCharacter::OnSetDestinationTriggered()
 	{
 		CachedDestination = Hit.Location;
 	}
-
 
 	FVector WorldDirection = (CachedDestination - GetActorLocation()).GetSafeNormal();
 	AddMovementInput(WorldDirection, 1.0, false);
@@ -258,51 +287,28 @@ void AUNPlayerCharacter::GASInputReleased(int32 InputId)
 	}
 }
 
-void AUNPlayerCharacter::GiveAbility()
+void AUNPlayerCharacter::InitializeAttributes()
 {
-	AActor* OwnerActor = GetOwner();
-	if (OwnerActor)
+	const UUNCharacterAttributeSet* CurrentAttributeSet = ASC->GetSet<UUNCharacterAttributeSet>();
+	if (CurrentAttributeSet)
 	{
-		UN_LOG(LogUNNetwork, Log, TEXT("Owner : %s"), *OwnerActor->GetName());
+		CurrentAttributeSet->OnOutOfHealth.AddDynamic(this, &AUNPlayerCharacter::OnOutOfHealth);
+	}
+}
+
+void AUNPlayerCharacter::InitalizeGameplayAbilities()
+{
+	for (const auto& StartAbility : StartAbilities)
+	{
+		FGameplayAbilitySpec StartSpec(StartAbility);
+		ASC->GiveAbility(StartSpec);
 	}
 
-	AUNGASPlayerState* GASPS = GetPlayerState<AUNGASPlayerState>();
-	if (GASPS)
+	for (const auto& StartInputAbility : StartInputAbilities)
 	{
-		ASC = GASPS->GetAbilitySystemComponent();
-		ASC->InitAbilityActorInfo(GASPS, this);
-
-		ASC->GenericGameplayEventCallbacks.FindOrAdd(UNTAG_EVENT_CHARACTER_WEAPONEQUIP).AddUObject(this, &AUNPlayerCharacter::EquipWeapon);
-		ASC->GenericGameplayEventCallbacks.FindOrAdd(UNTAG_EVENT_CHARACTER_WEAPONUNEQUIP).AddUObject(this, &AUNPlayerCharacter::UnEquipWeapon);
-
-		const UUNCharacterAttributeSet* CurrentAttributeSet = ASC->GetSet<UUNCharacterAttributeSet>();
-		if (CurrentAttributeSet)
-		{
-			CurrentAttributeSet->OnOutOfHealth.AddDynamic(this, &AUNPlayerCharacter::OnOutOfHealth);
-		}
-
-
-		for (const auto& StartAbility : StartAbilities)
-		{
-			FGameplayAbilitySpec StartSpec(StartAbility);
-			ASC->GiveAbility(StartSpec);
-		}
-
-		for (const auto& StartInputAbility : StartInputAbilities)
-		{
-			FGameplayAbilitySpec StartSpec(StartInputAbility.Value);
-			StartSpec.InputID = (StartInputAbility.Key);
-			ASC->GiveAbility(StartSpec);
-		}
-
-		SetupPlayerGASInputComponent();
-		PlayerController = CastChecked<APlayerController>(GetController());
-		PlayerController->ConsoleCommand(TEXT("showdebug abilitysystem"));
-
-
-		//임시 무기 장착
-		UN_LOG(LogUNNetwork, Log, TEXT("EquipWeapon"));
-		EquipWeapon(nullptr);
+		FGameplayAbilitySpec StartSpec(StartInputAbility.Value);
+		StartSpec.InputID = (StartInputAbility.Key);
+		ASC->GiveAbility(StartSpec);
 	}
 }
 
@@ -315,20 +321,24 @@ void AUNPlayerCharacter::EquipWeapon(const FGameplayEventData* EventData)
 		UN_LOG(LogUNNetwork, Log, TEXT("SetWeaponSkeletalMesh"));
 		Weapon->SetSkeletalMesh(WeaponMesh);
 
-		FGameplayAbilitySpec NewSkillSpec(SkillAbilityClass);
-		NewSkillSpec.InputID = 1;
-
-		if (!ASC->FindAbilitySpecFromClass(SkillAbilityClass))
+		if (IsLocallyControlled())
 		{
-			ASC->GiveAbility(NewSkillSpec);
+			FGameplayAbilitySpec NewSkillSpec(SkillAbilityClass);
+			NewSkillSpec.InputID = 1;
+
+			if (!ASC->FindAbilitySpecFromClass(SkillAbilityClass))
+			{
+				ASC->GiveAbility(NewSkillSpec);
+			}
+
+			const float CurrentAttackRange = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute());
+			const float CurrentAttackRate = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute());
+
+			ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute(), WeaponRange);
+			ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute(), WeaponAttackRate);
 		}
-
-		const float CurrentAttackRange = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute());
-		const float CurrentAttackRate = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute());
-
-		ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute(), CurrentAttackRange + WeaponRange);
-		ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute(), CurrentAttackRate + WeaponAttackRate);
 	}
+	UN_LOG(LogUNNetwork, Log, TEXT("End"));
 }
 
 void AUNPlayerCharacter::UnEquipWeapon(const FGameplayEventData* EventData)

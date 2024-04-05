@@ -111,6 +111,7 @@ protected:
 
 	void GASInputPressed(int32 InputId);
 	void GASInputReleased(int32 InputId);
-	
-	void GiveAbility();
+
+	void InitializeAttributes();
+	void InitalizeGameplayAbilities();
 };

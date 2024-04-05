@@ -31,6 +31,10 @@ void UUNGASHpBarUserWidget::SetAbilitySystemComponent(AActor* InOwner)
 			}
 		}
 	}
+	else
+	{
+		UE_LOG(LogTemp, Log, TEXT("Not Have ASC!"));
+	}
 }
 
 void UUNGASHpBarUserWidget::OnHealthChange(const FOnAttributeChangeData& ChangeData)

@@ -3,6 +3,7 @@
 
 #include "UNPlayerController.h"
 #include "ProejctUN.h"
+#include "Player/UNGASPlayerState.h"
 
 AUNPlayerController::AUNPlayerController()
 {
@@ -39,5 +40,7 @@ void AUNPlayerController::OnPossess(APawn* InPawn)
 {
 	UN_LOG(LogUNNetwork, Log, TEXT("%s"), TEXT("Begin"));
 	Super::OnPossess(InPawn);
+
+
 	UN_LOG(LogUNNetwork, Log, TEXT("%s"), TEXT("End"));
 }

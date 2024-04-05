@@ -14,6 +14,8 @@
 
 AUNCharacter::AUNCharacter()
 {
+	bReplicates = true;
+
 	//기본 세팅
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 	GetCapsuleComponent()->SetCollisionProfileName(CPROFILE_UNCAPSULE);
@@ -21,9 +23,6 @@ AUNCharacter::AUNCharacter()
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
-
-	PrimaryActorTick.bCanEverTick = true;
-	PrimaryActorTick.bStartWithTickEnabled = true;
 
 	// 캐릭터 움직임 세팅
 	GetCharacterMovement()->bOrientRotationToMovement = true;
@@ -93,11 +92,6 @@ AUNCharacter::AUNCharacter()
 		HpBar->SetDrawSize(FVector2D(200.f, 20.f));
 		HpBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
-}
-
-void AUNCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
 }
 
 void AUNCharacter::OnOutOfHealth()
