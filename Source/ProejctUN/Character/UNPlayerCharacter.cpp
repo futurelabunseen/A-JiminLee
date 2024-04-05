@@ -203,6 +203,7 @@ void AUNPlayerCharacter::OnRep_PlayerState()
 
 	InitializeAttributes();
 	InitalizeGameplayAbilities();
+	SetupPlayerGASInputComponent(); //race condition ¹æÁö
 	EquipWeapon(nullptr);
 
 	UN_LOG(LogUNNetwork, Log, TEXT("End"));
