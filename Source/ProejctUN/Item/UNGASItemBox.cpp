@@ -29,6 +29,9 @@ AUNGASItemBox::AUNGASItemBox()
 	Mesh->SetRelativeLocation(FVector(-30.f, -3.5f, -30.f));
 	Mesh->SetRelativeScale3D(FVector(3.f, 3.f, 3.f));
 	Mesh->SetCollisionProfileName(TEXT("NoCollision"));
+
+	bReplicates = true;
+	bAlwaysRelevant = true;
 }
 
 UAbilitySystemComponent* AUNGASItemBox::GetAbilitySystemComponent() const
