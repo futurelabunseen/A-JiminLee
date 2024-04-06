@@ -31,6 +31,10 @@ void UUNGASHpBarUserWidget::SetAbilitySystemComponent(AActor* InOwner)
 			}
 		}
 	}
+	else
+	{
+		UE_LOG(LogTemp, Log, TEXT("Not Have ASC!"));
+	}
 }
 
 void UUNGASHpBarUserWidget::OnHealthChange(const FOnAttributeChangeData& ChangeData)
@@ -70,4 +74,6 @@ void UUNGASHpBarUserWidget::UpdateHpBar()
 	{
 		TxtHpStat->SetText(FText::FromString(FString::Printf(TEXT("%.0f/%.0f"), CurrentHealth, CurrentMaxHealth)));
 	}
+
+	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, TEXT("HpBarUpdate"));
 }

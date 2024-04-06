@@ -14,8 +14,6 @@ class PROEJCTUN_API AUNCharacter : public ACharacter
 public:
 	AUNCharacter();
 
-	virtual void Tick(float DeltaTime) override;
-
 	FORCEINLINE class UCameraComponent* GetTopDownCameraComponent() const { return TopDownCameraComponent; }
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 
@@ -55,4 +53,7 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<class UUNGASWidgetComponent> HpBar;
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void MulticastRPCPlayAnimation(AUNCharacter* Character);
 };

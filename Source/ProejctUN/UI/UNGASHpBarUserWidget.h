@@ -21,7 +21,6 @@ protected:
 	virtual void OnHealthChange(const FOnAttributeChangeData& ChangeData);
 	virtual void OnMaxHealthChange(const FOnAttributeChangeData& ChangeData);
 	virtual void OnInvinsibleTagChange(const FGameplayTag CallbackTag, int32 NewCount);
-
 	void UpdateHpBar();
 
 protected:

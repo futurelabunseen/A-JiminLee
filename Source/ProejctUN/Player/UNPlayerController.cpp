@@ -2,9 +2,45 @@
 
 
 #include "UNPlayerController.h"
+#include "ProejctUN.h"
+#include "Player/UNGASPlayerState.h"
 
 AUNPlayerController::AUNPlayerController()
 {
 	bShowMouseCursor = true;
 	DefaultMouseCursor = EMouseCursor::Default;
+}
+
+void AUNPlayerController::PostNetInit()
+{
+	Super::PostNetInit();
+
+	UNetDriver* NetDriver = GetNetDriver();
+
+	if (NetDriver)
+	{
+		if (NetDriver->ServerConnection)
+		{
+			UN_LOG(LogUNNetwork, Log, TEXT("Server Connection: %s"), *NetDriver->ServerConnection->GetName());
+		}
+	}
+	else
+	{
+		UN_LOG(LogUNNetwork, Log, TEXT("%s"), TEXT("No NetDriver"));
+	}
+	UN_LOG(LogUNNetwork, Log, TEXT("%s"), TEXT("End"));
+}
+
+void AUNPlayerController::BeginPlay()
+{
+	Super::BeginPlay();
+}
+
+void AUNPlayerController::OnPossess(APawn* InPawn)
+{
+	UN_LOG(LogUNNetwork, Log, TEXT("%s"), TEXT("Begin"));
+	Super::OnPossess(InPawn);
+
+
+	UN_LOG(LogUNNetwork, Log, TEXT("%s"), TEXT("End"));
 }

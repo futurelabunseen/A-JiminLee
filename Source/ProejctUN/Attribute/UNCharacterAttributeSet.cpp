@@ -5,6 +5,8 @@
 #include "GameplayEffectExtension.h"
 #include "../Tag/UNGameplayTag.h"
 
+#include "Net/UnrealNetwork.h"
+
 UUNCharacterAttributeSet::UUNCharacterAttributeSet() :
 	AttackRange(100.f),
 	MaxAttackRange(300.f),
@@ -29,6 +31,21 @@ void UUNCharacterAttributeSet::PreAttributeChange(const FGameplayAttribute& Attr
 	{
 		NewValue = NewValue < 0.f ? 0.f : NewValue;
 	}
+}
+
+void UUNCharacterAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME_CONDITION_NOTIFY(UUNCharacterAttributeSet, Health, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UUNCharacterAttributeSet, MaxHealth, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UUNCharacterAttributeSet, Damage, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UUNCharacterAttributeSet, AttackRange, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UUNCharacterAttributeSet, MaxAttackRange, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UUNCharacterAttributeSet, AttackRadius, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UUNCharacterAttributeSet, MaxAttackRadius, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UUNCharacterAttributeSet, AttackRate, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UUNCharacterAttributeSet, MaxAttackRate, COND_None, REPNOTIFY_Always);
 }
 
 bool UUNCharacterAttributeSet::PreGameplayEffectExecute(FGameplayEffectModCallbackData& Data)
@@ -79,6 +96,51 @@ void UUNCharacterAttributeSet::PostGameplayEffectExecute(const FGameplayEffectMo
 	}
 
 	bOutOfHealth = (GetHealth() <= 0.f);
+}
+
+void UUNCharacterAttributeSet::OnRep_Health(const FGameplayAttributeData& OldHealth)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UUNCharacterAttributeSet, Health, OldHealth);
+}
+
+void UUNCharacterAttributeSet::OnRep_MaxHealth(const FGameplayAttributeData& OldMaxHealth)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UUNCharacterAttributeSet, MaxHealth, OldMaxHealth);
+}
+
+void UUNCharacterAttributeSet::OnRep_Damage(const FGameplayAttributeData& OldDamage)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UUNCharacterAttributeSet, Damage, OldDamage);
+}
+
+void UUNCharacterAttributeSet::OnRep_AttackRange(const FGameplayAttributeData& OldAttackRange)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UUNCharacterAttributeSet, AttackRange, OldAttackRange);
+}
+
+void UUNCharacterAttributeSet::OnRep_MaxAttackRange(const FGameplayAttributeData& OldMaxAttackRange)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UUNCharacterAttributeSet, MaxAttackRange, OldMaxAttackRange);
+}
+
+void UUNCharacterAttributeSet::OnRep_AttackRadius(const FGameplayAttributeData& OldAttackRadius)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UUNCharacterAttributeSet, AttackRadius, OldAttackRadius);
+}
+
+void UUNCharacterAttributeSet::OnRep_MaxAttackRadius(const FGameplayAttributeData& OldMaxAttackRadius)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UUNCharacterAttributeSet, MaxAttackRadius, OldMaxAttackRadius);
+}
+
+void UUNCharacterAttributeSet::OnRep_AttackRate(const FGameplayAttributeData& OldAttackRate)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UUNCharacterAttributeSet, AttackRate, OldAttackRate);
+}
+
+void UUNCharacterAttributeSet::OnRep_MaxAttackRate(const FGameplayAttributeData& OldMaxAttackRate)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UUNCharacterAttributeSet, MaxAttackRate, OldMaxAttackRate);
 }
 
 //void UUNCharacterAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue)

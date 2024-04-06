@@ -9,11 +9,15 @@
 #include "../Physics/UNCollision.h"
 //#include "../Character/UNComboActionData.h"
 
+#include "EngineUtils.h"
 #include "../UI/UNGASWidgetComponent.h"
 #include "../UI/UNGASUserWidget.h"
+#include "ProejctUN.h"
 
 AUNCharacter::AUNCharacter()
 {
+	bReplicates = true;
+
 	//기본 세팅
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 	GetCapsuleComponent()->SetCollisionProfileName(CPROFILE_UNCAPSULE);
@@ -21,9 +25,6 @@ AUNCharacter::AUNCharacter()
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
-
-	PrimaryActorTick.bCanEverTick = true;
-	PrimaryActorTick.bStartWithTickEnabled = true;
 
 	// 캐릭터 움직임 세팅
 	GetCharacterMovement()->bOrientRotationToMovement = true;
@@ -95,12 +96,29 @@ AUNCharacter::AUNCharacter()
 	}
 }
 
-void AUNCharacter::Tick(float DeltaTime)
+void AUNCharacter::OnOutOfHealth()
 {
-	Super::Tick(DeltaTime);
+	MulticastRPCPlayAnimation(this);
+
+	//일단 멀티캐스트로 구현
+	
+	//for (APlayerController* PlayerController : TActorRange<APlayerController>(GetWorld()))
+	//{
+	//	if (PlayerController && GetController() != PlayerController)
+	//	{
+	//		if (!PlayerController->IsLocalController())
+	//		{
+	//			AUNCharacter* OtherPlayer = Cast<AUNCharacter>(PlayerController->GetPawn());
+	//			if (OtherPlayer)
+	//			{
+	//				OtherPlayer->ClientRPCPlayAnimation(this);
+	//			}
+	//		}
+	//	}
+	//}
 }
 
-void AUNCharacter::OnOutOfHealth()
+void AUNCharacter::MulticastRPCPlayAnimation_Implementation(AUNCharacter* Character)
 {
 	SetDead();
 }
@@ -120,6 +138,8 @@ void AUNCharacter::SetDead()
 	PlayDeadAnimaition();
 	SetActorEnableCollision(false);
 
+	UN_LOG(LogUNNetwork, Log, TEXT("DEAD!"));
+
 	FTimerHandle DeadTimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(DeadTimerHandle, FTimerDelegate::CreateLambda([&]
 		{
@@ -133,5 +153,7 @@ void AUNCharacter::PlayDeadAnimaition()
 	AnimInstance->StopAllMontages(0.f);
 	AnimInstance->Montage_Play(DeadMontage, 1.f);
 }
+
+
 
 
