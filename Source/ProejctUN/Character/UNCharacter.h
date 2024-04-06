@@ -53,4 +53,7 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<class UUNGASWidgetComponent> HpBar;
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void MulticastRPCPlayAnimation(AUNCharacter* Character);
 };

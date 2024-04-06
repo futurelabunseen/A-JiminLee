@@ -263,6 +263,7 @@ void AUNPlayerCharacter::GASInputPressed(int32 InputId)
 	FGameplayAbilitySpec* Spec = ASC->FindAbilitySpecFromInputID(InputId);
 	if (Spec)
 	{
+		UN_LOG(LogUNNetwork, Log, TEXT("ATTACK!"));
 		Spec->InputPressed = true;
 		if (Spec->IsActive())
 		{

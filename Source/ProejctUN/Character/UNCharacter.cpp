@@ -9,8 +9,10 @@
 #include "../Physics/UNCollision.h"
 //#include "../Character/UNComboActionData.h"
 
+#include "EngineUtils.h"
 #include "../UI/UNGASWidgetComponent.h"
 #include "../UI/UNGASUserWidget.h"
+#include "ProejctUN.h"
 
 AUNCharacter::AUNCharacter()
 {
@@ -96,7 +98,25 @@ AUNCharacter::AUNCharacter()
 
 void AUNCharacter::OnOutOfHealth()
 {
-	SetDead();
+	MulticastRPCPlayAnimation(this);
+
+
+	//일단 멀티캐스트로 구현
+	
+	//for (APlayerController* PlayerController : TActorRange<APlayerController>(GetWorld()))
+	//{
+	//	if (PlayerController && GetController() != PlayerController)
+	//	{
+	//		if (!PlayerController->IsLocalController())
+	//		{
+	//			AUNCharacter* OtherPlayer = Cast<AUNCharacter>(PlayerController->GetPawn());
+	//			if (OtherPlayer)
+	//			{
+	//				OtherPlayer->ClientRPCPlayAnimation(this);
+	//			}
+	//		}
+	//	}
+	//}
 }
 
 float AUNCharacter::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -114,6 +134,8 @@ void AUNCharacter::SetDead()
 	PlayDeadAnimaition();
 	SetActorEnableCollision(false);
 
+	UN_LOG(LogUNNetwork, Log, TEXT("DEAD!"));
+
 	FTimerHandle DeadTimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(DeadTimerHandle, FTimerDelegate::CreateLambda([&]
 		{
@@ -126,6 +148,11 @@ void AUNCharacter::PlayDeadAnimaition()
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	AnimInstance->StopAllMontages(0.f);
 	AnimInstance->Montage_Play(DeadMontage, 1.f);
+}
+
+void AUNCharacter::MulticastRPCPlayAnimation_Implementation(AUNCharacter* Character)
+{
+	SetDead();
 }
 
 
