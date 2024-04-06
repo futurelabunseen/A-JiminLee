@@ -12,6 +12,7 @@
 #include "Blueprint/AIBlueprintHelperLibrary.h"
 #include "../Attribute/UNCharacterAttributeSet.h"
 #include "Tag/UNGameplayTag.h"
+#include "../UI/UNGASWidgetComponent.h"
 
 #include "ProejctUN.h"
 
@@ -76,7 +77,7 @@ AUNPlayerCharacter::AUNPlayerCharacter()
 	Weapon->SetupAttachment(GetMesh(), TEXT("hand_rSocket"));
 
 	WeaponRange = 175.f;
-	WeaponAttackRate = 100.f;
+	WeaponAttackRate = 40.f;
 }
 
 UAbilitySystemComponent* AUNPlayerCharacter::GetAbilitySystemComponent() const
@@ -161,6 +162,7 @@ void AUNPlayerCharacter::PossessedBy(AController* NewController)
 	InitializeAttributes();
 	InitalizeGameplayAbilities();
 	EquipWeapon(nullptr);
+	HpBar->InitWidget();
 
 	UN_LOG(LogUNNetwork, Log, TEXT("End"));
 }
@@ -205,6 +207,7 @@ void AUNPlayerCharacter::OnRep_PlayerState()
 	InitalizeGameplayAbilities();
 	SetupPlayerGASInputComponent(); //race condition ¹æÁö
 	EquipWeapon(nullptr);
+	HpBar->InitWidget();
 
 	UN_LOG(LogUNNetwork, Log, TEXT("End"));
 }

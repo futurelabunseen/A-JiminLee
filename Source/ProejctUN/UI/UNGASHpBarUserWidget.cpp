@@ -74,4 +74,6 @@ void UUNGASHpBarUserWidget::UpdateHpBar()
 	{
 		TxtHpStat->SetText(FText::FromString(FString::Printf(TEXT("%.0f/%.0f"), CurrentHealth, CurrentMaxHealth)));
 	}
+
+	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, TEXT("HpBarUpdate"));
 }

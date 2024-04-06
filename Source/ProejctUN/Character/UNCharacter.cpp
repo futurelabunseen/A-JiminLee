@@ -100,7 +100,6 @@ void AUNCharacter::OnOutOfHealth()
 {
 	MulticastRPCPlayAnimation(this);
 
-
 	//일단 멀티캐스트로 구현
 	
 	//for (APlayerController* PlayerController : TActorRange<APlayerController>(GetWorld()))
@@ -117,6 +116,11 @@ void AUNCharacter::OnOutOfHealth()
 	//		}
 	//	}
 	//}
+}
+
+void AUNCharacter::MulticastRPCPlayAnimation_Implementation(AUNCharacter* Character)
+{
+	SetDead();
 }
 
 float AUNCharacter::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -150,9 +154,6 @@ void AUNCharacter::PlayDeadAnimaition()
 	AnimInstance->Montage_Play(DeadMontage, 1.f);
 }
 
-void AUNCharacter::MulticastRPCPlayAnimation_Implementation(AUNCharacter* Character)
-{
-	SetDead();
-}
+
 
 

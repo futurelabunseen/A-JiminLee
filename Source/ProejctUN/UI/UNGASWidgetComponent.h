@@ -14,6 +14,7 @@ class PROEJCTUN_API UUNGASWidgetComponent : public UWidgetComponent
 {
 	GENERATED_BODY()
 	
-protected:
+public:
 	virtual void InitWidget() override;
+
 };
