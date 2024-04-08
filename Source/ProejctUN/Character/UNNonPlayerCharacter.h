@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "../Character/UNCharacter.h"
+#include "Character/UNCharacter.h"
 #include "AbilitySystemInterface.h"
 #include "Engine/StreamableManager.h"
 #include "UNNonPlayerCharacter.generated.h"
