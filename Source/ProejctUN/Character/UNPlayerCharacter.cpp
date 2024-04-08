@@ -344,7 +344,7 @@ void AUNPlayerCharacter::EquipWeapon(const FGameplayEventData* EventData)
 		UN_LOG(LogUNNetwork, Log, TEXT("SetWeaponSkeletalMesh"));
 		Weapon->SetSkeletalMesh(WeaponMesh);
 
-		if (IsLocallyControlled())
+		if (HasAuthority()) //IsLocallyControlled()
 		{
 			FGameplayAbilitySpec NewSkillSpec(SkillAbilityClass);
 			NewSkillSpec.InputID = 1;
