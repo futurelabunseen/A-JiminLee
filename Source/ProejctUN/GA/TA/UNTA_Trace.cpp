@@ -12,10 +12,6 @@
 #include "../../Attribute/UNCharacterAttributeSet.h"
 #include "AbilitySystemBlueprintLibrary.h"
 
-AUNTA_Trace::AUNTA_Trace()
-{
-}
-
 void AUNTA_Trace::StartTargeting(UGameplayAbility* Ability)
 {
 	Super::StartTargeting(Ability);
