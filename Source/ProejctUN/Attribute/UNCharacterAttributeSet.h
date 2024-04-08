@@ -36,7 +36,6 @@ public:
 	ATTRIBUTE_ACCESSORS(UUNCharacterAttributeSet, Damage);
 
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
-	//virtual void PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	virtual bool PreGameplayEffectExecute(struct FGameplayEffectModCallbackData& Data) override;

@@ -1,12 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "../Attribute/UNCharacterAttributeSet.h"
+#include "UNCharacterAttributeSet.h"
 #include "GameplayEffectExtension.h"
-#include "../Tag/UNGameplayTag.h"
-
+#include "Tag/UNGameplayTag.h"
 #include "Net/UnrealNetwork.h"
 
+// 초기화 리스트로 초기화
 UUNCharacterAttributeSet::UUNCharacterAttributeSet() :
 	AttackRange(100.f),
 	MaxAttackRange(300.f),
@@ -17,22 +17,19 @@ UUNCharacterAttributeSet::UUNCharacterAttributeSet() :
 	MaxHealth(100.f),
 	Damage(0.f)
 {
+	// 체력 설정
 	InitHealth(GetMaxHealth());
 }
 
 void UUNCharacterAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
 {
-	//if (Attribute == GetHealthAttribute())
-	//{
-	//	NewValue = FMath::Clamp(NewValue, 0.f, GetMaxHealth());
-	//}
-
 	if (Attribute == GetDamageAttribute())
 	{
 		NewValue = NewValue < 0.f ? 0.f : NewValue;
 	}
 }
 
+// 매크로를 통해 네트워크 환경에서 데이터의 복제와 동기화 담당. REPNOTIFY_Always옵션을 통해 항상 복제되도록 설정.
 void UUNCharacterAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -48,6 +45,7 @@ void UUNCharacterAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProper
 	DOREPLIFETIME_CONDITION_NOTIFY(UUNCharacterAttributeSet, MaxAttackRate, COND_None, REPNOTIFY_Always);
 }
 
+// GE 이전에 실행되며 bool값은 GE 실행 여부
 bool UUNCharacterAttributeSet::PreGameplayEffectExecute(FGameplayEffectModCallbackData& Data)
 {
 	if (!Super::PreGameplayEffectExecute(Data))
@@ -55,10 +53,13 @@ bool UUNCharacterAttributeSet::PreGameplayEffectExecute(FGameplayEffectModCallba
 		return false;
 	}
 
+	// 데미지 관련 GE인지 확인
 	if (Data.EvaluatedData.Attribute == GetDamageAttribute())
 	{
+		// 데이터의 수치(데미지)가 0 이상인지 확인
 		if (Data.EvaluatedData.Magnitude > 0.f)
 		{
+			// 태그 확인 후 무적상태라면 데미지를 0으로 변환 후 false리턴
 			if (Data.Target.HasMatchingGameplayTag(UNTAG_CHARACTER_STATE_INVINSIBLE))
 			{
 				Data.EvaluatedData.Magnitude = 0.f;
@@ -70,18 +71,21 @@ bool UUNCharacterAttributeSet::PreGameplayEffectExecute(FGameplayEffectModCallba
 	return true;
 }
 
+// GE실행 이후 실행되는 함수
 void UUNCharacterAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
 {
 	Super::PostGameplayEffectExecute(Data);
 
 	float MinimumHealth = 0.f;
 
+	// 다른 GE에 의해 직접적으로 체력이 변경되었을 때 
 	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Direct Health Access : %f"), GetHealth());
 		SetHealth(FMath::Clamp(GetHealth(), MinimumHealth, GetMaxHealth()));
 	}
-
+	
+	// 데미지를 입었을 때
 	else if (Data.EvaluatedData.Attribute == GetDamageAttribute())
 	{
 		UE_LOG(LogTemp, Log, TEXT("Damage : %f"), GetDamage());
@@ -89,6 +93,7 @@ void UUNCharacterAttributeSet::PostGameplayEffectExecute(const FGameplayEffectMo
 		SetDamage(0.f);
 	}
 
+	// 체력이 0이되면 델리게이트 실행
 	if ((GetHealth() <= 0.f) && !bOutOfHealth)
 	{
 		Data.Target.AddLooseGameplayTag(UNTAG_CHARACTER_STATE_ISDEAD);
@@ -98,6 +103,7 @@ void UUNCharacterAttributeSet::PostGameplayEffectExecute(const FGameplayEffectMo
 	bOutOfHealth = (GetHealth() <= 0.f);
 }
 
+// AttributeSet이 변경되었을 때 매크로를 통해 변경 사항을 알림
 void UUNCharacterAttributeSet::OnRep_Health(const FGameplayAttributeData& OldHealth)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UUNCharacterAttributeSet, Health, OldHealth);
@@ -142,11 +148,3 @@ void UUNCharacterAttributeSet::OnRep_MaxAttackRate(const FGameplayAttributeData&
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UUNCharacterAttributeSet, MaxAttackRate, OldMaxAttackRate);
 }
-
-//void UUNCharacterAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue)
-//{
-//	if (Attribute == GetHealthAttribute())
-//	{
-//		UE_LOG(LogTemp, Log, TEXT("%f -> %f"), OldValue, NewValue);
-//	}
-//}
