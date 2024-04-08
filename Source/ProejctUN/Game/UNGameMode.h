@@ -15,7 +15,6 @@ class PROEJCTUN_API AUNGameMode : public AGameMode
 	GENERATED_BODY()
 	
 public:
-	
 	AUNGameMode();
 
 	virtual void PreLogin(const FString& Options, const FString& Address, const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage) override;

@@ -2,9 +2,8 @@
 
 
 #include "UNGameMode.h"
-#include "Player/UNPlayerController.h"
 #include "ProejctUN.h"
-#include "Game/UNGameState.h"
+#include "UNGameState.h"
 #include "Player/UNGASPlayerState.h"
 #include "Player/UNPlayerController.h"
 
@@ -25,6 +24,8 @@ AUNGameMode::AUNGameMode()
 	GameStateClass = AUNGameState::StaticClass();
 	PlayerStateClass = AUNGASPlayerState::StaticClass();
 }
+
+// ==================== 로그인 관련 ==================== Start
 
 void AUNGameMode::PreLogin(const FString& Options, const FString& Address, const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage)
 {
@@ -63,3 +64,5 @@ void AUNGameMode::PostLogin(APlayerController* NewPlayer)
 	}
 	UN_LOG(LogUNNetwork, Log, TEXT("%s"), TEXT("End"));
 }
+
+// ==================== 로그인 관련 ==================== End
