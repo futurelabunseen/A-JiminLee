@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "../UI/UNGASUserWidget.h"
+#include "UNGASUserWidget.h"
 #include "GameplayEffectTypes.h"
 #include "UNGASHpBarUserWidget.generated.h"
 
@@ -21,10 +21,10 @@ protected:
 	virtual void OnHealthChange(const FOnAttributeChangeData& ChangeData);
 	virtual void OnMaxHealthChange(const FOnAttributeChangeData& ChangeData);
 	virtual void OnInvinsibleTagChange(const FGameplayTag CallbackTag, int32 NewCount);
+
 	void UpdateHpBar();
 
 protected:
-
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UProgressBar> PbHpBar;
 
