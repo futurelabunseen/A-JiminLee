@@ -1,18 +1,19 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+#include "UNPlayerCharacter.h"
+#include "Player/UNGASPlayerState.h"
+#include "Blueprint/AIBlueprintHelperLibrary.h"
 
-#include "../Character/UNPlayerCharacter.h"
-#include "AbilitySystemComponent.h"
-#include "../Player/UNGASPlayerState.h"
-#include "../Character/UNComboActionData.h"
 #include "EnhancedInputComponent.h"
 #include "InputMappingContext.h"
 #include "InputActionValue.h"
 #include "EnhancedInputSubsystems.h"
-#include "Blueprint/AIBlueprintHelperLibrary.h"
-#include "../Attribute/UNCharacterAttributeSet.h"
+
+#include "AbilitySystemComponent.h"
+#include "UNComboActionData.h"
+#include "Attribute/UNCharacterAttributeSet.h"
 #include "Tag/UNGameplayTag.h"
-#include "../UI/UNGASWidgetComponent.h"
+#include "UI/UNGASWidgetComponent.h"
 
 #include "ProejctUN.h"
 
@@ -76,6 +77,7 @@ AUNPlayerCharacter::AUNPlayerCharacter()
 	Weapon = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Weapon"));
 	Weapon->SetupAttachment(GetMesh(), TEXT("hand_rSocket"));
 
+	//추후 무기액터의 데이터로 넣을 예정
 	WeaponRange = 175.f;
 	WeaponAttackRate = 40.f;
 }
@@ -85,6 +87,7 @@ UAbilitySystemComponent* AUNPlayerCharacter::GetAbilitySystemComponent() const
 	return ASC;
 }
 
+// 기본 입력 관련
 void AUNPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
@@ -103,6 +106,7 @@ void AUNPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	UN_LOG(LogUNNetwork, Log, TEXT("End"));
 }
 
+// GAS 입력 관련
 void AUNPlayerCharacter::SetupPlayerGASInputComponent()
 {
 	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
@@ -136,6 +140,7 @@ void AUNPlayerCharacter::BeginPlay()
 	UN_LOG(LogUNNetwork, Log, TEXT("End"));
 }
 
+// 서버만 실행
 void AUNPlayerCharacter::PossessedBy(AController* NewController)
 {
 	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
@@ -167,6 +172,7 @@ void AUNPlayerCharacter::PossessedBy(AController* NewController)
 	UN_LOG(LogUNNetwork, Log, TEXT("End"));
 }
 
+// 클라이언트만 실행
 void AUNPlayerCharacter::OnRep_Owner()
 {
 	UN_LOG(LogUNNetwork, Log, TEXT("%s %s"), *GetName(), TEXT("Begin"));
@@ -188,6 +194,7 @@ void AUNPlayerCharacter::OnRep_Owner()
 	UN_LOG(LogUNNetwork, Log, TEXT("%s"), TEXT("End"));
 }
 
+// 클라이언트만 실행
 void AUNPlayerCharacter::OnRep_PlayerState()
 {
 	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
@@ -228,6 +235,7 @@ void AUNPlayerCharacter::SetCharacterControl()
 	UN_LOG(LogUNNetwork, Log, TEXT("End"));
 }
 
+// ==================== 이동 관련 ====================
 void AUNPlayerCharacter::OnInputStarted()
 {
 	PlayerController->StopMovement();
@@ -260,7 +268,12 @@ void AUNPlayerCharacter::OnSetDestinationReleased()
 	FollowTime = 0.f;
 }
 
-// GAS ============================================= GAS
+// ==================================================
+
+
+// ==================== GAS 관련 ====================
+
+// 키 입력시 GA실행
 void AUNPlayerCharacter::GASInputPressed(int32 InputId)
 {
 	FGameplayAbilitySpec* Spec = ASC->FindAbilitySpecFromInputID(InputId);
@@ -292,15 +305,18 @@ void AUNPlayerCharacter::GASInputReleased(int32 InputId)
 	}
 }
 
+// Attribute 초기화
 void AUNPlayerCharacter::InitializeAttributes()
 {
 	const UUNCharacterAttributeSet* CurrentAttributeSet = ASC->GetSet<UUNCharacterAttributeSet>();
 	if (CurrentAttributeSet)
 	{
+		// 사망 델리게이트에 함수 등록
 		CurrentAttributeSet->OnOutOfHealth.AddDynamic(this, &AUNPlayerCharacter::OnOutOfHealth);
 	}
 }
 
+// GA 초기화. ASC에 GA를 등록하는 단계
 void AUNPlayerCharacter::InitalizeGameplayAbilities()
 {
 	for (const auto& StartAbility : StartAbilities)
@@ -316,8 +332,10 @@ void AUNPlayerCharacter::InitalizeGameplayAbilities()
 		ASC->GiveAbility(StartSpec);
 	}
 }
+// ==================== GAS 관련 ====================
 
 
+// 무기 장착. 무기는 추후 액터로 변경
 void AUNPlayerCharacter::EquipWeapon(const FGameplayEventData* EventData)
 {
 	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
@@ -346,6 +364,7 @@ void AUNPlayerCharacter::EquipWeapon(const FGameplayEventData* EventData)
 	UN_LOG(LogUNNetwork, Log, TEXT("End"));
 }
 
+// 무기 장착 해제. 무기는 추후 액터로 변경
 void AUNPlayerCharacter::UnEquipWeapon(const FGameplayEventData* EventData)
 {
 	if (Weapon)
