@@ -235,7 +235,7 @@ void AUNPlayerCharacter::SetCharacterControl()
 	UN_LOG(LogUNNetwork, Log, TEXT("End"));
 }
 
-// ==================== 이동 관련 ====================
+// ==================== 이동 관련 ==================== Start
 void AUNPlayerCharacter::OnInputStarted()
 {
 	PlayerController->StopMovement();
@@ -268,10 +268,10 @@ void AUNPlayerCharacter::OnSetDestinationReleased()
 	FollowTime = 0.f;
 }
 
-// ==================================================
+// ================================================== End
 
 
-// ==================== GAS 관련 ====================
+// ==================== GAS 관련 ==================== Start
 
 // 키 입력시 GA실행
 void AUNPlayerCharacter::GASInputPressed(int32 InputId)
@@ -332,7 +332,7 @@ void AUNPlayerCharacter::InitalizeGameplayAbilities()
 		ASC->GiveAbility(StartSpec);
 	}
 }
-// ==================== GAS 관련 ====================
+// ==================== GAS 관련 ==================== End
 
 
 // 무기 장착. 무기는 추후 액터로 변경
