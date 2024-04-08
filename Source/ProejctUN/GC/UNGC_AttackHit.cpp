@@ -2,8 +2,8 @@
 
 
 #include "GC/UNGC_AttackHit.h"
-#include "Particles/ParticleSystem.h"
 #include "Kismet/GameplayStatics.h"
+#include "Particles/ParticleSystem.h"
 
 UUNGC_AttackHit::UUNGC_AttackHit()
 {
@@ -14,6 +14,7 @@ UUNGC_AttackHit::UUNGC_AttackHit()
 	}
 }
 
+// 타격 시 피격자 위치에 파티클 생성
 bool UUNGC_AttackHit::OnExecute_Implementation(AActor* Target, const FGameplayCueParameters& Parameters) const
 {
 	const FHitResult* HitResult = Parameters.EffectContext.GetHitResult();
