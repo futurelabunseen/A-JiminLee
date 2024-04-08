@@ -3,8 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Animation/AnimNotifies/AnimNotify.h"
 #include "GameplayTagContainer.h"
+#include "Animation/AnimNotifies/AnimNotify.h"
 #include "AnimNotify_GASAttackHitCheck.generated.h"
 
 /**
@@ -22,7 +22,6 @@ protected:
 	virtual FString GetNotifyName_Implementation() const override;
 	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;
 
-protected:
 	UPROPERTY(EditAnywhere, Meta=(Categories=Event))
 	FGameplayTag TriggerGameplayTag;
 
