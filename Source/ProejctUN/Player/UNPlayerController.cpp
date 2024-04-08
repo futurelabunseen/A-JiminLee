@@ -2,8 +2,9 @@
 
 
 #include "UNPlayerController.h"
+#include "UNGASPlayerState.h"
+
 #include "ProejctUN.h"
-#include "Player/UNGASPlayerState.h"
 
 AUNPlayerController::AUNPlayerController()
 {
@@ -11,6 +12,7 @@ AUNPlayerController::AUNPlayerController()
 	DefaultMouseCursor = EMouseCursor::Default;
 }
 
+// NetInit후 실행
 void AUNPlayerController::PostNetInit()
 {
 	Super::PostNetInit();
@@ -31,16 +33,10 @@ void AUNPlayerController::PostNetInit()
 	UN_LOG(LogUNNetwork, Log, TEXT("%s"), TEXT("End"));
 }
 
-void AUNPlayerController::BeginPlay()
-{
-	Super::BeginPlay();
-}
-
+// 컨트롤러가 Possess될때 함수 실행
 void AUNPlayerController::OnPossess(APawn* InPawn)
 {
 	UN_LOG(LogUNNetwork, Log, TEXT("%s"), TEXT("Begin"));
 	Super::OnPossess(InPawn);
-
-
 	UN_LOG(LogUNNetwork, Log, TEXT("%s"), TEXT("End"));
 }

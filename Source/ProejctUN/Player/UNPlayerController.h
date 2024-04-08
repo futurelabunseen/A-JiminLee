@@ -19,6 +19,5 @@ public:
 
 protected:
 	virtual void PostNetInit() override;
-	virtual void BeginPlay() override;
 	virtual void OnPossess(APawn* InPawn) override;
 };
