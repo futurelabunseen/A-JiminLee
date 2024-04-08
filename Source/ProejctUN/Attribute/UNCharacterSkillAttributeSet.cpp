@@ -3,6 +3,7 @@
 
 #include "Attribute/UNCharacterSkillAttributeSet.h"
 
+// 초기화 리스트로 초기화
 UUNCharacterSkillAttributeSet::UUNCharacterSkillAttributeSet() :
 	SKillRange(800.f),
 	MaxSkillRange(1200.f),
@@ -13,6 +14,7 @@ UUNCharacterSkillAttributeSet::UUNCharacterSkillAttributeSet() :
 {
 }
 
+// Attribute가 바뀌기 전 실행
 void UUNCharacterSkillAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
 {
 	Super::PreAttributeBaseChange(Attribute, NewValue);
