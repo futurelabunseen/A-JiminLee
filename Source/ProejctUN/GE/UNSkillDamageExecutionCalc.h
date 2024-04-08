@@ -15,6 +15,5 @@ class PROEJCTUN_API UUNSkillDamageExecutionCalc : public UGameplayEffectExecutio
 	GENERATED_BODY()
 	
 public:
-
 	virtual void Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const override;
 };

@@ -1,14 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "../../GA/AT/UNAT_Trace.h"
-#include "../../GA/TA/UNTA_Trace.h"
+#include "UNAT_Trace.h"
+#include "GA/TA/UNTA_Trace.h"
 #include "AbilitySystemComponent.h"
 
-UUNAT_Trace::UUNAT_Trace()
-{
-}
-
+// 새로운 어빌리티 태스크를 만들고 TA를 할당
 UUNAT_Trace* UUNAT_Trace::CreateTask(UGameplayAbility* OwningAbility, TSubclassOf<class AUNTA_Trace> TargetActorClass)
 {
 	UUNAT_Trace* NewTask = NewAbilityTask<UUNAT_Trace>(OwningAbility);
@@ -16,6 +13,7 @@ UUNAT_Trace* UUNAT_Trace::CreateTask(UGameplayAbility* OwningAbility, TSubclassO
 	return NewTask;
 }
 
+// AT 실행
 void UUNAT_Trace::Activate()
 {
 	Super::Activate();
@@ -26,6 +24,7 @@ void UUNAT_Trace::Activate()
 	SetWaitingOnAvatar();
 }
 
+// AT가 Destroy될때 실행
 void UUNAT_Trace::OnDestroy(bool AbilityEnded)
 {
 	if (SpawnedTargetActor)
@@ -36,6 +35,7 @@ void UUNAT_Trace::OnDestroy(bool AbilityEnded)
 	Super::OnDestroy(AbilityEnded);
 }
 
+// TA를 스폰 후 델리게이트에 함수 등록
 void UUNAT_Trace::SpawnAndInitalizeTargetActor()
 {
 	SpawnedTargetActor = Cast<AUNTA_Trace>(Ability->GetWorld()->SpawnActorDeferred<AGameplayAbilityTargetActor>(TargetActorClass, FTransform::Identity, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn));
@@ -46,6 +46,7 @@ void UUNAT_Trace::SpawnAndInitalizeTargetActor()
 	}
 }
 
+// TA 작동
 void UUNAT_Trace::FinalizeTargetActor()
 {
 	UAbilitySystemComponent* ASC = AbilitySystemComponent.Get();
@@ -60,6 +61,7 @@ void UUNAT_Trace::FinalizeTargetActor()
 	}
 }
 
+// 델리게이트로 작동되는 함수
 void UUNAT_Trace::OnTargetDataReadyCallback(const FGameplayAbilityTargetDataHandle& DataHandle)
 {
 	if (ShouldBroadcastAbilityTaskDelegates())

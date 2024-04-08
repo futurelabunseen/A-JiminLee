@@ -2,10 +2,11 @@
 
 
 #include "Item/UNGASItemBox.h"
-#include "AbilitySystemComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Physics/UNCollision.h"
+
+#include "AbilitySystemComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
 
 AUNGASItemBox::AUNGASItemBox()
@@ -39,6 +40,7 @@ UAbilitySystemComponent* AUNGASItemBox::GetAbilitySystemComponent() const
 	return nullptr;
 }
 
+// 접촉 시 GE 발생
 void AUNGASItemBox::NotifyActorBeginOverlap(AActor* Other)
 {
 	Super::NotifyActorBeginOverlap(Other);
@@ -68,11 +70,13 @@ void AUNGASItemBox::ApplyEffectToTarget(AActor* Target)
 		FGameplayEffectSpecHandle EffectSpecHandle = TargetASC->MakeOutgoingSpec(GameplayEffectClass, 1, EffectContext);
 		if (EffectSpecHandle.IsValid())
 		{
+			// 타겟의 ASC에서 GE 실행
 			TargetASC->BP_ApplyGameplayEffectSpecToSelf(EffectSpecHandle);
 		}
 	}
 }
 
+// 오픈 효과 재생
 void AUNGASItemBox::InvokeGameplayCue(AActor* Target)
 {
 	FGameplayCueParameters Param;

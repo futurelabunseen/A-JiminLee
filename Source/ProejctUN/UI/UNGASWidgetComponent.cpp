@@ -1,8 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "../UI/UNGASWidgetComponent.h"
-#include "../UI/UNGASUserWidget.h"
+#include "UNGASWidgetComponent.h"
+#include "UNGASUserWidget.h"
 
 void UUNGASWidgetComponent::InitWidget()
 {

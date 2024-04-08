@@ -2,10 +2,12 @@
 
 
 #include "GE/UNSkillDamageExecutionCalc.h"
+
 #include "AbilitySystemComponent.h"
 #include "Attribute/UNCharacterAttributeSet.h"
 #include "Attribute/UNCharacterSkillAttributeSet.h"
 
+// 타겟과 소스의 거리에 따라 데미지 계산
 void UUNSkillDamageExecutionCalc::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
 {
 	Super::Execute_Implementation(ExecutionParams, OutExecutionOutput);

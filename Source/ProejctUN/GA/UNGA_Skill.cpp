@@ -8,9 +8,11 @@
 
 UUNGA_Skill::UUNGA_Skill()
 {
+	// InstancingPolicy 옵션 변겅
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }
 
+// GA를 가지고 있는 클래스에서 TryActivateAbility를 실행하면 실행되는 함수
 void UUNGA_Skill::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
@@ -29,6 +31,7 @@ void UUNGA_Skill::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 
 	TargetCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 
+	// 필요한 델리게이트를 지정하고 AT를 실행
 	UAbilityTask_PlayMontageAndWait* PlayMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, TEXT("SKillMontage"), ActiveSkillActionMontage, 1.f);
 	PlayMontageTask->OnCompleted.AddDynamic(this, &UUNGA_Skill::OnCompleteCallback);
 	PlayMontageTask->OnInterrupted.AddDynamic(this, &UUNGA_Skill::OnInterruptedCallback);

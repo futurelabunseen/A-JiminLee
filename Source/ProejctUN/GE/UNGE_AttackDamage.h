@@ -16,4 +16,6 @@ class PROEJCTUN_API UUNGE_AttackDamage : public UGameplayEffect
 	
 public:
 	UUNGE_AttackDamage();
+
+	float DefaultDamageAmout;
 };
