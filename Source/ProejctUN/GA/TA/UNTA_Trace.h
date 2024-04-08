@@ -24,10 +24,9 @@ protected:
 
 //Debug
 
-protected:
-	bool bShowDebug = false;
-
 public:
 	void SetShowDebug(bool InshowDebug) { bShowDebug = InshowDebug; }
 
+protected:
+	bool bShowDebug = false;
 };
