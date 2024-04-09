@@ -52,19 +52,19 @@ AUNCharacter::AUNCharacter()
 	// 프로퍼티 기본값
 	DeadEventDelayTime = 5.f;
 
-	static ConstructorHelpers::FObjectFinder<USkeletalMesh> CharacterMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/InfinityBladeWarriors/Character/CompleteCharacters/SK_CharM_Cardboard.SK_CharM_Cardboard'"));
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> CharacterMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/ParagonGreystone/Characters/Heroes/Greystone/Meshes/Greystone_NotWeapon.Greystone_NotWeapon'"));
 	if (CharacterMeshRef.Object)
 	{
 		GetMesh()->SetSkeletalMesh(CharacterMeshRef.Object);
 	}
 
-	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimInstanceClassRef(TEXT("/Game/Animation/ABP_UNCharacter.ABP_UNCharacter_C"));
+	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimInstanceClassRef(TEXT("/Game/ParagonGreystone/Characters/Heroes/Greystone/Animations/CustomAnimation/ABP_UNCharacter.ABP_UNCharacter_C"));
 	if (AnimInstanceClassRef.Class)
 	{
 		GetMesh()->SetAnimInstanceClass(AnimInstanceClassRef.Class);
 	}
 
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> DeadMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/Animation/AM_Dead.AM_Dead'"));
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> DeadMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/ParagonGreystone/Characters/Heroes/Greystone/Animations/CustomAnimation/AM_Death.AM_Death'"));
 	if (DeadMontageRef.Object)
 	{
 		DeadMontage = DeadMontageRef.Object;
@@ -73,7 +73,7 @@ AUNCharacter::AUNCharacter()
 	// HpBar 선언 후 위치 설정
 	HpBar = CreateDefaultSubobject<UUNGASWidgetComponent>(TEXT("Widget"));
 	HpBar->SetupAttachment(GetMesh());
-	HpBar->SetRelativeLocation(FVector(0.f, 0.f, 180.f));
+	HpBar->SetRelativeLocation(FVector(0.f, 0.f, 250.f));
 	static ConstructorHelpers::FClassFinder<UUserWidget> HpBarWidgetRef(TEXT("/Game/UI/WBP_HpBar.WBP_HpBar_C"));
 	if (HpBarWidgetRef.Class)
 	{
@@ -130,8 +130,6 @@ void AUNCharacter::SetDead()
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 	PlayDeadAnimaition();
 	SetActorEnableCollision(false);
-
-	UN_LOG(LogUNNetwork, Log, TEXT("DEAD!"));
 
 	FTimerHandle DeadTimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(DeadTimerHandle, FTimerDelegate::CreateLambda([&]
