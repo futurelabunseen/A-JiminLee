@@ -76,18 +76,20 @@ void UUNGA_AttackHitCheck::OnTraceResultCallback(const FGameplayAbilityTargetDat
 		}
 	}
 
-	// 광역 공격 시
+	// 광역 스턴 공격 시
 	else if (UAbilitySystemBlueprintLibrary::TargetDataHasActor(TargetDataHandle, 0))
 	{
 		UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo_Checked();
 
-		// GE를 통해서 데미지 전달
-		FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingGameplayEffectSpec(AttackDamageEffect, CurrentLevel);
-		if (EffectSpecHandle.IsValid())
+		// GE를 통해서 스턴과 데미지 전달
+		FGameplayEffectSpecHandle StunEffectSpecHandle = MakeOutgoingGameplayEffectSpec(StunEffect, CurrentLevel);
+		FGameplayEffectSpecHandle AttackEffectSpecHandle = MakeOutgoingGameplayEffectSpec(AttackDamageEffect, CurrentLevel);
+		if (AttackEffectSpecHandle.IsValid() && StunEffectSpecHandle.IsValid())
 		{
-			ApplyGameplayEffectSpecToTarget(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, EffectSpecHandle, TargetDataHandle);
+			ApplyGameplayEffectSpecToTarget(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, StunEffectSpecHandle, TargetDataHandle);
+			ApplyGameplayEffectSpecToTarget(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, AttackEffectSpecHandle, TargetDataHandle);
 
-			FGameplayEffectContextHandle CueContextHandle = UAbilitySystemBlueprintLibrary::GetEffectContext(EffectSpecHandle);
+			FGameplayEffectContextHandle CueContextHandle = UAbilitySystemBlueprintLibrary::GetEffectContext(AttackEffectSpecHandle);
 			CueContextHandle.AddInstigator(SourceASC->GetAvatarActor(), SourceASC->GetAvatarActor());
 			CueContextHandle.AddActors(TargetDataHandle.Data[0].Get()->GetActors(), false);
 			FGameplayCueParameters CueParam;

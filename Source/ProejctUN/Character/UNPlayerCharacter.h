@@ -90,6 +90,17 @@ protected:
 	void EquipWeapon(const FGameplayEventData* EventData);
 	void UnEquipWeapon(const FGameplayEventData* EventData);
 
+	void OnStunTagChange(const FGameplayTag CallbackTag, int32 NewCount);
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void PlayStunAnimation();
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void StopStunAnimation();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
+	TObjectPtr<class UAnimMontage> StunMontage;
+
 // GAS
 protected:
 	UPROPERTY(EditAnywhere)

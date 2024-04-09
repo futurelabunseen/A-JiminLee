@@ -8,6 +8,7 @@
 #include "InputMappingContext.h"
 #include "InputActionValue.h"
 #include "EnhancedInputSubsystems.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 #include "AbilitySystemComponent.h"
 #include "UNComboActionData.h"
@@ -72,6 +73,12 @@ AUNPlayerCharacter::AUNPlayerCharacter()
 	if (WeaponMeshRef.Object)
 	{
 		WeaponMesh = WeaponMeshRef.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> StunMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/OutsideAsset/ParagonGreystone/Characters/Heroes/Greystone/Animations/CustomAnimation/AM_Stun.AM_Stun'"));
+	if (StunMontageRef.Object)
+	{
+		StunMontage = StunMontageRef.Object;
 	}
 
 	Weapon = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Weapon"));
@@ -154,6 +161,7 @@ void AUNPlayerCharacter::PossessedBy(AController* NewController)
 
 		ASC->GenericGameplayEventCallbacks.FindOrAdd(UNTAG_EVENT_CHARACTER_WEAPONEQUIP).AddUObject(this, &AUNPlayerCharacter::EquipWeapon);
 		ASC->GenericGameplayEventCallbacks.FindOrAdd(UNTAG_EVENT_CHARACTER_WEAPONUNEQUIP).AddUObject(this, &AUNPlayerCharacter::UnEquipWeapon);
+		ASC->RegisterGameplayTagEvent(UNTAG_CHARACTER_STATE_ISSTUNING, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &AUNPlayerCharacter::OnStunTagChange);
 	}
 	else
 	{
@@ -384,4 +392,32 @@ void AUNPlayerCharacter::UnEquipWeapon(const FGameplayEventData* EventData)
 		ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute(), CurrentAttackRange - WeaponRange);
 		ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute(), CurrentAttackRate - WeaponAttackRate);
 	}
+}
+
+// 이 아래부터 UNCharacter클래스로 옮길 예정
+void AUNPlayerCharacter::OnStunTagChange(const FGameplayTag CallbackTag, int32 NewCount)
+{
+	if (NewCount > 0)
+	{
+		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+		PlayStunAnimation();
+	}
+	else
+	{
+		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+		StopStunAnimation();
+	}
+}
+
+void AUNPlayerCharacter::PlayStunAnimation_Implementation()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	AnimInstance->StopAllMontages(0.f);
+	AnimInstance->Montage_Play(StunMontage, 1.f);
+}
+
+void AUNPlayerCharacter::StopStunAnimation_Implementation()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	AnimInstance->Montage_Stop(0.5f, StunMontage);
 }

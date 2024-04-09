@@ -6,6 +6,7 @@
 #define UNTAG_DATA_DAMAGE FGameplayTag::RequestGameplayTag(FName("Data.Damage"))
 #define UNTAG_CHARACTER_STATE_ISDEAD FGameplayTag::RequestGameplayTag(FName("Character.State.IsDead"))
 #define UNTAG_CHARACTER_STATE_INVINSIBLE FGameplayTag::RequestGameplayTag(FName("Character.State.Invinsible"))
+#define UNTAG_CHARACTER_STATE_ISSTUNING FGameplayTag::RequestGameplayTag(FName("Character.State.IsStuning"))
 
 #define UNTAG_GameplayCue_CHARACTER_AttackHit FGameplayTag::RequestGameplayTag(FName("GameplayCue.Character.AttackHit"))
 #define UNTAG_GAMEPLAYCUE_CHARACTER_FLOORSKILLEFFECT FGameplayTag::RequestGameplayTag(FName("GameplayCue.Character.FloorSkillEffect"))
