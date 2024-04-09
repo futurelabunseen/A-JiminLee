@@ -73,13 +73,14 @@ private:
 	float FollowTime;
 
 // Weapon
-protected:
+public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Equipment, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class USkeletalMeshComponent> Weapon;
 
 	UPROPERTY(EditAnywhere, Category = Weapon)
 	TObjectPtr<class USkeletalMesh> WeaponMesh;
 
+protected:
 	UPROPERTY(EditAnywhere, Category = Weapon)
 	float WeaponRange;
 	

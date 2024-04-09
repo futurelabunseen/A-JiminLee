@@ -3,7 +3,6 @@
 
 #include "GA/UNGA_AttackHitCheck.h"
 #include "AbilitySystemBlueprintLibrary.h"
-
 #include "Attribute/UNCharacterAttributeSet.h"
 #include "Tag/UNGameplayTag.h"
 #include "GA/AT/UNAT_Trace.h"
@@ -89,11 +88,13 @@ void UUNGA_AttackHitCheck::OnTraceResultCallback(const FGameplayAbilityTargetDat
 			ApplyGameplayEffectSpecToTarget(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, EffectSpecHandle, TargetDataHandle);
 
 			FGameplayEffectContextHandle CueContextHandle = UAbilitySystemBlueprintLibrary::GetEffectContext(EffectSpecHandle);
+			CueContextHandle.AddInstigator(SourceASC->GetAvatarActor(), SourceASC->GetAvatarActor());
 			CueContextHandle.AddActors(TargetDataHandle.Data[0].Get()->GetActors(), false);
 			FGameplayCueParameters CueParam;
 			CueParam.EffectContext = CueContextHandle;
 
-			SourceASC->ExecuteGameplayCue(UNTAG_GameplayCue_CHARACTER_AttackHit, CueParam);
+			//SourceASC->ExecuteGameplayCue(UNTAG_GameplayCue_CHARACTER_AttackHit, CueParam);
+			SourceASC->ExecuteGameplayCue(UNTAG_GAMEPLAYCUE_CHARACTER_FLOORSKILLEFFECT, CueParam);
 		}
 	}
 
