@@ -22,10 +22,6 @@ public:
 protected:
 	virtual void PostInitializeComponents() override;
 
-	void ApplyEffectToTarget(AActor* Target);
-	void InvokeGameplayCue(AActor* Target);
-
-protected:
 	UPROPERTY()
 	TObjectPtr<class UAbilitySystemComponent> ASC;
 
@@ -34,11 +30,13 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = Box)
 	TObjectPtr<class UStaticMeshComponent> Mesh;
-	
+
 	UPROPERTY(EditAnywhere, Category = GAS)
 	TSubclassOf<class UGameplayEffect> GameplayEffectClass;
 
-	UPROPERTY(EditAnywhere, Category = GAS, Meta=(Categories=GameplayCue))
+	UPROPERTY(EditAnywhere, Category = GAS, Meta = (Categories = GameplayCue))
 	FGameplayTag GameplayCueTag;
 
+	void ApplyEffectToTarget(AActor* Target);
+	void InvokeGameplayCue(AActor* Target);
 };

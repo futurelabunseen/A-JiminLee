@@ -1,9 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "../Player/UNGASPlayerState.h"
+#include "Player/UNGASPlayerState.h"
 #include "AbilitySystemComponent.h"
-#include "../Attribute/UNCharacterAttributeSet.h"
+#include "Attribute/UNCharacterAttributeSet.h"
 #include "Attribute/UNCharacterSkillAttributeSet.h"
 
 AUNGASPlayerState::AUNGASPlayerState()

@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "../UI/UNGASUserWidget.h"
+#include "UNGASUserWidget.h"
 #include "GameplayEffectTypes.h"
 #include "UNGASHpBarUserWidget.generated.h"
 
@@ -25,7 +25,6 @@ protected:
 	void UpdateHpBar();
 
 protected:
-
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<class UProgressBar> PbHpBar;
 

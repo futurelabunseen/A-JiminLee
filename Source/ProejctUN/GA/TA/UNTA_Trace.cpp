@@ -1,21 +1,20 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "../../GA/TA/UNTA_Trace.h"
-#include "Abilities/GameplayAbility.h"
+#include "GA/TA/UNTA_Trace.h"
 #include "GameFramework/Character.h"
 #include "Components/CapsuleComponent.h"
-#include "../../Physics/UNCollision.h"
-#include "DrawDebugHelpers.h"
+#include "Physics/UNCollision.h"
 #include "Engine/DamageEvents.h"
+
 #include "AbilitySystemComponent.h"
-#include "../../Attribute/UNCharacterAttributeSet.h"
+#include "Abilities/GameplayAbility.h"
+#include "Attribute/UNCharacterAttributeSet.h"
 #include "AbilitySystemBlueprintLibrary.h"
 
-AUNTA_Trace::AUNTA_Trace()
-{
-}
+#include "DrawDebugHelpers.h"
 
+// 소스액터 캐싱
 void AUNTA_Trace::StartTargeting(UGameplayAbility* Ability)
 {
 	Super::StartTargeting(Ability);
@@ -23,6 +22,7 @@ void AUNTA_Trace::StartTargeting(UGameplayAbility* Ability)
 	SourceActor = Ability->GetCurrentActorInfo()->AvatarActor.Get();
 }
 
+// 타겟 탐지 후 델리게이트실행
 void AUNTA_Trace::ConfirmTargetingAndContinue()
 {
 	if (SourceActor)
@@ -32,6 +32,7 @@ void AUNTA_Trace::ConfirmTargetingAndContinue()
 	}
 }
 
+// 타겟 탐지
 FGameplayAbilityTargetDataHandle AUNTA_Trace::MakeTargetData() const
 {
 	ACharacter* Character = CastChecked<ACharacter>(SourceActor);
@@ -52,7 +53,7 @@ FGameplayAbilityTargetDataHandle AUNTA_Trace::MakeTargetData() const
 	const float AttackRange = AttributeSet->GetAttackRange();
 	const float AttackRadius = AttributeSet->GetAttackRadius();
 
-
+	// Params로 관련 데이터 설정 후 탐지 진행
 	FCollisionQueryParams Params(SCENE_QUERY_STAT(UUNAT_Trace), false, Character);
 	const FVector Forward = Character->GetActorForwardVector();
 	const FVector Start = Character->GetActorLocation() + Forward * Character->GetCapsuleComponent()->GetScaledCapsuleRadius();
@@ -63,12 +64,15 @@ FGameplayAbilityTargetDataHandle AUNTA_Trace::MakeTargetData() const
 	FGameplayAbilityTargetDataHandle DataHandle;
 	if (HitDetected)
 	{
+		//지금은 TakeDamage대신 GE를 사용 중. 불필요하다고 판단 시 주석 제거 예정
 		//FDamageEvent DamageEvent;
 		//OutHitResult.GetActor()->TakeDamage(5.f, DamageEvent, SourceActor->GetInstigatorController(), SourceActor);
 
 		FGameplayAbilityTargetData_SingleTargetHit* TargetData = new FGameplayAbilityTargetData_SingleTargetHit(OutHitResult);
 		DataHandle.Add(TargetData);
 	}
+
+// 범위 디버그
 
 #if ENABLE_DRAW_DEBUG
 

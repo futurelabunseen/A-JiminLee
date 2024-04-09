@@ -3,12 +3,16 @@
 
 #include "GA/TA/UNTA_SphereMultiTrace.h"
 #include "Abilities/GameplayAbility.h"
-#include "GameFramework/Character.h"
-#include "AbilitySystemBlueprintLibrary.h"
-#include "Physics/UNCollision.h"
-#include "DrawDebugHelpers.h"
 #include "Attribute/UNCharacterSkillAttributeSet.h"
 
+#include "GameFramework/Character.h"
+#include "Physics/UNCollision.h"
+#include "AbilitySystemBlueprintLibrary.h"
+
+#include "DrawDebugHelpers.h"
+#include "ProejctUN.h"
+
+// 타겟 지정 후 핸들 리턴
 FGameplayAbilityTargetDataHandle AUNTA_SphereMultiTrace::MakeTargetData() const
 {
 	ACharacter* Character = CastChecked<ACharacter>(SourceActor);
@@ -16,24 +20,26 @@ FGameplayAbilityTargetDataHandle AUNTA_SphereMultiTrace::MakeTargetData() const
 	UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(SourceActor);
 	if (!ASC)
 	{
-		UE_LOG(LogTemp, Log, TEXT("ASC Not Found!"));
+		UN_LOG(LogUNNetwork, Log, TEXT("Can't find ASC!"));
 		return FGameplayAbilityTargetDataHandle();
 	}
 
 	const UUNCharacterSkillAttributeSet* SkillAttribute = ASC->GetSet<UUNCharacterSkillAttributeSet>();
 	if (!SkillAttribute)
 	{
-		UE_LOG(LogTemp, Log, TEXT("SkillAttribute Not Found!"));
+		UN_LOG(LogUNNetwork, Log, TEXT("Can't find Attribute!"));
 		return FGameplayAbilityTargetDataHandle();
 	}
 
 	TArray<FOverlapResult> Overlaps;
 	const float SkillRadius = SkillAttribute->GetSKillRange();
 
+	// Params로 관련 데이터 설정 후 OverlapMultiByChannel을 통해 Overlaps에 피격 데이터 저장
 	FVector Origin = Character->GetActorLocation();
 	FCollisionQueryParams Params(SCENE_QUERY_STAT(AUNTA_SphereMultiTrace), false, Character);
 	GetWorld()->OverlapMultiByChannel(Overlaps, Origin, FQuat::Identity, CCHANNEL_UNACTION, FCollisionShape::MakeSphere(SkillRadius), Params);
 
+	// 데이터들을 선별 후 약포인터 배열에 추가
 	TArray<TWeakObjectPtr<AActor>> HitActors;
 	for (const FOverlapResult& Overlap : Overlaps)
 	{
@@ -42,12 +48,15 @@ FGameplayAbilityTargetDataHandle AUNTA_SphereMultiTrace::MakeTargetData() const
 		if (HitActor && !HitActors.Contains(HitActor))
 		{
 			HitActors.Add(HitActor);
-			UE_LOG(LogTemp, Log, TEXT("%s"), *HitActor->GetName());
+			//UE_LOG(LogTemp, Log, TEXT("%s"), *HitActor->GetName());
 		}
 	}
 
 	FGameplayAbilityTargetData_ActorArray* ActorsData = new FGameplayAbilityTargetData_ActorArray();
 	ActorsData->SetActors(HitActors);
+
+
+// 범위 디버그
 
 #if ENABLE_DRAW_DEBUG
 

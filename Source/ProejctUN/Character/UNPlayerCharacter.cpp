@@ -1,17 +1,21 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+#include "UNPlayerCharacter.h"
+#include "Player/UNGASPlayerState.h"
+#include "Blueprint/AIBlueprintHelperLibrary.h"
 
-#include "../Character/UNPlayerCharacter.h"
-#include "AbilitySystemComponent.h"
-#include "../Player/UNGASPlayerState.h"
-#include "../Character/UNComboActionData.h"
 #include "EnhancedInputComponent.h"
 #include "InputMappingContext.h"
 #include "InputActionValue.h"
 #include "EnhancedInputSubsystems.h"
-#include "Blueprint/AIBlueprintHelperLibrary.h"
-#include "../Attribute/UNCharacterAttributeSet.h"
+
+#include "AbilitySystemComponent.h"
+#include "UNComboActionData.h"
+#include "Attribute/UNCharacterAttributeSet.h"
 #include "Tag/UNGameplayTag.h"
+#include "UI/UNGASWidgetComponent.h"
+
+#include "ProejctUN.h"
 
 
 AUNPlayerCharacter::AUNPlayerCharacter()
@@ -46,7 +50,7 @@ AUNPlayerCharacter::AUNPlayerCharacter()
 		SkillAction = InputActionSkillRef.Object;
 	}
 
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> ComboActionMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/Animation/AM_ComboAttack.AM_ComboAttack'"));
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> ComboActionMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/OutsideAsset/ParagonGreystone/Characters/Heroes/Greystone/Animations/CustomAnimation/AM_ComboAttack.AM_ComboAttack'"));
 	if (ComboActionMontageRef.Object)
 	{
 		ComboActionMontage = ComboActionMontageRef.Object;
@@ -58,7 +62,7 @@ AUNPlayerCharacter::AUNPlayerCharacter()
 		ComboActionData = ComboActionDataRef.Object;
 	}
 
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> SkillActionMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/Animation/AM_SkillAttack.AM_SkillAttack'"));
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> SkillActionMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/OutsideAsset/ParagonGreystone/Characters/Heroes/Greystone/Animations/CustomAnimation/AM_Skill_Q.AM_Skill_Q'"));
 	if (SkillActionMontageRef.Object)
 	{
 		SkillActionMontage = SkillActionMontageRef.Object;
@@ -73,8 +77,9 @@ AUNPlayerCharacter::AUNPlayerCharacter()
 	Weapon = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Weapon"));
 	Weapon->SetupAttachment(GetMesh(), TEXT("hand_rSocket"));
 
-	WeaponRange = 75.f;
-	WeaponAttackRate = 100.f;
+	//추후 무기액터의 데이터로 넣을 예정
+	WeaponRange = 175.f;
+	WeaponAttackRate = 40.f;
 }
 
 UAbilitySystemComponent* AUNPlayerCharacter::GetAbilitySystemComponent() const
@@ -82,8 +87,10 @@ UAbilitySystemComponent* AUNPlayerCharacter::GetAbilitySystemComponent() const
 	return ASC;
 }
 
+// 기본 입력 관련
 void AUNPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
+	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
@@ -96,73 +103,139 @@ void AUNPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	}
 	SetupPlayerGASInputComponent();
 
+	UN_LOG(LogUNNetwork, Log, TEXT("End"));
 }
 
+// GAS 입력 관련
 void AUNPlayerCharacter::SetupPlayerGASInputComponent()
 {
+	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
 	if (IsValid(ASC) && IsValid(InputComponent))
 	{
 		UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
 
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::GASInputPressed, 0);
 		EnhancedInputComponent->BindAction(SkillAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::GASInputPressed, 1);
+
+		UN_LOG(LogUNNetwork, Log, TEXT("GAS Input Bind Complete"));
 	}
+
+	UN_LOG(LogUNNetwork, Log, TEXT("End"));
 }
 
 void AUNPlayerCharacter::BeginPlay()
 {
+	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
 	Super::BeginPlay();
+
+	PlayerController = Cast<APlayerController>(GetController());
+	if (PlayerController)
+	{
+		UN_LOG(LogUNNetwork, Log, TEXT("%s"), TEXT("Have Controller"));
+		EnableInput(PlayerController);
+	}
+
+	SetCharacterControl();
+
+	UN_LOG(LogUNNetwork, Log, TEXT("End"));
+}
+
+// 서버만 실행
+void AUNPlayerCharacter::PossessedBy(AController* NewController)
+{
+	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
+	Super::PossessedBy(NewController);
+	
+	AUNGASPlayerState* GASPS = GetPlayerState<AUNGASPlayerState>();
+	if (GASPS)
+	{
+		ASC = Cast<UAbilitySystemComponent>(GASPS->GetAbilitySystemComponent());
+		ASC->InitAbilityActorInfo(GASPS, this);
+
+		ASC->GenericGameplayEventCallbacks.FindOrAdd(UNTAG_EVENT_CHARACTER_WEAPONEQUIP).AddUObject(this, &AUNPlayerCharacter::EquipWeapon);
+		ASC->GenericGameplayEventCallbacks.FindOrAdd(UNTAG_EVENT_CHARACTER_WEAPONUNEQUIP).AddUObject(this, &AUNPlayerCharacter::UnEquipWeapon);
+	}
+	else
+	{
+		UN_LOG(LogUNNetwork, Log, TEXT("Not Have GAS"));
+	}
+	
+	PlayerController = CastChecked<APlayerController>(GetController());
+	UN_LOG(LogUNNetwork, Log, TEXT("PlayerController : %s"), *PlayerController->GetName());
+	PlayerController->ConsoleCommand(TEXT("showdebug abilitysystem"));
+
+	InitializeAttributes();
+	InitalizeGameplayAbilities();
+	EquipWeapon(nullptr);
+	HpBar->InitWidget();
+
+	UN_LOG(LogUNNetwork, Log, TEXT("End"));
+}
+
+// 클라이언트만 실행
+void AUNPlayerCharacter::OnRep_Owner()
+{
+	UN_LOG(LogUNNetwork, Log, TEXT("%s %s"), *GetName(), TEXT("Begin"));
+	Super::OnRep_Owner();
+
+	PlayerController = CastChecked<APlayerController>(GetController());
+	PlayerController->ConsoleCommand(TEXT("showdebug abilitysystem"));
+
+	AActor* OwnerActor = GetOwner();
+	if (OwnerActor)
+	{
+		UN_LOG(LogUNNetwork, Log, TEXT("Owner : %s"), *OwnerActor->GetName());
+	}
+	else
+	{
+		UN_LOG(LogUNNetwork, Log, TEXT("%s"), TEXT("No Owner"));
+	}
+
+	UN_LOG(LogUNNetwork, Log, TEXT("%s"), TEXT("End"));
+}
+
+// 클라이언트만 실행
+void AUNPlayerCharacter::OnRep_PlayerState()
+{
+	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
+	Super::OnRep_PlayerState();
+
+	AUNGASPlayerState* GASPS = GetPlayerState<AUNGASPlayerState>();
+	if (GASPS)
+	{
+		ASC = Cast<UAbilitySystemComponent>(GASPS->GetAbilitySystemComponent());
+		ASC->InitAbilityActorInfo(GASPS, this);
+
+		ASC->GenericGameplayEventCallbacks.FindOrAdd(UNTAG_EVENT_CHARACTER_WEAPONEQUIP).AddUObject(this, &AUNPlayerCharacter::EquipWeapon);
+		ASC->GenericGameplayEventCallbacks.FindOrAdd(UNTAG_EVENT_CHARACTER_WEAPONUNEQUIP).AddUObject(this, &AUNPlayerCharacter::UnEquipWeapon);
+	}
+
+	InitializeAttributes();
+	InitalizeGameplayAbilities();
+	SetupPlayerGASInputComponent(); //race condition 방지
+	EquipWeapon(nullptr);
+	HpBar->InitWidget();
+
+	UN_LOG(LogUNNetwork, Log, TEXT("End"));
+}
+
+void AUNPlayerCharacter::SetCharacterControl()
+{
+	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
+	if (!IsLocallyControlled())
+	{
+		return;
+	}
 
 	PlayerController = CastChecked<APlayerController>(GetController());
 	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
 	{
 		Subsystem->AddMappingContext(DefaultMappingContext, 0);
 	}
+	UN_LOG(LogUNNetwork, Log, TEXT("End"));
 }
 
-void AUNPlayerCharacter::PossessedBy(AController* NewController)
-{
-	Super::PossessedBy(NewController);
-
-	AUNGASPlayerState* GASPS = GetPlayerState<AUNGASPlayerState>();
-	if (GASPS)
-	{
-		ASC = GASPS->GetAbilitySystemComponent();
-		ASC->InitAbilityActorInfo(GASPS, this);
-
-		ASC->GenericGameplayEventCallbacks.FindOrAdd(UNTAG_EVENT_CHARACTER_WEAPONEQUIP).AddUObject(this, &AUNPlayerCharacter::EquipWeapon);
-		ASC->GenericGameplayEventCallbacks.FindOrAdd(UNTAG_EVENT_CHARACTER_WEAPONUNEQUIP).AddUObject(this, &AUNPlayerCharacter::UnEquipWeapon);
-
-		const UUNCharacterAttributeSet* CurrentAttributeSet = ASC->GetSet<UUNCharacterAttributeSet>();
-		if (CurrentAttributeSet)
-		{
-			CurrentAttributeSet->OnOutOfHealth.AddDynamic(this, &AUNPlayerCharacter::OnOutOfHealth);
-		}
-		
-
-		for (const auto& StartAbility : StartAbilities)
-		{
-			FGameplayAbilitySpec StartSpec(StartAbility);
-			ASC->GiveAbility(StartSpec);
-		}
-
-		for (const auto& StartInputAbility : StartInputAbilities)
-		{
-			FGameplayAbilitySpec StartSpec(StartInputAbility.Value);
-			StartSpec.InputID = (StartInputAbility.Key);
-			ASC->GiveAbility(StartSpec);
-		}
-
-		SetupPlayerGASInputComponent();
-		PlayerController = CastChecked<APlayerController>(GetController());
-		PlayerController->ConsoleCommand(TEXT("showdebug abilitysystem"));
-
-
-		//임시 무기 장착
-		EquipWeapon(nullptr);
-	}
-}
-
+// ==================== 이동 관련 ==================== Start
 void AUNPlayerCharacter::OnInputStarted()
 {
 	PlayerController->StopMovement();
@@ -181,7 +254,6 @@ void AUNPlayerCharacter::OnSetDestinationTriggered()
 		CachedDestination = Hit.Location;
 	}
 
-
 	FVector WorldDirection = (CachedDestination - GetActorLocation()).GetSafeNormal();
 	AddMovementInput(WorldDirection, 1.0, false);
 }
@@ -196,12 +268,18 @@ void AUNPlayerCharacter::OnSetDestinationReleased()
 	FollowTime = 0.f;
 }
 
-// GAS ============================================= GAS
+// ================================================== End
+
+
+// ==================== GAS 관련 ==================== Start
+
+// 키 입력시 GA실행
 void AUNPlayerCharacter::GASInputPressed(int32 InputId)
 {
 	FGameplayAbilitySpec* Spec = ASC->FindAbilitySpecFromInputID(InputId);
 	if (Spec)
 	{
+		UN_LOG(LogUNNetwork, Log, TEXT("ATTACK!"));
 		Spec->InputPressed = true;
 		if (Spec->IsActive())
 		{
@@ -227,29 +305,66 @@ void AUNPlayerCharacter::GASInputReleased(int32 InputId)
 	}
 }
 
-
-void AUNPlayerCharacter::EquipWeapon(const FGameplayEventData* EventData)
+// Attribute 초기화
+void AUNPlayerCharacter::InitializeAttributes()
 {
-	if (Weapon)
+	const UUNCharacterAttributeSet* CurrentAttributeSet = ASC->GetSet<UUNCharacterAttributeSet>();
+	if (CurrentAttributeSet)
 	{
-		Weapon->SetSkeletalMesh(WeaponMesh);
-
-		FGameplayAbilitySpec NewSkillSpec(SkillAbilityClass);
-		NewSkillSpec.InputID = 1;
-
-		if (!ASC->FindAbilitySpecFromClass(SkillAbilityClass))
-		{
-			ASC->GiveAbility(NewSkillSpec);
-		}
-
-		const float CurrentAttackRange = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute());
-		const float CurrentAttackRate = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute());
-
-		ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute(), CurrentAttackRange + WeaponRange);
-		ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute(), CurrentAttackRate + WeaponAttackRate);
+		// 사망 델리게이트에 함수 등록
+		CurrentAttributeSet->OnOutOfHealth.AddDynamic(this, &AUNPlayerCharacter::OnOutOfHealth);
 	}
 }
 
+// GA 초기화. ASC에 GA를 등록하는 단계
+void AUNPlayerCharacter::InitalizeGameplayAbilities()
+{
+	for (const auto& StartAbility : StartAbilities)
+	{
+		FGameplayAbilitySpec StartSpec(StartAbility);
+		ASC->GiveAbility(StartSpec);
+	}
+
+	for (const auto& StartInputAbility : StartInputAbilities)
+	{
+		FGameplayAbilitySpec StartSpec(StartInputAbility.Value);
+		StartSpec.InputID = (StartInputAbility.Key);
+		ASC->GiveAbility(StartSpec);
+	}
+}
+// ==================== GAS 관련 ==================== End
+
+
+// 무기 장착. 무기는 추후 액터로 변경
+void AUNPlayerCharacter::EquipWeapon(const FGameplayEventData* EventData)
+{
+	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
+	if (Weapon)
+	{
+		UN_LOG(LogUNNetwork, Log, TEXT("SetWeaponSkeletalMesh"));
+		Weapon->SetSkeletalMesh(WeaponMesh);
+
+		if (HasAuthority()) //IsLocallyControlled()
+		{
+			FGameplayAbilitySpec NewSkillSpec(SkillAbilityClass);
+			NewSkillSpec.InputID = 1;
+
+			if (!ASC->FindAbilitySpecFromClass(SkillAbilityClass))
+			{
+				ASC->GiveAbility(NewSkillSpec);
+			}
+
+			const float CurrentAttackRange = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute());
+			const float CurrentAttackRate = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute());
+
+			ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute(), WeaponRange);
+			ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute(), WeaponAttackRate);
+		}
+	}
+	UN_LOG(LogUNNetwork, Log, TEXT("End"));
+}
+
+// 무기 장착 해제. 무기는 추후 액터로 변경
 void AUNPlayerCharacter::UnEquipWeapon(const FGameplayEventData* EventData)
 {
 	if (Weapon)

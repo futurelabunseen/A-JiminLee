@@ -17,11 +17,12 @@ class PROEJCTUN_API UUNAT_Trace : public UAbilityTask
 	GENERATED_BODY()
 	
 public:
-
-	UUNAT_Trace();
-
 	UFUNCTION(BlueprintCallable, Category = "Ability|Tasks", meta = (DisplayName = "WaitForTrace", HidePin = "OwningAbility", DefaultToSelf = "OwningAbility", BlueprintInternalUseOnly = "TRUE"))
 	static UUNAT_Trace* CreateTask(UGameplayAbility* OwningAbility, TSubclassOf<class AUNTA_Trace> TargetActorClass);
+
+	UPROPERTY(BlueprintAssignable)
+	FTraceResultDelegate OnComplete;
+
 	virtual void Activate() override;
 	virtual void OnDestroy(bool AbilityEnded) override;
 
@@ -29,16 +30,11 @@ public:
 	void FinalizeTargetActor();
 
 protected:
-	void OnTargetDataReadyCallback(const FGameplayAbilityTargetDataHandle& DataHandle);
-public:
-
-	UPROPERTY(BlueprintAssignable)
-	FTraceResultDelegate OnComplete;
-
-protected:
 	UPROPERTY()
 	TSubclassOf<class AUNTA_Trace> TargetActorClass;
 
 	UPROPERTY()
 	TObjectPtr<class AUNTA_Trace> SpawnedTargetActor;
+
+	void OnTargetDataReadyCallback(const FGameplayAbilityTargetDataHandle& DataHandle);
 };

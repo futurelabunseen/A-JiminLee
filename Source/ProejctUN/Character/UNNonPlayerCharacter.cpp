@@ -1,9 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "../Character/UNNonPlayerCharacter.h"
+#include "Character/UNNonPlayerCharacter.h"
 #include "AbilitySystemComponent.h"
-#include "../Attribute/UNCharacterAttributeSet.h"
+#include "Attribute/UNCharacterAttributeSet.h"
 
 AUNNonPlayerCharacter::AUNNonPlayerCharacter()
 {

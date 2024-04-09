@@ -16,4 +16,8 @@ class PROEJCTUN_API AUNPlayerController : public APlayerController
 	
 public:
 	AUNPlayerController();
+
+protected:
+	virtual void PostNetInit() override;
+	virtual void OnPossess(APawn* InPawn) override;
 };

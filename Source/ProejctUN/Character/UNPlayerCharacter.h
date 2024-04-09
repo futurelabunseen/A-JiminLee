@@ -3,9 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "../Character/UNCharacter.h"
-#include "AbilitySystemInterface.h"
+#include "Character/UNCharacter.h"
 #include "Abilities/GameplayAbilityTypes.h"
+#include "AbilitySystemInterface.h"
 #include "UNPlayerCharacter.generated.h"
 
 class UInputAction;
@@ -25,13 +25,10 @@ public:
 	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
 	FORCEINLINE virtual class UAnimMontage* GetComboActionMontage() const { return ComboActionMontage; }
-	FORCEINLINE class UUNComboActionData* GetComboActionData() const { return ComboActionData; }
-
 	FORCEINLINE virtual class UAnimMontage* GetSkillActionMontage() const { return SkillActionMontage; }
+	FORCEINLINE class UUNComboActionData* GetComboActionData() const { return ComboActionData; }
+	
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
-	float ShortPressThreshold;
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputMappingContext> DefaultMappingContext;
 
@@ -47,19 +44,20 @@ public:
 	UPROPERTY(EditAnywhere)
 	APlayerController* PlayerController;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	float ShortPressThreshold;
 
 protected:
+	virtual void PossessedBy(AController* NewController) override;
+	virtual void OnRep_Owner() override;
+	virtual void OnRep_PlayerState() override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
 	virtual void BeginPlay();
 
-	virtual void PossessedBy(AController* NewController) override;
-
+	void SetCharacterControl();
 	void OnInputStarted();
 	void OnSetDestinationTriggered();
 	void OnSetDestinationReleased();
-
-	void SetupPlayerGASInputComponent();
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
@@ -108,6 +106,11 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
 	TObjectPtr<class UAnimMontage> SkillActionMontage;
 
+	void SetupPlayerGASInputComponent();
+
 	void GASInputPressed(int32 InputId);
 	void GASInputReleased(int32 InputId);
+
+	void InitializeAttributes();
+	void InitalizeGameplayAbilities();
 };
