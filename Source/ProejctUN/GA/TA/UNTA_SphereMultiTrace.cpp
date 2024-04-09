@@ -45,7 +45,7 @@ FGameplayAbilityTargetDataHandle AUNTA_SphereMultiTrace::MakeTargetData() const
 	{
 		AActor* HitActor = Overlap.OverlapObjectHandle.FetchActor<AActor>();
 
-		if (HitActor && !HitActors.Contains(HitActor))
+		if (HitActor && !HitActors.Contains(HitActor) && Cast<ACharacter>(HitActor))
 		{
 			HitActors.Add(HitActor);
 			//UE_LOG(LogTemp, Log, TEXT("%s"), *HitActor->GetName());
