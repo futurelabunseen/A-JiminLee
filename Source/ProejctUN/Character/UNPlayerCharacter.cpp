@@ -50,7 +50,7 @@ AUNPlayerCharacter::AUNPlayerCharacter()
 		SkillAction = InputActionSkillRef.Object;
 	}
 
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> ComboActionMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/ParagonGreystone/Characters/Heroes/Greystone/Animations/CustomAnimation/AM_ComboAttack.AM_ComboAttack'"));
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> ComboActionMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/OutsideAsset/ParagonGreystone/Characters/Heroes/Greystone/Animations/CustomAnimation/AM_ComboAttack.AM_ComboAttack'"));
 	if (ComboActionMontageRef.Object)
 	{
 		ComboActionMontage = ComboActionMontageRef.Object;
@@ -62,7 +62,7 @@ AUNPlayerCharacter::AUNPlayerCharacter()
 		ComboActionData = ComboActionDataRef.Object;
 	}
 
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> SkillActionMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/ParagonGreystone/Characters/Heroes/Greystone/Animations/CustomAnimation/AM_Skill_Q.AM_Skill_Q'"));
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> SkillActionMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/OutsideAsset/ParagonGreystone/Characters/Heroes/Greystone/Animations/CustomAnimation/AM_Skill_Q.AM_Skill_Q'"));
 	if (SkillActionMontageRef.Object)
 	{
 		SkillActionMontage = SkillActionMontageRef.Object;
