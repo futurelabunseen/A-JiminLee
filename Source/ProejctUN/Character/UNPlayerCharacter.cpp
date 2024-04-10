@@ -15,6 +15,7 @@
 #include "Attribute/UNCharacterAttributeSet.h"
 #include "Tag/UNGameplayTag.h"
 #include "UI/UNGASWidgetComponent.h"
+#include "Abilities/GameplayAbilityTargetActor_GroundTrace.h"
 
 #include "ProejctUN.h"
 
@@ -49,6 +50,18 @@ AUNPlayerCharacter::AUNPlayerCharacter()
 	if (nullptr != InputActionSkillRef.Object)
 	{
 		SkillAction = InputActionSkillRef.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionTeleportRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Action/IA_Teleport.IA_Teleport'"));
+	if (nullptr != InputActionTeleportRef.Object)
+	{
+		TeleportAction = InputActionTeleportRef.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionConfirmRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Action/IA_Confirm.IA_Confirm'"));
+	if (nullptr != InputActionConfirmRef.Object)
+	{
+		ConfirmAction = InputActionConfirmRef.Object;
 	}
 
 	static ConstructorHelpers::FObjectFinder<UAnimMontage> ComboActionMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/OutsideAsset/ParagonGreystone/Characters/Heroes/Greystone/Animations/CustomAnimation/AM_ComboAttack.AM_ComboAttack'"));
@@ -123,7 +136,14 @@ void AUNPlayerCharacter::SetupPlayerGASInputComponent()
 
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::GASInputPressed, 0);
 		EnhancedInputComponent->BindAction(SkillAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::GASInputPressed, 1);
+		EnhancedInputComponent->BindAction(TeleportAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::GASInputPressed, 2);
+		EnhancedInputComponent->BindAction(ConfirmAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::SendConfirmToTargetActor);
 
+		//ASC->BindToInputComponent(InputComponent);
+		//FName Confirmname = "Confirm";
+		//FInputActionBinding Confirm = FInputActionBinding(Confirmname, EInputEvent::IE_Pressed);
+		//Confirm.ActionDelegate.GetDelegateForManualSet().BindUObject(ASC, &UAbilitySystemComponent::LocalInputConfirm);
+		//ASC->BindAbilityActivationToInputComponent(InputComponent, FGameplayAbilityInputBinds(FString("ConfirmTarget"), FString("CancelTarget"), FString("AbilityID"), static_cast<int32>))
 		UN_LOG(LogUNNetwork, Log, TEXT("GAS Input Bind Complete"));
 	}
 
@@ -339,6 +359,19 @@ void AUNPlayerCharacter::InitalizeGameplayAbilities()
 		StartSpec.InputID = (StartInputAbility.Key);
 		ASC->GiveAbility(StartSpec);
 	}
+}
+void AUNPlayerCharacter::SendConfirmToTargetActor()
+{
+	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
+
+	for (const auto& targetActor : ASC->SpawnedTargetActors)
+	{
+		targetActor->ConfirmTargetingAndContinue();
+	}
+	
+	//AGameplayAbilityTargetActor_Trace::ConfirmTargetingAndContinue();
+
+	//ASC->GenericLocalConfirmCallbacks.Broadcast();
 }
 // ==================== GAS ฐüทร ==================== End
 

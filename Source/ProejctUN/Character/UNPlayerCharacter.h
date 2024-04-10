@@ -41,6 +41,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* SkillAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* TeleportAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* ConfirmAction;
+
 	UPROPERTY(EditAnywhere)
 	APlayerController* PlayerController;
 
@@ -125,4 +131,6 @@ protected:
 
 	void InitializeAttributes();
 	void InitalizeGameplayAbilities();
+
+	void SendConfirmToTargetActor();
 };
