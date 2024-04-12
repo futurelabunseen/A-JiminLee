@@ -41,6 +41,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* SkillAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* TeleportAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* ConfirmAction;
+
 	UPROPERTY(EditAnywhere)
 	APlayerController* PlayerController;
 
@@ -73,13 +79,14 @@ private:
 	float FollowTime;
 
 // Weapon
-protected:
+public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Equipment, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class USkeletalMeshComponent> Weapon;
 
 	UPROPERTY(EditAnywhere, Category = Weapon)
 	TObjectPtr<class USkeletalMesh> WeaponMesh;
 
+protected:
 	UPROPERTY(EditAnywhere, Category = Weapon)
 	float WeaponRange;
 	
@@ -88,6 +95,17 @@ protected:
 
 	void EquipWeapon(const FGameplayEventData* EventData);
 	void UnEquipWeapon(const FGameplayEventData* EventData);
+
+	void OnStunTagChange(const FGameplayTag CallbackTag, int32 NewCount);
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void PlayStunAnimation();
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void StopStunAnimation();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
+	TObjectPtr<class UAnimMontage> StunMontage;
 
 // GAS
 protected:
@@ -113,4 +131,6 @@ protected:
 
 	void InitializeAttributes();
 	void InitalizeGameplayAbilities();
+
+	void SendConfirmToTargetActor();
 };

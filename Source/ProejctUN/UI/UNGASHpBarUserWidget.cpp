@@ -4,6 +4,7 @@
 #include "UI/UNGASHpBarUserWidget.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
+#include "Character/UNPlayerCharacter.h"
 
 #include "AbilitySystemComponent.h"
 #include "Attribute/UNCharacterAttributeSet.h"
@@ -81,5 +82,7 @@ void UUNGASHpBarUserWidget::UpdateHpBar()
 		TxtHpStat->SetText(FText::FromString(FString::Printf(TEXT("%.0f/%.0f"), CurrentHealth, CurrentMaxHealth)));
 	}
 
+	AUNPlayerCharacter* PlayerCharacter = Cast<AUNPlayerCharacter>(ASC->GetOwnerActor());
+	UE_LOG(LogTemp, Log, TEXT("Test : %s"), *ASC->GetOwnerActor()->GetName());
 	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, TEXT("HpBarUpdate"));
 }

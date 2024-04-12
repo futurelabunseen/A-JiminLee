@@ -8,12 +8,14 @@
 #include "InputMappingContext.h"
 #include "InputActionValue.h"
 #include "EnhancedInputSubsystems.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 #include "AbilitySystemComponent.h"
 #include "UNComboActionData.h"
 #include "Attribute/UNCharacterAttributeSet.h"
 #include "Tag/UNGameplayTag.h"
 #include "UI/UNGASWidgetComponent.h"
+#include "Abilities/GameplayAbilityTargetActor_GroundTrace.h"
 
 #include "ProejctUN.h"
 
@@ -50,6 +52,18 @@ AUNPlayerCharacter::AUNPlayerCharacter()
 		SkillAction = InputActionSkillRef.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionTeleportRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Action/IA_Teleport.IA_Teleport'"));
+	if (nullptr != InputActionTeleportRef.Object)
+	{
+		TeleportAction = InputActionTeleportRef.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionConfirmRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Action/IA_Confirm.IA_Confirm'"));
+	if (nullptr != InputActionConfirmRef.Object)
+	{
+		ConfirmAction = InputActionConfirmRef.Object;
+	}
+
 	static ConstructorHelpers::FObjectFinder<UAnimMontage> ComboActionMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/OutsideAsset/ParagonGreystone/Characters/Heroes/Greystone/Animations/CustomAnimation/AM_ComboAttack.AM_ComboAttack'"));
 	if (ComboActionMontageRef.Object)
 	{
@@ -72,6 +86,12 @@ AUNPlayerCharacter::AUNPlayerCharacter()
 	if (WeaponMeshRef.Object)
 	{
 		WeaponMesh = WeaponMeshRef.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> StunMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/OutsideAsset/ParagonGreystone/Characters/Heroes/Greystone/Animations/CustomAnimation/AM_Stun.AM_Stun'"));
+	if (StunMontageRef.Object)
+	{
+		StunMontage = StunMontageRef.Object;
 	}
 
 	Weapon = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Weapon"));
@@ -116,7 +136,14 @@ void AUNPlayerCharacter::SetupPlayerGASInputComponent()
 
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::GASInputPressed, 0);
 		EnhancedInputComponent->BindAction(SkillAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::GASInputPressed, 1);
+		EnhancedInputComponent->BindAction(TeleportAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::GASInputPressed, 2);
+		EnhancedInputComponent->BindAction(ConfirmAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::SendConfirmToTargetActor);
 
+		//ASC->BindToInputComponent(InputComponent);
+		//FName Confirmname = "Confirm";
+		//FInputActionBinding Confirm = FInputActionBinding(Confirmname, EInputEvent::IE_Pressed);
+		//Confirm.ActionDelegate.GetDelegateForManualSet().BindUObject(ASC, &UAbilitySystemComponent::LocalInputConfirm);
+		//ASC->BindAbilityActivationToInputComponent(InputComponent, FGameplayAbilityInputBinds(FString("ConfirmTarget"), FString("CancelTarget"), FString("AbilityID"), static_cast<int32>))
 		UN_LOG(LogUNNetwork, Log, TEXT("GAS Input Bind Complete"));
 	}
 
@@ -154,6 +181,7 @@ void AUNPlayerCharacter::PossessedBy(AController* NewController)
 
 		ASC->GenericGameplayEventCallbacks.FindOrAdd(UNTAG_EVENT_CHARACTER_WEAPONEQUIP).AddUObject(this, &AUNPlayerCharacter::EquipWeapon);
 		ASC->GenericGameplayEventCallbacks.FindOrAdd(UNTAG_EVENT_CHARACTER_WEAPONUNEQUIP).AddUObject(this, &AUNPlayerCharacter::UnEquipWeapon);
+		ASC->RegisterGameplayTagEvent(UNTAG_CHARACTER_STATE_ISSTUNING, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &AUNPlayerCharacter::OnStunTagChange);
 	}
 	else
 	{
@@ -332,6 +360,23 @@ void AUNPlayerCharacter::InitalizeGameplayAbilities()
 		ASC->GiveAbility(StartSpec);
 	}
 }
+void AUNPlayerCharacter::SendConfirmToTargetActor()
+{
+	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
+
+	if (ASC->SpawnedTargetActors.IsEmpty())
+	{
+		UN_LOG(LogUNNetwork, Log, TEXT("SpawnedTargetActors is Empty"));
+		return;
+	}
+
+	for (const auto& targetActor : ASC->SpawnedTargetActors)
+	{
+		//targetActor->ConfirmTargeting();
+		//targetActor->ConfirmTargetingAndContinue();
+		targetActor->OwningAbility->GetCurrentActorInfo()->AbilitySystemComponent->GenericLocalConfirmCallbacks.Broadcast();
+	}
+}
 // ==================== GAS 관련 ==================== End
 
 
@@ -384,4 +429,32 @@ void AUNPlayerCharacter::UnEquipWeapon(const FGameplayEventData* EventData)
 		ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute(), CurrentAttackRange - WeaponRange);
 		ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute(), CurrentAttackRate - WeaponAttackRate);
 	}
+}
+
+// 이 아래부터 UNCharacter클래스로 옮길 예정
+void AUNPlayerCharacter::OnStunTagChange(const FGameplayTag CallbackTag, int32 NewCount)
+{
+	if (NewCount > 0)
+	{
+		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+		PlayStunAnimation();
+	}
+	else
+	{
+		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+		StopStunAnimation();
+	}
+}
+
+void AUNPlayerCharacter::PlayStunAnimation_Implementation()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	AnimInstance->StopAllMontages(0.f);
+	AnimInstance->Montage_Play(StunMontage, 1.f);
+}
+
+void AUNPlayerCharacter::StopStunAnimation_Implementation()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	AnimInstance->Montage_Stop(0.5f, StunMontage);
 }
