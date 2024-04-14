@@ -5,6 +5,7 @@
 
 #include "AbilitySystemComponent.h"
 #include "Abilities/GameplayAbility.h"
+#include "Player/UNPlayerController.h"
 
 void AUNTA_TraceLocation::StartTargeting(UGameplayAbility* Ability)
 {
@@ -25,7 +26,12 @@ void AUNTA_TraceLocation::ConfirmTargetingAndContinue()
 FGameplayAbilityTargetDataHandle AUNTA_TraceLocation::MakeTargetData() const
 {
 	FHitResult OutHitResult;
-	OutHitResult.Location = FVector(0.f, 0.f, 0.f);
+
+	APlayerController* Controller = Cast<APlayerController>(SourceActor->GetInstigatorController());
+	if (Controller)
+	{
+		Controller->GetHitResultUnderCursor(ECC_Visibility, true, OutHitResult);
+	}
 
 	FGameplayAbilityTargetDataHandle DataHandle;
 	FGameplayAbilityTargetData_SingleTargetHit* TargetData = new FGameplayAbilityTargetData_SingleTargetHit(OutHitResult);

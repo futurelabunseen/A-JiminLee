@@ -23,6 +23,10 @@ protected:
 	virtual FGameplayAbilityTargetDataHandle MakeTargetData() const;
 
 public:
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<class UStaticMeshComponent> WeaponMesh;
+
 	void SetShowDebug(bool InshowDebug) { bShowDebug = InshowDebug; }
 
 protected:

@@ -37,7 +37,7 @@ void UUNAT_TraceLocation::SpawnAndInitalizeTargetActor()
 	SpawnedTargetActor = Cast<AUNTA_TraceLocation>(Ability->GetWorld()->SpawnActorDeferred<AGameplayAbilityTargetActor>(TargetActorClass, FTransform::Identity, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn));
 	if (SpawnedTargetActor)
 	{
-		//SpawnedTargetActor->SetShowDebug(true);
+		SpawnedTargetActor->SetShowDebug(true);
 		SpawnedTargetActor->TargetDataReadyDelegate.AddUObject(this, &UUNAT_TraceLocation::OnTargetDataReadyCallback);
 	}
 }
@@ -52,7 +52,7 @@ void UUNAT_TraceLocation::FinalizeTargetActor()
 
 		ASC->SpawnedTargetActors.Push(SpawnedTargetActor);
 		SpawnedTargetActor->StartTargeting(Ability);
-		SpawnedTargetActor->ConfirmTargeting();
+		//SpawnedTargetActor->ConfirmTargeting();
 	}
 }
 

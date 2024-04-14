@@ -364,7 +364,13 @@ void AUNPlayerCharacter::SendConfirmToTargetActor()
 {
 	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
 
-	ASC->GenericLocalConfirmCallbacks.Broadcast();
+	for (const auto& TargetActor : ASC->SpawnedTargetActors)
+	{
+		if (TargetActor)
+		{
+			TargetActor->ConfirmTargeting();
+		}
+	}
 }
 // ==================== GAS ฐüทร ==================== End
 
