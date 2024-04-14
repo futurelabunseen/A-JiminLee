@@ -2,7 +2,11 @@
 
 
 #include "GA/UNGA_Teleport.h"
+#include "AbilitySystemBlueprintLibrary.h"
 #include "Abilities/Tasks/AbilityTask_WaitTargetData.h"
+#include "TA/UNTA_TraceLocation.h"
+#include "AT/UNAT_TraceLocation.h"
+#include "Character/UNPlayerCharacter.h"
 
 UUNGA_Teleport::UUNGA_Teleport()
 {
@@ -13,5 +17,28 @@ void UUNGA_Teleport::ActivateAbility(const FGameplayAbilitySpecHandle Handle, co
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	//UAbilityTask_WaitTargetData* WaitTargetTask = 
+	UUNAT_TraceLocation* TraceLocation = UUNAT_TraceLocation::CreateTask(this, TargetActorClass);
+	
+	UUNAT_TraceLocation* AttackTraceTask = UUNAT_TraceLocation::CreateTask(this, TargetActorClass);
+	AttackTraceTask->OnComplete.AddDynamic(this, &UUNGA_Teleport::OnTraceResultCallback);
+	AttackTraceTask->ReadyForActivation();
+}
+
+void UUNGA_Teleport::OnTraceResultCallback(const FGameplayAbilityTargetDataHandle& TargetDataHandle)
+{
+	if (UAbilitySystemBlueprintLibrary::TargetDataHasHitResult(TargetDataHandle, 0))
+	{
+		FHitResult HitResult = UAbilitySystemBlueprintLibrary::GetHitResultFromTargetData(TargetDataHandle, 0);
+		FVector TargetLocation = HitResult.Location;
+		
+		AUNPlayerCharacter* PlayerCharacter = Cast<AUNPlayerCharacter>(CurrentActorInfo->AvatarActor.Get());
+		if (PlayerCharacter)
+		{
+			PlayerCharacter->TeleportTo(TargetLocation, (TargetLocation - PlayerCharacter->GetActorLocation()).Rotation(), false, true);
+		}
+
+		bool bReplicatedEndAbility = true;
+		bool bWasCancelled = false;
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, bReplicatedEndAbility, bWasCancelled);
+	}
 }

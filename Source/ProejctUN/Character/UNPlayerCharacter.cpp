@@ -364,18 +364,7 @@ void AUNPlayerCharacter::SendConfirmToTargetActor()
 {
 	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
 
-	if (ASC->SpawnedTargetActors.IsEmpty())
-	{
-		UN_LOG(LogUNNetwork, Log, TEXT("SpawnedTargetActors is Empty"));
-		return;
-	}
-
-	for (const auto& targetActor : ASC->SpawnedTargetActors)
-	{
-		//targetActor->ConfirmTargeting();
-		//targetActor->ConfirmTargetingAndContinue();
-		targetActor->OwningAbility->GetCurrentActorInfo()->AbilitySystemComponent->GenericLocalConfirmCallbacks.Broadcast();
-	}
+	ASC->GenericLocalConfirmCallbacks.Broadcast();
 }
 // ==================== GAS ฐüทร ==================== End
 

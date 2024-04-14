@@ -18,4 +18,11 @@ public:
 	UUNGA_Teleport();
 
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData);
+
+protected:
+	UFUNCTION()
+	void OnTraceResultCallback(const FGameplayAbilityTargetDataHandle& TargetDataHandle);
+
+	UPROPERTY(EditAnywhere, Category = GAS)
+	TSubclassOf<class AUNTA_TraceLocation> TargetActorClass;
 };
