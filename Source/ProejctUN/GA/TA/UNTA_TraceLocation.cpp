@@ -2,6 +2,7 @@
 
 
 #include "UNTA_TraceLocation.h"
+#include "NavigationSystem.h"
 
 #include "AbilitySystemComponent.h"
 #include "Abilities/GameplayAbility.h"
@@ -26,11 +27,18 @@ void AUNTA_TraceLocation::ConfirmTargetingAndContinue()
 FGameplayAbilityTargetDataHandle AUNTA_TraceLocation::MakeTargetData() const
 {
 	FHitResult OutHitResult;
+	FNavLocation NavLocation;
 
 	APlayerController* Controller = Cast<APlayerController>(SourceActor->GetInstigatorController());
 	if (Controller)
 	{
 		Controller->GetHitResultUnderCursor(ECC_Visibility, true, OutHitResult);
+		UNavigationSystemV1* Nav = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
+		if (Nav)
+		{
+			bool bProjected = Nav->ProjectPointToNavigation(OutHitResult.Location, NavLocation);
+			OutHitResult.Location = NavLocation.Location;
+		}
 	}
 
 	FGameplayAbilityTargetDataHandle DataHandle;
