@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/GameplayAbility.h"
+#include "GameplayEffect.h"
 #include "UNGA_Teleport.generated.h"
 
 /**
@@ -25,4 +26,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = GAS)
 	TSubclassOf<class AUNTA_TraceLocation> TargetActorClass;
+
+	UPROPERTY(EditAnywhere, Category = GAS)
+	TSubclassOf<class UGameplayEffect> CooldownEffect;
 };
