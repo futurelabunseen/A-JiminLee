@@ -19,6 +19,7 @@ void UUNGA_Teleport::ActivateAbility(const FGameplayAbilitySpecHandle Handle, co
 
 	UUNAT_TraceLocation* TraceLocation = UUNAT_TraceLocation::CreateTask(this, TargetActorClass);
 	
+	ActivateDecal();
 	UUNAT_TraceLocation* AttackTraceTask = UUNAT_TraceLocation::CreateTask(this, TargetActorClass);
 	AttackTraceTask->OnComplete.AddDynamic(this, &UUNGA_Teleport::OnTraceResultCallback);
 	AttackTraceTask->ReadyForActivation();
@@ -39,9 +40,28 @@ void UUNGA_Teleport::OnTraceResultCallback(const FGameplayAbilityTargetDataHandl
 		}
 
 		CommitAbilityCooldown(FGameplayAbilitySpecHandle(), CurrentActorInfo, GetCurrentActivationInfoRef(), false);
+		EndDecal();
 
 		bool bReplicatedEndAbility = true;
 		bool bWasCancelled = false;
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, bReplicatedEndAbility, bWasCancelled);
+	}
+}
+
+void UUNGA_Teleport::ActivateDecal()
+{
+	AUNPlayerCharacter* PlayerCharacter = Cast<AUNPlayerCharacter>(CurrentActorInfo->AvatarActor.Get());
+	if (PlayerCharacter)
+	{
+		PlayerCharacter->ActivateDecal(DecalStruct);
+	}
+}
+
+void UUNGA_Teleport::EndDecal()
+{
+	AUNPlayerCharacter* PlayerCharacter = Cast<AUNPlayerCharacter>(CurrentActorInfo->AvatarActor.Get());
+	if (PlayerCharacter)
+	{
+		PlayerCharacter->EndDecal();
 	}
 }

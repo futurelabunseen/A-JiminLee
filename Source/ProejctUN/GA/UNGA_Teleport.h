@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Abilities/GameplayAbility.h"
 #include "GameplayEffect.h"
+#include "Struct/DecalStruct.h"
 #include "UNGA_Teleport.generated.h"
 
 /**
@@ -24,6 +25,16 @@ protected:
 	UFUNCTION()
 	void OnTraceResultCallback(const FGameplayAbilityTargetDataHandle& TargetDataHandle);
 
+	UFUNCTION()
+	void ActivateDecal();
+
+	UFUNCTION()
+	void EndDecal();
+
 	UPROPERTY(EditAnywhere, Category = GAS)
 	TSubclassOf<class AUNTA_TraceLocation> TargetActorClass;
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Struct)
+	FDecalStruct DecalStruct;
 };

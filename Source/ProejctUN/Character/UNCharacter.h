@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Struct/DecalStruct.h"
 #include "UNCharacter.generated.h"
 
 UCLASS()
@@ -22,6 +23,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* CameraBoom;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	class UDecalComponent* Decal;
 
 //Dead
 protected:
@@ -44,4 +48,11 @@ protected:
 
 	void SetDead();
 	void PlayDeadAnimaition();
+
+public:
+	UFUNCTION(BlueprintCallable)
+	void ActivateDecal(FDecalStruct DecalStruct);
+
+	UFUNCTION(BlueprintCallable)
+	void EndDecal();
 };
