@@ -48,6 +48,7 @@ void UUNAT_TraceLocation::SpawnAndInitalizeTargetActor()
 	}
 }
 
+// ConfirmTargeting()은 PlayerCharacter의 클릭으로 진행
 void UUNAT_TraceLocation::FinalizeTargetActor()
 {
 	UAbilitySystemComponent* ASC = AbilitySystemComponent.Get();

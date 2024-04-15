@@ -22,6 +22,9 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FTraceLocationResultDelegate OnComplete;
 
+	UPROPERTY(BlueprintAssignable)
+	FTraceLocationResultDelegate OnInterrupted;
+
 	virtual void Activate() override;
 	virtual void OnDestroy(bool AbilityEnded) override;
 

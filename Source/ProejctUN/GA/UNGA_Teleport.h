@@ -26,6 +26,9 @@ protected:
 	void OnTraceResultCallback(const FGameplayAbilityTargetDataHandle& TargetDataHandle);
 
 	UFUNCTION()
+	void OnInterruptedCallback(const FGameplayAbilityTargetDataHandle& TargetDataHandle);
+
+	UFUNCTION()
 	void ActivateDecal();
 
 	UFUNCTION()

@@ -7,7 +7,6 @@
 #include "Character/UNComboActionData.h"
 
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
-//#include "AT_PlayMontageAndWait_Custom.h"
 
 
 UUNGA_Attack::UUNGA_Attack()
@@ -26,7 +25,6 @@ void UUNGA_Attack::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 	UNCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 
 	// 필요한 델리게이트를 지정하고 AT를 실행
-	//UAT_PlayMontageAndWait_Custom* PlayAttackTask = UAT_PlayMontageAndWait_Custom::CreatePlayMontageAndWaitProxy(this, TEXT("PlayAttack"), UNCharacter->GetComboActionMontage(), 1.f, GetNextSection());
 	UAbilityTask_PlayMontageAndWait* PlayAttackTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, TEXT("PlayAttack"), UNCharacter->GetComboActionMontage(), 1.f, GetNextSection());
 	PlayAttackTask->OnCompleted.AddDynamic(this, &UUNGA_Attack::OnCompleteCallback);
 	PlayAttackTask->OnInterrupted.AddDynamic(this, &UUNGA_Attack::OnInterruptedCallback);

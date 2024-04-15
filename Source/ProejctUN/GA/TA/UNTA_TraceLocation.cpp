@@ -25,6 +25,7 @@ void AUNTA_TraceLocation::ConfirmTargetingAndContinue()
 	}
 }
 
+// 마우스 위치를 지점으로 FHitResult를 생성한뒤 핸들에 데이터넣고 반환
 FGameplayAbilityTargetDataHandle AUNTA_TraceLocation::MakeTargetData() const
 {
 	FHitResult OutHitResult;
@@ -41,8 +42,6 @@ FGameplayAbilityTargetDataHandle AUNTA_TraceLocation::MakeTargetData() const
 			float SkillRangeScale = PlayerCharacter->GetCurrentActiveDecalData().GetScale().Z;
 			float HitDistance = (OutHitResult.Location - PlayerCharacter->GetActorLocation()).Size();
 
-			UE_LOG(LogTemp, Log, TEXT("%f"), SkillRangeScale);
-
 			if (HitDistance > SkillRangeScale)
 			{
 				FVector SkillRangeEnd = PlayerCharacter->GetActorLocation() + (OutHitResult.Location - PlayerCharacter->GetActorLocation()).GetSafeNormal() * SkillRangeScale;
@@ -58,8 +57,6 @@ FGameplayAbilityTargetDataHandle AUNTA_TraceLocation::MakeTargetData() const
 			}
 		}
 	}
-	
-
 
 	FGameplayAbilityTargetDataHandle DataHandle;
 	FGameplayAbilityTargetData_SingleTargetHit* TargetData = new FGameplayAbilityTargetData_SingleTargetHit(OutHitResult);
