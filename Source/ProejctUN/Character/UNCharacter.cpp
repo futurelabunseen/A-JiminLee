@@ -5,7 +5,6 @@
 #include "Components/CapsuleComponent.h"
 #include "Physics/UNCollision.h"
 #include "Camera/CameraComponent.h"
-#include "Components/DecalComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
@@ -49,11 +48,6 @@ AUNCharacter::AUNCharacter()
 	GetMesh()->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, -100.0f), FRotator(0.0f, -90.0f, 0.0f));
 	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
 	GetMesh()->SetCollisionProfileName(TEXT("NoCollision"));
-	
-	// 스킬 범위 데칼
-	Decal = CreateDefaultSubobject<UDecalComponent>(TEXT("Decal"));
-	Decal->DecalSize = FVector();
-	Decal->SetupAttachment(RootComponent);
 
 	// 프로퍼티 기본값
 	DeadEventDelayTime = 5.f;
@@ -88,21 +82,6 @@ AUNCharacter::AUNCharacter()
 		HpBar->SetDrawSize(FVector2D(200.f, 20.f));
 		HpBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
-}
-
-void AUNCharacter::ActivateDecal(FDecalStruct DecalStruct)
-{
-	SetCurrentActiveDecalData(DecalStruct);
-	Decal->SetMaterial(0, DecalStruct.GetMaterial());
-	Decal->SetRelativeLocationAndRotation(DecalStruct.GetLocation(), DecalStruct.GetRotation());
-	Decal->DecalSize = DecalStruct.GetScale();
-}
-
-void AUNCharacter::EndDecal()
-{
-	Decal->SetMaterial(0, nullptr);
-	Decal->DecalSize = FVector();
-	ClearCurrentActiveDecalData();
 }
 
 // 델리게이트에 등록되는 함수. 사망 시 Attribute에서 Broadcast됨.
