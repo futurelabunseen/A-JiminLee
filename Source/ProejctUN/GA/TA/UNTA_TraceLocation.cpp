@@ -6,6 +6,7 @@
 
 #include "AbilitySystemComponent.h"
 #include "Abilities/GameplayAbility.h"
+#include "Character/UNPlayerCharacter.h"
 #include "Player/UNPlayerController.h"
 
 void AUNTA_TraceLocation::StartTargeting(UGameplayAbility* Ability)
@@ -29,17 +30,36 @@ FGameplayAbilityTargetDataHandle AUNTA_TraceLocation::MakeTargetData() const
 	FHitResult OutHitResult;
 	FNavLocation NavLocation;
 
-	APlayerController* Controller = Cast<APlayerController>(SourceActor->GetInstigatorController());
-	if (Controller)
+	AUNPlayerCharacter* PlayerCharacter = Cast<AUNPlayerCharacter>(SourceActor);
+	if (PlayerCharacter)
 	{
-		Controller->GetHitResultUnderCursor(ECC_Visibility, true, OutHitResult);
-		UNavigationSystemV1* Nav = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
-		if (Nav)
+		APlayerController* Controller = Cast<APlayerController>(SourceActor->GetInstigatorController());
+		if (Controller)
 		{
-			bool bProjected = Nav->ProjectPointToNavigation(OutHitResult.Location, NavLocation);
-			OutHitResult.Location = NavLocation.Location;
+			Controller->GetHitResultUnderCursor(ECC_Visibility, true, OutHitResult);
+
+			float SkillRangeScale = PlayerCharacter->GetCurrentActiveDecalData().GetScale().Z;
+			float HitDistance = (OutHitResult.Location - PlayerCharacter->GetActorLocation()).Size();
+
+			UE_LOG(LogTemp, Log, TEXT("%f"), SkillRangeScale);
+
+			if (HitDistance > SkillRangeScale)
+			{
+				FVector SkillRangeEnd = PlayerCharacter->GetActorLocation() + (OutHitResult.Location - PlayerCharacter->GetActorLocation()).GetSafeNormal() * SkillRangeScale;
+				OutHitResult.Location = SkillRangeEnd;
+			}
+
+			UNavigationSystemV1* Nav = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
+			if (Nav)
+			{
+				// Hit위치에서 가장 가까운 네비게이션 Location 반환
+				bool bProjected = Nav->ProjectPointToNavigation(OutHitResult.Location, NavLocation);
+				OutHitResult.Location = NavLocation.Location;
+			}
 		}
 	}
+	
+
 
 	FGameplayAbilityTargetDataHandle DataHandle;
 	FGameplayAbilityTargetData_SingleTargetHit* TargetData = new FGameplayAbilityTargetData_SingleTargetHit(OutHitResult);

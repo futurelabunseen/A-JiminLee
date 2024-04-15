@@ -27,7 +27,7 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UDecalComponent* Decal;
 
-//Dead
+// Dead
 protected:
 	//virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
@@ -49,10 +49,25 @@ protected:
 	void SetDead();
 	void PlayDeadAnimaition();
 
+// Decal
+
+private:
+	UPROPERTY()
+	FDecalStruct CurrentActiveDecalData;
+
 public:
 	UFUNCTION(BlueprintCallable)
 	void ActivateDecal(FDecalStruct DecalStruct);
 
 	UFUNCTION(BlueprintCallable)
 	void EndDecal();
+
+	UFUNCTION(BlueprintCallable)
+	FDecalStruct GetCurrentActiveDecalData() { return CurrentActiveDecalData; }
+
+	UFUNCTION(BlueprintCallable)
+	void SetCurrentActiveDecalData(FDecalStruct NewDecalData) { CurrentActiveDecalData = NewDecalData; }
+
+	UFUNCTION(BlueprintCallable)
+	void ClearCurrentActiveDecalData() { CurrentActiveDecalData = FDecalStruct(); }
 };

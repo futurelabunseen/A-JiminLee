@@ -92,6 +92,7 @@ AUNCharacter::AUNCharacter()
 
 void AUNCharacter::ActivateDecal(FDecalStruct DecalStruct)
 {
+	SetCurrentActiveDecalData(DecalStruct);
 	Decal->SetMaterial(0, DecalStruct.GetMaterial());
 	Decal->SetRelativeLocationAndRotation(DecalStruct.GetLocation(), DecalStruct.GetRotation());
 	Decal->DecalSize = DecalStruct.GetScale();
@@ -101,6 +102,7 @@ void AUNCharacter::EndDecal()
 {
 	Decal->SetMaterial(0, nullptr);
 	Decal->DecalSize = FVector();
+	ClearCurrentActiveDecalData();
 }
 
 // 델리게이트에 등록되는 함수. 사망 시 Attribute에서 Broadcast됨.
