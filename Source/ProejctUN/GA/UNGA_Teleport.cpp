@@ -28,15 +28,18 @@ void UUNGA_Teleport::ActivateAbility(const FGameplayAbilitySpecHandle Handle, co
 	AttackTraceTask->ReadyForActivation();
 }
 
-//void UUNGA_Teleport::CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateCancelAbility)
-//{
-//	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
-//
-//	EndDecal();
-//	bool bReplicateEndAbility = false;
-//	bool bWasCancelled = true;
-//	EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
-//}
+void UUNGA_Teleport::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
+{
+	if (!bWasCancelled)
+	{
+		StartCoolDown();
+	}
+	EndDecal();
+
+	UE_LOG(LogTemp, Log, TEXT("EndTeleport"));
+
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+}
 
 // 반환된 핸들 데이터를 기반으로 캐릭터 텔레포트
 void UUNGA_Teleport::OnTraceResultCallback(const FGameplayAbilityTargetDataHandle& TargetDataHandle)
@@ -50,11 +53,8 @@ void UUNGA_Teleport::OnTraceResultCallback(const FGameplayAbilityTargetDataHandl
 		if (PlayerCharacter)
 		{
 			PlayerCharacter->GetController()->StopMovement();
-			PlayerCharacter->TeleportTo(TargetLocation, (TargetLocation - PlayerCharacter->GetActorLocation()).Rotation(), false, true);
+			PlayerCharacter->TeleportToLocation(TargetLocation);
 		}
-
-		CommitAbilityCooldown(FGameplayAbilitySpecHandle(), CurrentActorInfo, GetCurrentActivationInfoRef(), false);
-		EndDecal();
 
 		bool bReplicatedEndAbility = true;
 		bool bWasCancelled = false;
@@ -71,7 +71,7 @@ void UUNGA_Teleport::OnInterruptedCallback(const FGameplayAbilityTargetDataHandl
 
 void UUNGA_Teleport::OnCancelCallback(const FGameplayAbilityTargetDataHandle& TargetDataHandle)
 {
-	EndDecal();
+	UE_LOG(LogTemp, Log, TEXT("OnCancelCallback"));
 	bool bReplicatedEndAbility = false;
 	bool bWasCancelled = true;
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, bReplicatedEndAbility, bWasCancelled);
@@ -83,6 +83,7 @@ void UUNGA_Teleport::ActivateDecal()
 	AUNPlayerCharacter* PlayerCharacter = Cast<AUNPlayerCharacter>(CurrentActorInfo->AvatarActor.Get());
 	if (PlayerCharacter)
 	{
+		UE_LOG(LogTemp, Log, TEXT("ActivateDecal"));
 		PlayerCharacter->ActivateDecal(DecalStruct);
 	}
 }
@@ -94,4 +95,9 @@ void UUNGA_Teleport::EndDecal()
 	{
 		PlayerCharacter->EndDecal();
 	}
+}
+
+void UUNGA_Teleport::StartCoolDown()
+{
+	CommitAbilityCooldown(FGameplayAbilitySpecHandle(), CurrentActorInfo, GetCurrentActivationInfoRef(), true);
 }

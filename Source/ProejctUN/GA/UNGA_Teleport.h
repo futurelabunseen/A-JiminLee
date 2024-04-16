@@ -21,7 +21,7 @@ public:
 
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData);
 	//virtual void CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateCancelAbility);
-
+	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled);
 protected:
 	UFUNCTION()
 	void OnTraceResultCallback(const FGameplayAbilityTargetDataHandle& TargetDataHandle);
@@ -37,6 +37,9 @@ protected:
 
 	UFUNCTION()
 	void EndDecal();
+
+	UFUNCTION()
+	void StartCoolDown();
 
 	UPROPERTY(EditAnywhere, Category = GAS)
 	TSubclassOf<class AUNTA_TraceLocation> TargetActorClass;

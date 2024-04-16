@@ -77,10 +77,8 @@ void UUNAT_TraceLocation::OnTargetDataCancelCallback(const FGameplayAbilityTarge
 {
 	if (ShouldBroadcastAbilityTaskDelegates())
 	{
-		UE_LOG(LogTemp, Log, TEXT("ShouldBroadcastAbilityTaskDelegates"));
 		OnDestroy(true);
 		OnCanceled.Broadcast(DataHandle);
 	}
-	UE_LOG(LogTemp, Log, TEXT("Cancel"));
 	EndTask();
 }

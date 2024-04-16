@@ -395,7 +395,6 @@ void AUNPlayerCharacter::SendCancelToTargetActor()
 	{
 		if (TargetActor)
 		{
-			UE_LOG(LogTemp, Log, TEXT("Cancel"));
 			TargetActor->CancelTargeting();
 		}
 	}
@@ -469,6 +468,13 @@ void AUNPlayerCharacter::OnStunTagChange(const FGameplayTag CallbackTag, int32 N
 	}
 }
 
+void AUNPlayerCharacter::TeleportToLocation_Implementation(FVector NewLocation)
+{
+	UN_LOG(LogUNNetwork, Log, TEXT("%s"), *NewLocation.ToString());
+	TeleportTo(NewLocation, (NewLocation - GetActorLocation()).Rotation(), false, true);
+	//TeleportActor(NewLocation);
+}
+
 void AUNPlayerCharacter::PlayStunAnimation_Implementation()
 {
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
@@ -482,29 +488,36 @@ void AUNPlayerCharacter::StopStunAnimation_Implementation()
 	AnimInstance->Montage_Stop(0.5f, StunMontage);
 }
 
-void AUNPlayerCharacter::ActivateDecal(FDecalStruct DecalStruct)
+void AUNPlayerCharacter::ActivateDecal_Implementation(FDecalStruct DecalStruct)
 {
 	SetCurrentActiveDecalData(DecalStruct);
 	Decal->SetMaterial(0, DecalStruct.GetMaterial());
 	Decal->SetRelativeLocationAndRotation(DecalStruct.GetLocation(), DecalStruct.GetRotation());
 	Decal->DecalSize = DecalStruct.GetScale();
 
-	PlayerController = CastChecked<APlayerController>(GetController());
-	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+	if (IsLocallyControlled())
 	{
-		Subsystem->AddMappingContext(ConfirmCancelMappingContext, 1);
+		PlayerController = CastChecked<APlayerController>(GetController());
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		{
+			Subsystem->AddMappingContext(ConfirmCancelMappingContext, 1);
+		}
 	}
 }
 
-void AUNPlayerCharacter::EndDecal()
+void AUNPlayerCharacter::EndDecal_Implementation()
 {
 	Decal->SetMaterial(0, nullptr);
 	Decal->DecalSize = FVector();
 	ClearCurrentActiveDecalData();
 
-	PlayerController = CastChecked<APlayerController>(GetController());
-	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+	if (IsLocallyControlled())
 	{
-		Subsystem->RemoveMappingContext(ConfirmCancelMappingContext);
+		PlayerController = Cast<APlayerController>(GetController());
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		{
+			Subsystem->RemoveMappingContext(ConfirmCancelMappingContext);
+		}
 	}
+	
 }
