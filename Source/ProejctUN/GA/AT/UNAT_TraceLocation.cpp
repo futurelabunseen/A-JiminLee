@@ -41,6 +41,7 @@ void UUNAT_TraceLocation::OnDestroy(bool AbilityEnded)
 void UUNAT_TraceLocation::SpawnAndInitalizeTargetActor()
 {
 	SpawnedTargetActor = Cast<AUNTA_TraceLocation>(Ability->GetWorld()->SpawnActorDeferred<AGameplayAbilityTargetActor>(TargetActorClass, FTransform::Identity, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn));
+
 	if (SpawnedTargetActor)
 	{
 		SpawnedTargetActor->SetShowDebug(true);
@@ -75,9 +76,29 @@ void UUNAT_TraceLocation::OnTargetDataReadyCallback(const FGameplayAbilityTarget
 
 void UUNAT_TraceLocation::OnTargetDataCancelCallback(const FGameplayAbilityTargetDataHandle& DataHandle)
 {
+	UAbilitySystemComponent* ASC = AbilitySystemComponent.Get();
+	if (!ASC)
+	{
+		return;
+	}
+
+	FScopedPredictionWindow ScopedPrediction(ASC, IsPredictingClient());
+
+	if (IsPredictingClient())
+	{
+		if (!SpawnedTargetActor->ShouldProduceTargetDataOnServer)
+		{
+			ASC->ServerSetReplicatedTargetDataCancelled(GetAbilitySpecHandle(), GetActivationPredictionKey(), ASC->ScopedPredictionKey);
+		}
+		else
+		{
+			// We aren't going to send the target data, but we will send a generic confirmed message.
+			ASC->ServerSetReplicatedEvent(EAbilityGenericReplicatedEvent::GenericCancel, GetAbilitySpecHandle(), GetActivationPredictionKey(), ASC->ScopedPredictionKey);
+		}
+	}
+
 	if (ShouldBroadcastAbilityTaskDelegates())
 	{
-		OnDestroy(true);
 		OnCanceled.Broadcast(DataHandle);
 	}
 	EndTask();

@@ -28,8 +28,6 @@ void AUNTA_TraceLocation::ConfirmTargetingAndContinue()
 void AUNTA_TraceLocation::CancelTargeting()
 {
 	Super::CancelTargeting();
-
-	CanceledDelegate.Broadcast(FGameplayAbilityTargetDataHandle());
 }
 
 // 마우스 위치를 지점으로 FHitResult를 생성한뒤 핸들에 데이터넣고 반환

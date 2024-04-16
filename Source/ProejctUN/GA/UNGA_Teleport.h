@@ -38,13 +38,14 @@ protected:
 	UFUNCTION()
 	void EndDecal();
 
-	UFUNCTION()
-	void StartCoolDown();
-
 	UPROPERTY(EditAnywhere, Category = GAS)
 	TSubclassOf<class AUNTA_TraceLocation> TargetActorClass;
 
 public:
+
+	UFUNCTION(Server, Unreliable)
+	void StartCoolDown();
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Struct)
 	FDecalStruct DecalStruct;
 };

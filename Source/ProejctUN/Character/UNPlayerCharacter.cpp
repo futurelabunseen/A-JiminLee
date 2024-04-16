@@ -378,26 +378,29 @@ void AUNPlayerCharacter::SendConfirmToTargetActor()
 {
 	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
 
-	for (const auto& TargetActor : ASC->SpawnedTargetActors)
-	{
-		if (TargetActor)
-		{
-			TargetActor->ConfirmTargeting();
-		}
-	}
+	ASC->SpawnedTargetActors.Last()->ConfirmTargeting();
+	//for (const auto& TargetActor : ASC->SpawnedTargetActors)
+	//{
+	//	if (TargetActor)
+	//	{
+	//		TargetActor->ConfirmTargeting();
+	//	}
+	//}
 }
 
 void AUNPlayerCharacter::SendCancelToTargetActor()
 {
 	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
+	UN_LOG(LogUNNetwork, Log, TEXT("%d"), ASC->SpawnedTargetActors.Num());
+	ASC->SpawnedTargetActors.Last()->CancelTargeting();
 
-	for (const auto& TargetActor : ASC->SpawnedTargetActors)
-	{
-		if (TargetActor)
-		{
-			TargetActor->CancelTargeting();
-		}
-	}
+	//for (const auto& TargetActor : ASC->SpawnedTargetActors)
+	//{
+	//	if (TargetActor)
+	//	{
+	//		TargetActor->CancelTargeting();
+	//	}
+	//}
 }
 // ==================== GAS 관련 ==================== End
 
@@ -453,7 +456,6 @@ void AUNPlayerCharacter::UnEquipWeapon(const FGameplayEventData* EventData)
 	}
 }
 
-// 이 아래부터 UNCharacter클래스로 옮길 예정
 void AUNPlayerCharacter::OnStunTagChange(const FGameplayTag CallbackTag, int32 NewCount)
 {
 	if (NewCount > 0)
@@ -470,9 +472,7 @@ void AUNPlayerCharacter::OnStunTagChange(const FGameplayTag CallbackTag, int32 N
 
 void AUNPlayerCharacter::TeleportToLocation_Implementation(FVector NewLocation)
 {
-	UN_LOG(LogUNNetwork, Log, TEXT("%s"), *NewLocation.ToString());
 	TeleportTo(NewLocation, (NewLocation - GetActorLocation()).Rotation(), false, true);
-	//TeleportActor(NewLocation);
 }
 
 void AUNPlayerCharacter::PlayStunAnimation_Implementation()
@@ -488,7 +488,7 @@ void AUNPlayerCharacter::StopStunAnimation_Implementation()
 	AnimInstance->Montage_Stop(0.5f, StunMontage);
 }
 
-void AUNPlayerCharacter::ActivateDecal_Implementation(FDecalStruct DecalStruct)
+void AUNPlayerCharacter::ActivateDecal(FDecalStruct DecalStruct)
 {
 	SetCurrentActiveDecalData(DecalStruct);
 	Decal->SetMaterial(0, DecalStruct.GetMaterial());
@@ -505,7 +505,7 @@ void AUNPlayerCharacter::ActivateDecal_Implementation(FDecalStruct DecalStruct)
 	}
 }
 
-void AUNPlayerCharacter::EndDecal_Implementation()
+void AUNPlayerCharacter::EndDecal()
 {
 	Decal->SetMaterial(0, nullptr);
 	Decal->DecalSize = FVector();

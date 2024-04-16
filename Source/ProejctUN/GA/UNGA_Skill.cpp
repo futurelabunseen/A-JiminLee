@@ -35,7 +35,6 @@ void UUNGA_Skill::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 	UAbilityTask_PlayMontageAndWait* PlayMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, TEXT("SKillMontage"), ActiveSkillActionMontage, 1.f);
 	PlayMontageTask->OnCompleted.AddDynamic(this, &UUNGA_Skill::OnCompleteCallback);
 	PlayMontageTask->OnInterrupted.AddDynamic(this, &UUNGA_Skill::OnInterruptedCallback);
-
 	PlayMontageTask->ReadyForActivation();
 }
 
@@ -47,7 +46,6 @@ void UUNGA_Skill::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGam
 		PlayerCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 	}
 	
-	UE_LOG(LogTemp, Log, TEXT("Skill"));
 	CommitAbilityCooldown(FGameplayAbilitySpecHandle(), CurrentActorInfo, GetCurrentActivationInfoRef(), false);
 
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
