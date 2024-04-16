@@ -23,7 +23,7 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* CameraBoom;
 
-//Dead
+// Dead
 protected:
 	//virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
@@ -44,4 +44,6 @@ protected:
 
 	void SetDead();
 	void PlayDeadAnimaition();
+
+
 };

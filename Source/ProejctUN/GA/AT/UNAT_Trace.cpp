@@ -29,6 +29,12 @@ void UUNAT_Trace::OnDestroy(bool AbilityEnded)
 {
 	if (SpawnedTargetActor)
 	{
+		UAbilitySystemComponent* ASC = AbilitySystemComponent.Get();
+		if (ASC)
+		{
+			ASC->SpawnedTargetActors.Remove(SpawnedTargetActor);
+		}
+
 		SpawnedTargetActor->Destroy();
 	}
 

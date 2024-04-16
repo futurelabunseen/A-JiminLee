@@ -9,6 +9,7 @@
 #include "InputActionValue.h"
 #include "EnhancedInputSubsystems.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/DecalComponent.h"
 
 #include "AbilitySystemComponent.h"
 #include "UNComboActionData.h"
@@ -32,6 +33,12 @@ AUNPlayerCharacter::AUNPlayerCharacter()
 	if (nullptr != InputMappingContextRef.Object)
 	{
 		DefaultMappingContext = InputMappingContextRef.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UInputMappingContext> ConfirmCancelMappingContextRef(TEXT("/Script/EnhancedInput.InputMappingContext'/Game/Input/IMC_ConfirmCancel.IMC_ConfirmCancel'"));
+	if (nullptr != ConfirmCancelMappingContextRef.Object)
+	{
+		ConfirmCancelMappingContext = ConfirmCancelMappingContextRef.Object;
 	}
 
 	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionMoveRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Action/IA_Move.IA_Move'"));
@@ -62,6 +69,12 @@ AUNPlayerCharacter::AUNPlayerCharacter()
 	if (nullptr != InputActionConfirmRef.Object)
 	{
 		ConfirmAction = InputActionConfirmRef.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> CancelActionConfirmRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Action/IA_Cancel.IA_Cancel'"));
+	if (nullptr != CancelActionConfirmRef.Object)
+	{
+		CancelAction = CancelActionConfirmRef.Object;
 	}
 
 	static ConstructorHelpers::FObjectFinder<UAnimMontage> ComboActionMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/OutsideAsset/ParagonGreystone/Characters/Heroes/Greystone/Animations/CustomAnimation/AM_ComboAttack.AM_ComboAttack'"));
@@ -100,6 +113,11 @@ AUNPlayerCharacter::AUNPlayerCharacter()
 	//추후 무기액터의 데이터로 넣을 예정
 	WeaponRange = 175.f;
 	WeaponAttackRate = 40.f;
+
+	// 스킬 범위 데칼
+	Decal = CreateDefaultSubobject<UDecalComponent>(TEXT("Decal"));
+	Decal->DecalSize = FVector();
+	Decal->SetupAttachment(RootComponent);
 }
 
 UAbilitySystemComponent* AUNPlayerCharacter::GetAbilitySystemComponent() const
@@ -138,12 +156,8 @@ void AUNPlayerCharacter::SetupPlayerGASInputComponent()
 		EnhancedInputComponent->BindAction(SkillAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::GASInputPressed, 1);
 		EnhancedInputComponent->BindAction(TeleportAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::GASInputPressed, 2);
 		EnhancedInputComponent->BindAction(ConfirmAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::SendConfirmToTargetActor);
+		EnhancedInputComponent->BindAction(CancelAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::SendCancelToTargetActor);
 
-		//ASC->BindToInputComponent(InputComponent);
-		//FName Confirmname = "Confirm";
-		//FInputActionBinding Confirm = FInputActionBinding(Confirmname, EInputEvent::IE_Pressed);
-		//Confirm.ActionDelegate.GetDelegateForManualSet().BindUObject(ASC, &UAbilitySystemComponent::LocalInputConfirm);
-		//ASC->BindAbilityActivationToInputComponent(InputComponent, FGameplayAbilityInputBinds(FString("ConfirmTarget"), FString("CancelTarget"), FString("AbilityID"), static_cast<int32>))
 		UN_LOG(LogUNNetwork, Log, TEXT("GAS Input Bind Complete"));
 	}
 
@@ -364,18 +378,29 @@ void AUNPlayerCharacter::SendConfirmToTargetActor()
 {
 	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
 
-	if (ASC->SpawnedTargetActors.IsEmpty())
-	{
-		UN_LOG(LogUNNetwork, Log, TEXT("SpawnedTargetActors is Empty"));
-		return;
-	}
+	ASC->SpawnedTargetActors.Last()->ConfirmTargeting();
+	//for (const auto& TargetActor : ASC->SpawnedTargetActors)
+	//{
+	//	if (TargetActor)
+	//	{
+	//		TargetActor->ConfirmTargeting();
+	//	}
+	//}
+}
 
-	for (const auto& targetActor : ASC->SpawnedTargetActors)
-	{
-		//targetActor->ConfirmTargeting();
-		//targetActor->ConfirmTargetingAndContinue();
-		targetActor->OwningAbility->GetCurrentActorInfo()->AbilitySystemComponent->GenericLocalConfirmCallbacks.Broadcast();
-	}
+void AUNPlayerCharacter::SendCancelToTargetActor()
+{
+	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
+	UN_LOG(LogUNNetwork, Log, TEXT("%d"), ASC->SpawnedTargetActors.Num());
+	ASC->SpawnedTargetActors.Last()->CancelTargeting();
+
+	//for (const auto& TargetActor : ASC->SpawnedTargetActors)
+	//{
+	//	if (TargetActor)
+	//	{
+	//		TargetActor->CancelTargeting();
+	//	}
+	//}
 }
 // ==================== GAS 관련 ==================== End
 
@@ -431,7 +456,6 @@ void AUNPlayerCharacter::UnEquipWeapon(const FGameplayEventData* EventData)
 	}
 }
 
-// 이 아래부터 UNCharacter클래스로 옮길 예정
 void AUNPlayerCharacter::OnStunTagChange(const FGameplayTag CallbackTag, int32 NewCount)
 {
 	if (NewCount > 0)
@@ -446,6 +470,11 @@ void AUNPlayerCharacter::OnStunTagChange(const FGameplayTag CallbackTag, int32 N
 	}
 }
 
+void AUNPlayerCharacter::TeleportToLocation_Implementation(FVector NewLocation)
+{
+	TeleportTo(NewLocation, (NewLocation - GetActorLocation()).Rotation(), false, true);
+}
+
 void AUNPlayerCharacter::PlayStunAnimation_Implementation()
 {
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
@@ -457,4 +486,38 @@ void AUNPlayerCharacter::StopStunAnimation_Implementation()
 {
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	AnimInstance->Montage_Stop(0.5f, StunMontage);
+}
+
+void AUNPlayerCharacter::ActivateDecal(FDecalStruct DecalStruct)
+{
+	SetCurrentActiveDecalData(DecalStruct);
+	Decal->SetMaterial(0, DecalStruct.GetMaterial());
+	Decal->SetRelativeLocationAndRotation(DecalStruct.GetLocation(), DecalStruct.GetRotation());
+	Decal->DecalSize = DecalStruct.GetScale();
+
+	if (IsLocallyControlled())
+	{
+		PlayerController = CastChecked<APlayerController>(GetController());
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		{
+			Subsystem->AddMappingContext(ConfirmCancelMappingContext, 1);
+		}
+	}
+}
+
+void AUNPlayerCharacter::EndDecal()
+{
+	Decal->SetMaterial(0, nullptr);
+	Decal->DecalSize = FVector();
+	ClearCurrentActiveDecalData();
+
+	if (IsLocallyControlled())
+	{
+		PlayerController = Cast<APlayerController>(GetController());
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		{
+			Subsystem->RemoveMappingContext(ConfirmCancelMappingContext);
+		}
+	}
+	
 }

@@ -6,6 +6,7 @@
 #include "Character/UNCharacter.h"
 #include "Abilities/GameplayAbilityTypes.h"
 #include "AbilitySystemInterface.h"
+#include "Struct/DecalStruct.h"
 #include "UNPlayerCharacter.generated.h"
 
 class UInputAction;
@@ -32,6 +33,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputMappingContext> DefaultMappingContext;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputMappingContext> ConfirmCancelMappingContext;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* SetDestinationClickAction;
 
@@ -46,6 +50,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* ConfirmAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* CancelAction;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	class UDecalComponent* Decal;
 
 	UPROPERTY(EditAnywhere)
 	APlayerController* PlayerController;
@@ -107,6 +117,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
 	TObjectPtr<class UAnimMontage> StunMontage;
 
+public:
+	UFUNCTION(Server, reliable)
+	void TeleportToLocation(FVector NewLocation);
+
 // GAS
 protected:
 	UPROPERTY(EditAnywhere)
@@ -133,4 +147,27 @@ protected:
 	void InitalizeGameplayAbilities();
 
 	void SendConfirmToTargetActor();
+	void SendCancelToTargetActor();
+
+// Decal
+
+private:
+	UPROPERTY()
+	FDecalStruct CurrentActiveDecalData;
+
+public:
+	UFUNCTION(BlueprintCallable)
+	void ActivateDecal(FDecalStruct DecalStruct);
+
+	UFUNCTION(BlueprintCallable)
+	void EndDecal();
+
+	UFUNCTION(BlueprintCallable)
+	FDecalStruct GetCurrentActiveDecalData() { return CurrentActiveDecalData; }
+
+	UFUNCTION(BlueprintCallable)
+	void SetCurrentActiveDecalData(FDecalStruct NewDecalData) { CurrentActiveDecalData = NewDecalData; }
+
+	UFUNCTION(BlueprintCallable)
+	void ClearCurrentActiveDecalData() { CurrentActiveDecalData = FDecalStruct(); }
 };

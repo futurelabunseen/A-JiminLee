@@ -48,7 +48,7 @@ AUNCharacter::AUNCharacter()
 	GetMesh()->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, -100.0f), FRotator(0.0f, -90.0f, 0.0f));
 	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
 	GetMesh()->SetCollisionProfileName(TEXT("NoCollision"));
-	
+
 	// 프로퍼티 기본값
 	DeadEventDelayTime = 5.f;
 

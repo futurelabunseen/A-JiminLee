@@ -14,4 +14,22 @@ class PROEJCTUN_API AUNTA_TraceLocation : public AGameplayAbilityTargetActor
 {
 	GENERATED_BODY()
 	
+public:
+	virtual void StartTargeting(UGameplayAbility* Ability) override;
+
+	virtual void ConfirmTargetingAndContinue() override;
+
+	virtual void CancelTargeting() override;
+protected:
+	virtual FGameplayAbilityTargetDataHandle MakeTargetData() const;
+
+public:
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<class UStaticMeshComponent> WeaponMesh;
+
+	void SetShowDebug(bool InshowDebug) { bShowDebug = InshowDebug; }
+
+protected:
+	bool bShowDebug = false;
 };
