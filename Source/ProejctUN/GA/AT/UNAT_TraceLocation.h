@@ -25,6 +25,9 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FTraceLocationResultDelegate OnInterrupted;
 
+	UPROPERTY(BlueprintAssignable)
+	FTraceLocationResultDelegate OnCanceled;
+
 	virtual void Activate() override;
 	virtual void OnDestroy(bool AbilityEnded) override;
 
@@ -39,4 +42,5 @@ protected:
 	TObjectPtr<class AUNTA_TraceLocation> SpawnedTargetActor;
 
 	void OnTargetDataReadyCallback(const FGameplayAbilityTargetDataHandle& DataHandle);
+	void OnTargetDataCancelCallback(const FGameplayAbilityTargetDataHandle& DataHandle);
 };

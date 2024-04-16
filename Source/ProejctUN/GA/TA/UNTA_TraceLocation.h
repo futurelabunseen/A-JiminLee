@@ -19,6 +19,7 @@ public:
 
 	virtual void ConfirmTargetingAndContinue() override;
 
+	virtual void CancelTargeting() override;
 protected:
 	virtual FGameplayAbilityTargetDataHandle MakeTargetData() const;
 

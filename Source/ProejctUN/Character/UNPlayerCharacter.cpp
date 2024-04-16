@@ -156,9 +156,7 @@ void AUNPlayerCharacter::SetupPlayerGASInputComponent()
 		EnhancedInputComponent->BindAction(SkillAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::GASInputPressed, 1);
 		EnhancedInputComponent->BindAction(TeleportAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::GASInputPressed, 2);
 		EnhancedInputComponent->BindAction(ConfirmAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::SendConfirmToTargetActor);
-		
-		//추가 예정
-		//EnhancedInputComponent->BindAction(CancelAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::SendCancelToTargetActor);
+		EnhancedInputComponent->BindAction(CancelAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::SendCancelToTargetActor);
 
 		UN_LOG(LogUNNetwork, Log, TEXT("GAS Input Bind Complete"));
 	}
@@ -397,6 +395,7 @@ void AUNPlayerCharacter::SendCancelToTargetActor()
 	{
 		if (TargetActor)
 		{
+			UE_LOG(LogTemp, Log, TEXT("Cancel"));
 			TargetActor->CancelTargeting();
 		}
 	}

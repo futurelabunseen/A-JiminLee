@@ -20,6 +20,7 @@ public:
 	UUNGA_Teleport();
 
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData);
+	//virtual void CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateCancelAbility);
 
 protected:
 	UFUNCTION()
@@ -27,6 +28,9 @@ protected:
 
 	UFUNCTION()
 	void OnInterruptedCallback(const FGameplayAbilityTargetDataHandle& TargetDataHandle);
+
+	UFUNCTION()
+	void OnCancelCallback(const FGameplayAbilityTargetDataHandle& TargetDataHandle);
 
 	UFUNCTION()
 	void ActivateDecal();

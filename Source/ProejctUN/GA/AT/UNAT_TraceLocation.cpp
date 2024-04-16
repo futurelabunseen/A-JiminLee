@@ -45,6 +45,7 @@ void UUNAT_TraceLocation::SpawnAndInitalizeTargetActor()
 	{
 		SpawnedTargetActor->SetShowDebug(true);
 		SpawnedTargetActor->TargetDataReadyDelegate.AddUObject(this, &UUNAT_TraceLocation::OnTargetDataReadyCallback);
+		SpawnedTargetActor->CanceledDelegate.AddUObject(this, &UUNAT_TraceLocation::OnTargetDataCancelCallback);
 	}
 }
 
@@ -69,6 +70,17 @@ void UUNAT_TraceLocation::OnTargetDataReadyCallback(const FGameplayAbilityTarget
 	{
 		OnComplete.Broadcast(DataHandle);
 	}
+	EndTask();
+}
 
+void UUNAT_TraceLocation::OnTargetDataCancelCallback(const FGameplayAbilityTargetDataHandle& DataHandle)
+{
+	if (ShouldBroadcastAbilityTaskDelegates())
+	{
+		UE_LOG(LogTemp, Log, TEXT("ShouldBroadcastAbilityTaskDelegates"));
+		OnDestroy(true);
+		OnCanceled.Broadcast(DataHandle);
+	}
+	UE_LOG(LogTemp, Log, TEXT("Cancel"));
 	EndTask();
 }

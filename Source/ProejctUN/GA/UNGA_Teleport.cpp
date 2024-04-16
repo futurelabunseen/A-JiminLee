@@ -24,8 +24,19 @@ void UUNGA_Teleport::ActivateAbility(const FGameplayAbilitySpecHandle Handle, co
 	UUNAT_TraceLocation* AttackTraceTask = UUNAT_TraceLocation::CreateTask(this, TargetActorClass);
 	AttackTraceTask->OnComplete.AddDynamic(this, &UUNGA_Teleport::OnTraceResultCallback);
 	AttackTraceTask->OnInterrupted.AddDynamic(this, &UUNGA_Teleport::OnInterruptedCallback);
+	AttackTraceTask->OnCanceled.AddDynamic(this, &UUNGA_Teleport::OnCancelCallback);
 	AttackTraceTask->ReadyForActivation();
 }
+
+//void UUNGA_Teleport::CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateCancelAbility)
+//{
+//	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
+//
+//	EndDecal();
+//	bool bReplicateEndAbility = false;
+//	bool bWasCancelled = true;
+//	EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+//}
 
 // 반환된 핸들 데이터를 기반으로 캐릭터 텔레포트
 void UUNGA_Teleport::OnTraceResultCallback(const FGameplayAbilityTargetDataHandle& TargetDataHandle)
@@ -54,6 +65,14 @@ void UUNGA_Teleport::OnTraceResultCallback(const FGameplayAbilityTargetDataHandl
 void UUNGA_Teleport::OnInterruptedCallback(const FGameplayAbilityTargetDataHandle& TargetDataHandle)
 {
 	bool bReplicatedEndAbility = true;
+	bool bWasCancelled = true;
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, bReplicatedEndAbility, bWasCancelled);
+}
+
+void UUNGA_Teleport::OnCancelCallback(const FGameplayAbilityTargetDataHandle& TargetDataHandle)
+{
+	EndDecal();
+	bool bReplicatedEndAbility = false;
 	bool bWasCancelled = true;
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, bReplicatedEndAbility, bWasCancelled);
 }
