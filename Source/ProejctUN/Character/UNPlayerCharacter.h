@@ -78,8 +78,8 @@ protected:
 	void LeftClickAction();
 	void RightClickAction();
 
-	bool bisTargeting;
-	bool bisCanceled;
+	uint8 bisTargeting;
+	uint8 bisCanceled;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)

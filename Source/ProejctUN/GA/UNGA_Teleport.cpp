@@ -18,7 +18,11 @@ void UUNGA_Teleport::ActivateAbility(const FGameplayAbilitySpecHandle Handle, co
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	
-	ActivateDecal();
+	if (IsLocallyControlled())
+	{
+		ActivateDecal();
+	}
+	
 	UUNAT_TraceLocation* AttackTraceTask = UUNAT_TraceLocation::CreateTask(this, TargetActorClass);
 	AttackTraceTask->OnComplete.AddDynamic(this, &UUNGA_Teleport::OnTraceResultCallback);
 	AttackTraceTask->OnInterrupted.AddDynamic(this, &UUNGA_Teleport::OnInterruptedCallback);
@@ -34,9 +38,9 @@ void UUNGA_Teleport::EndAbility(const FGameplayAbilitySpecHandle Handle, const F
 		if (!bWasCancelled)
 		{
 			StartCoolDown();
+			EndDecal();
 		}
 	}
-	EndDecal();
 
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
