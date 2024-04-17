@@ -75,6 +75,12 @@ protected:
 	void OnSetDestinationTriggered();
 	void OnSetDestinationReleased();
 
+	void LeftClickAction();
+	void RightClickAction();
+
+	bool bisTargeting;
+	bool bisCanceled;
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
 	TObjectPtr<class UAnimMontage> ComboActionMontage;

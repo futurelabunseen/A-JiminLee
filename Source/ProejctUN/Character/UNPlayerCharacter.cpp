@@ -134,7 +134,7 @@ void AUNPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
 	if (EnhancedInputComponent)
 	{
-		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Started, this, &AUNPlayerCharacter::OnInputStarted);
+		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Started, this, &AUNPlayerCharacter::RightClickAction); //&AUNPlayerCharacter::OnInputStarted
 		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::OnSetDestinationTriggered);
 		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Completed, this, &AUNPlayerCharacter::OnSetDestinationReleased);
 		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Canceled, this, &AUNPlayerCharacter::OnSetDestinationReleased);
@@ -152,7 +152,8 @@ void AUNPlayerCharacter::SetupPlayerGASInputComponent()
 	{
 		UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
 
-		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::GASInputPressed, 0);
+		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::LeftClickAction); //&AUNPlayerCharacter::GASInputPressed, 0
+		//EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::GASInputPressed, 0);
 		EnhancedInputComponent->BindAction(SkillAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::GASInputPressed, 1);
 		EnhancedInputComponent->BindAction(TeleportAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::GASInputPressed, 2);
 		EnhancedInputComponent->BindAction(ConfirmAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::SendConfirmToTargetActor);
@@ -302,6 +303,11 @@ void AUNPlayerCharacter::OnSetDestinationTriggered()
 
 void AUNPlayerCharacter::OnSetDestinationReleased()
 {
+	if (bisCanceled)
+	{
+		return;
+	}
+
 	if (FollowTime <= ShortPressThreshold)
 	{
 		UAIBlueprintHelperLibrary::SimpleMoveToLocation(PlayerController, CachedDestination);
@@ -310,8 +316,30 @@ void AUNPlayerCharacter::OnSetDestinationReleased()
 	FollowTime = 0.f;
 }
 
-// ================================================== End
+// ==================== 이동 관련 ==================== End
 
+void AUNPlayerCharacter::LeftClickAction()
+{
+	if (bisTargeting)
+	{
+		SendConfirmToTargetActor();
+		return;
+	}
+
+	GASInputPressed(0);
+}
+
+void AUNPlayerCharacter::RightClickAction()
+{
+	if (bisTargeting)
+	{
+		SendCancelToTargetActor();
+		bisCanceled = true;
+		return;
+	}
+
+	OnInputStarted();
+}
 
 // ==================== GAS 관련 ==================== Start
 
@@ -321,7 +349,6 @@ void AUNPlayerCharacter::GASInputPressed(int32 InputId)
 	FGameplayAbilitySpec* Spec = ASC->FindAbilitySpecFromInputID(InputId);
 	if (Spec)
 	{
-		UN_LOG(LogUNNetwork, Log, TEXT("ATTACK!"));
 		Spec->InputPressed = true;
 		if (Spec->IsActive())
 		{
@@ -495,14 +522,7 @@ void AUNPlayerCharacter::ActivateDecal(FDecalStruct DecalStruct)
 	Decal->SetRelativeLocationAndRotation(DecalStruct.GetLocation(), DecalStruct.GetRotation());
 	Decal->DecalSize = DecalStruct.GetScale();
 
-	if (IsLocallyControlled())
-	{
-		PlayerController = CastChecked<APlayerController>(GetController());
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
-		{
-			Subsystem->AddMappingContext(ConfirmCancelMappingContext, 1);
-		}
-	}
+	bisTargeting = true;
 }
 
 void AUNPlayerCharacter::EndDecal()
@@ -511,13 +531,5 @@ void AUNPlayerCharacter::EndDecal()
 	Decal->DecalSize = FVector();
 	ClearCurrentActiveDecalData();
 
-	if (IsLocallyControlled())
-	{
-		PlayerController = Cast<APlayerController>(GetController());
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
-		{
-			Subsystem->RemoveMappingContext(ConfirmCancelMappingContext);
-		}
-	}
-	
+	bisTargeting = false;
 }
