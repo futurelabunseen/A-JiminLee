@@ -98,5 +98,5 @@ void UUNGA_Teleport::EndDecal()
 
 void UUNGA_Teleport::StartCoolDown_Implementation()
 {
-	CommitAbilityCooldown(FGameplayAbilitySpecHandle(), CurrentActorInfo, GetCurrentActivationInfoRef(), true);
+	CommitAbilityCooldown(FGameplayAbilitySpecHandle(), CurrentActorInfo, GetCurrentActivationInfoRef(), false);
 }

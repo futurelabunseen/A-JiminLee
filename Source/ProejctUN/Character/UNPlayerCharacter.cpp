@@ -374,6 +374,9 @@ void AUNPlayerCharacter::InitalizeGameplayAbilities()
 		ASC->GiveAbility(StartSpec);
 	}
 }
+
+// ==================== GAS 관련 ==================== End
+
 void AUNPlayerCharacter::SendConfirmToTargetActor()
 {
 	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
@@ -391,7 +394,6 @@ void AUNPlayerCharacter::SendConfirmToTargetActor()
 void AUNPlayerCharacter::SendCancelToTargetActor()
 {
 	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
-	UN_LOG(LogUNNetwork, Log, TEXT("%d"), ASC->SpawnedTargetActors.Num());
 	ASC->SpawnedTargetActors.Last()->CancelTargeting();
 
 	//for (const auto& TargetActor : ASC->SpawnedTargetActors)
@@ -402,8 +404,6 @@ void AUNPlayerCharacter::SendCancelToTargetActor()
 	//	}
 	//}
 }
-// ==================== GAS 관련 ==================== End
-
 
 // 무기 장착. 무기는 추후 액터로 변경
 void AUNPlayerCharacter::EquipWeapon(const FGameplayEventData* EventData)
