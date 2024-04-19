@@ -130,7 +130,7 @@ public:
 // GAS
 protected:
 	UPROPERTY(EditAnywhere)
-	TObjectPtr<class UAbilitySystemComponent> ASC;
+	TObjectPtr<class UUNAbilitySystemComponent> ASC;
 
 	UPROPERTY(EditAnywhere, Category = GAS)
 	TArray<TSubclassOf<class UGameplayAbility>> StartAbilities;

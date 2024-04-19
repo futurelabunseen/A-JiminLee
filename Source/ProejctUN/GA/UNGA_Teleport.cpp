@@ -38,8 +38,8 @@ void UUNGA_Teleport::EndAbility(const FGameplayAbilitySpecHandle Handle, const F
 		if (!bWasCancelled)
 		{
 			StartCoolDown();
-			EndDecal();
 		}
+		EndDecal();
 	}
 
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);

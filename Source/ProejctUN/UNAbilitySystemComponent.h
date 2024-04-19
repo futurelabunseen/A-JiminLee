@@ -14,4 +14,11 @@ class PROEJCTUN_API UUNAbilitySystemComponent : public UAbilitySystemComponent
 {
 	GENERATED_BODY()
 	
+	
+protected:
+	TObjectPtr<AGameplayAbilityTargetActor> CurrentActiveTargetActor;
+
+public:
+	TObjectPtr<AGameplayAbilityTargetActor> GetCurrentActiveTargetActor() { return CurrentActiveTargetActor; }
+	void SetCurrentActiveTargetActor(TObjectPtr<AGameplayAbilityTargetActor> NewCurrentActiveTargetActor) { CurrentActiveTargetActor = NewCurrentActiveTargetActor; }
 };

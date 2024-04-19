@@ -408,28 +408,14 @@ void AUNPlayerCharacter::SendConfirmToTargetActor()
 {
 	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
 
-	ASC->SpawnedTargetActors.Last()->ConfirmTargeting();
-	//for (const auto& TargetActor : ASC->SpawnedTargetActors)
-	//{
-	//	if (TargetActor)
-	//	{
-	//		TargetActor->ConfirmTargeting();
-	//	}
-	//}
+	ASC->GetCurrentActiveTargetActor()->ConfirmTargeting();
 }
 
 void AUNPlayerCharacter::SendCancelToTargetActor()
 {
 	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
-	ASC->SpawnedTargetActors.Last()->CancelTargeting();
-
-	//for (const auto& TargetActor : ASC->SpawnedTargetActors)
-	//{
-	//	if (TargetActor)
-	//	{
-	//		TargetActor->CancelTargeting();
-	//	}
-	//}
+	
+	ASC->GetCurrentActiveTargetActor()->CancelTargeting();
 }
 
 // 무기 장착. 무기는 추후 액터로 변경
