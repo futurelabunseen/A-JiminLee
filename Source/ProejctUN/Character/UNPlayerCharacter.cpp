@@ -11,12 +11,12 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/DecalComponent.h"
 
-#include "AbilitySystemComponent.h"
+#include "UNAbilitySystemComponent.h"
 #include "UNComboActionData.h"
 #include "Attribute/UNCharacterAttributeSet.h"
 #include "Tag/UNGameplayTag.h"
 #include "UI/UNGASWidgetComponent.h"
-#include "Abilities/GameplayAbilityTargetActor_GroundTrace.h"
+#include "Abilities/GameplayAbilityTargetActor.h"
 
 #include "ProejctUN.h"
 
@@ -191,7 +191,7 @@ void AUNPlayerCharacter::PossessedBy(AController* NewController)
 	AUNGASPlayerState* GASPS = GetPlayerState<AUNGASPlayerState>();
 	if (GASPS)
 	{
-		ASC = Cast<UAbilitySystemComponent>(GASPS->GetAbilitySystemComponent());
+		ASC = Cast<UUNAbilitySystemComponent>(GASPS->GetAbilitySystemComponent());
 		ASC->InitAbilityActorInfo(GASPS, this);
 
 		ASC->GenericGameplayEventCallbacks.FindOrAdd(UNTAG_EVENT_CHARACTER_WEAPONEQUIP).AddUObject(this, &AUNPlayerCharacter::EquipWeapon);
@@ -246,7 +246,7 @@ void AUNPlayerCharacter::OnRep_PlayerState()
 	AUNGASPlayerState* GASPS = GetPlayerState<AUNGASPlayerState>();
 	if (GASPS)
 	{
-		ASC = Cast<UAbilitySystemComponent>(GASPS->GetAbilitySystemComponent());
+		ASC = Cast<UUNAbilitySystemComponent>(GASPS->GetAbilitySystemComponent());
 		ASC->InitAbilityActorInfo(GASPS, this);
 
 		ASC->GenericGameplayEventCallbacks.FindOrAdd(UNTAG_EVENT_CHARACTER_WEAPONEQUIP).AddUObject(this, &AUNPlayerCharacter::EquipWeapon);
@@ -408,28 +408,14 @@ void AUNPlayerCharacter::SendConfirmToTargetActor()
 {
 	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
 
-	ASC->SpawnedTargetActors.Last()->ConfirmTargeting();
-	//for (const auto& TargetActor : ASC->SpawnedTargetActors)
-	//{
-	//	if (TargetActor)
-	//	{
-	//		TargetActor->ConfirmTargeting();
-	//	}
-	//}
+	ASC->GetCurrentActiveTargetActor()->ConfirmTargeting();
 }
 
 void AUNPlayerCharacter::SendCancelToTargetActor()
 {
 	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
-	ASC->SpawnedTargetActors.Last()->CancelTargeting();
-
-	//for (const auto& TargetActor : ASC->SpawnedTargetActors)
-	//{
-	//	if (TargetActor)
-	//	{
-	//		TargetActor->CancelTargeting();
-	//	}
-	//}
+	
+	ASC->GetCurrentActiveTargetActor()->CancelTargeting();
 }
 
 // 무기 장착. 무기는 추후 액터로 변경
@@ -495,11 +481,6 @@ void AUNPlayerCharacter::OnStunTagChange(const FGameplayTag CallbackTag, int32 N
 		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 		StopStunAnimation();
 	}
-}
-
-void AUNPlayerCharacter::TeleportToLocation_Implementation(FVector NewLocation)
-{
-	TeleportTo(NewLocation, (NewLocation - GetActorLocation()).Rotation(), false, true);
 }
 
 void AUNPlayerCharacter::PlayStunAnimation_Implementation()

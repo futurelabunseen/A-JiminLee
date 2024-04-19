@@ -2,12 +2,12 @@
 
 
 #include "Character/UNNonPlayerCharacter.h"
-#include "AbilitySystemComponent.h"
+#include "UNAbilitySystemComponent.h"
 #include "Attribute/UNCharacterAttributeSet.h"
 
 AUNNonPlayerCharacter::AUNNonPlayerCharacter()
 {
-	ASC = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("ASC"));
+	ASC = CreateDefaultSubobject<UUNAbilitySystemComponent>(TEXT("ASC"));
 	AttributeSet = CreateDefaultSubobject<UUNCharacterAttributeSet>(TEXT("AttributeSet"));
 
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;

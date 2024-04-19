@@ -18,11 +18,12 @@ void UUNGA_Teleport::ActivateAbility(const FGameplayAbilitySpecHandle Handle, co
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	
+	PlayerCharacter = CastChecked<AUNPlayerCharacter>(CurrentActorInfo->AvatarActor.Get());
 	if (IsLocallyControlled())
 	{
 		ActivateDecal();
 	}
-	
+
 	UUNAT_TraceLocation* AttackTraceTask = UUNAT_TraceLocation::CreateTask(this, TargetActorClass);
 	AttackTraceTask->OnComplete.AddDynamic(this, &UUNGA_Teleport::OnTraceResultCallback);
 	AttackTraceTask->OnInterrupted.AddDynamic(this, &UUNGA_Teleport::OnInterruptedCallback);
@@ -38,8 +39,8 @@ void UUNGA_Teleport::EndAbility(const FGameplayAbilitySpecHandle Handle, const F
 		if (!bWasCancelled)
 		{
 			StartCoolDown();
-			EndDecal();
 		}
+		EndDecal();
 	}
 
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
@@ -53,12 +54,8 @@ void UUNGA_Teleport::OnTraceResultCallback(const FGameplayAbilityTargetDataHandl
 		FHitResult HitResult = UAbilitySystemBlueprintLibrary::GetHitResultFromTargetData(TargetDataHandle, 0);
 		FVector TargetLocation = HitResult.Location;
 
-		AUNPlayerCharacter* PlayerCharacter = Cast<AUNPlayerCharacter>(CurrentActorInfo->AvatarActor.Get());
-		if (PlayerCharacter)
-		{
-			PlayerCharacter->GetController()->StopMovement();
-			PlayerCharacter->TeleportToLocation(TargetLocation);
-		}
+		PlayerCharacter->GetController()->StopMovement();
+		TeleportToLocation(TargetLocation);
 
 		bool bReplicatedEndAbility = true;
 		bool bWasCancelled = false;
@@ -84,20 +81,17 @@ void UUNGA_Teleport::OnCancelCallback(const FGameplayAbilityTargetDataHandle& Ta
 // Decal을 이용한 범위 표시
 void UUNGA_Teleport::ActivateDecal()
 {
-	AUNPlayerCharacter* PlayerCharacter = Cast<AUNPlayerCharacter>(CurrentActorInfo->AvatarActor.Get());
-	if (PlayerCharacter)
-	{
-		PlayerCharacter->ActivateDecal(DecalStruct);
-	}
+	PlayerCharacter->ActivateDecal(DecalStruct);
 }
 
 void UUNGA_Teleport::EndDecal()
 {
-	AUNPlayerCharacter* PlayerCharacter = Cast<AUNPlayerCharacter>(CurrentActorInfo->AvatarActor.Get());
-	if (PlayerCharacter)
-	{
-		PlayerCharacter->EndDecal();
-	}
+	PlayerCharacter->EndDecal();
+}
+
+void UUNGA_Teleport::TeleportToLocation_Implementation(FVector NewLocation)
+{
+	PlayerCharacter->TeleportTo(NewLocation, (NewLocation - PlayerCharacter->GetActorLocation()).Rotation(), false, true);
 }
 
 void UUNGA_Teleport::StartCoolDown_Implementation()

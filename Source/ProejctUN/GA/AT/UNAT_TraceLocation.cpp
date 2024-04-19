@@ -3,7 +3,7 @@
 
 #include "UNAT_TraceLocation.h"
 #include "GA/TA/UNTA_TraceLocation.h"
-#include "AbilitySystemComponent.h"
+#include "UNAbilitySystemComponent.h"
 
 UUNAT_TraceLocation* UUNAT_TraceLocation::CreateTask(UGameplayAbility* OwningAbility, TSubclassOf<class AUNTA_TraceLocation> TargetActorClass)
 {
@@ -26,7 +26,7 @@ void UUNAT_TraceLocation::OnDestroy(bool AbilityEnded)
 {
 	if (SpawnedTargetActor)
 	{
-		UAbilitySystemComponent* ASC = AbilitySystemComponent.Get();
+		UUNAbilitySystemComponent* ASC = CastChecked<UUNAbilitySystemComponent>(AbilitySystemComponent.Get());
 		if (ASC)
 		{
 			ASC->SpawnedTargetActors.Remove(SpawnedTargetActor);
@@ -53,11 +53,12 @@ void UUNAT_TraceLocation::SpawnAndInitalizeTargetActor()
 // ConfirmTargeting()은 PlayerCharacter의 클릭으로 진행
 void UUNAT_TraceLocation::FinalizeTargetActor()
 {
-	UAbilitySystemComponent* ASC = AbilitySystemComponent.Get();
+	UUNAbilitySystemComponent* ASC = CastChecked<UUNAbilitySystemComponent>(AbilitySystemComponent.Get());
 	if (ASC)
 	{
 		const FTransform SpawnTransform = ASC->GetAvatarActor()->GetTransform();
 		SpawnedTargetActor->FinishSpawning(SpawnTransform);
+		ASC->SetCurrentActiveTargetActor(SpawnedTargetActor);
 
 		ASC->SpawnedTargetActors.Push(SpawnedTargetActor);
 		SpawnedTargetActor->StartTargeting(Ability);
@@ -76,7 +77,7 @@ void UUNAT_TraceLocation::OnTargetDataReadyCallback(const FGameplayAbilityTarget
 
 void UUNAT_TraceLocation::OnTargetDataCancelCallback(const FGameplayAbilityTargetDataHandle& DataHandle)
 {
-	UAbilitySystemComponent* ASC = AbilitySystemComponent.Get();
+	UUNAbilitySystemComponent* ASC = CastChecked<UUNAbilitySystemComponent>(AbilitySystemComponent.Get());
 	if (!ASC)
 	{
 		return;
@@ -103,3 +104,4 @@ void UUNAT_TraceLocation::OnTargetDataCancelCallback(const FGameplayAbilityTarge
 	}
 	EndTask();
 }
+	

@@ -21,7 +21,7 @@ public:
 	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 protected:
 	UPROPERTY()
-	TObjectPtr<class UAbilitySystemComponent> ASC;
+	TObjectPtr<class UUNAbilitySystemComponent> ASC;
 
 	UPROPERTY()
 	TObjectPtr<class UUNCharacterAttributeSet> AttributeSet;
