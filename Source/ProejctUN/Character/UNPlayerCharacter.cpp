@@ -8,12 +8,15 @@
 #include "InputMappingContext.h"
 #include "InputActionValue.h"
 #include "EnhancedInputSubsystems.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Components/DecalComponent.h"
 
 #include "AbilitySystemComponent.h"
 #include "UNComboActionData.h"
 #include "Attribute/UNCharacterAttributeSet.h"
 #include "Tag/UNGameplayTag.h"
 #include "UI/UNGASWidgetComponent.h"
+#include "Abilities/GameplayAbilityTargetActor_GroundTrace.h"
 
 #include "ProejctUN.h"
 
@@ -32,6 +35,12 @@ AUNPlayerCharacter::AUNPlayerCharacter()
 		DefaultMappingContext = InputMappingContextRef.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<UInputMappingContext> ConfirmCancelMappingContextRef(TEXT("/Script/EnhancedInput.InputMappingContext'/Game/Input/IMC_ConfirmCancel.IMC_ConfirmCancel'"));
+	if (nullptr != ConfirmCancelMappingContextRef.Object)
+	{
+		ConfirmCancelMappingContext = ConfirmCancelMappingContextRef.Object;
+	}
+
 	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionMoveRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Action/IA_Move.IA_Move'"));
 	if (nullptr != InputActionMoveRef.Object)
 	{
@@ -48,6 +57,24 @@ AUNPlayerCharacter::AUNPlayerCharacter()
 	if (nullptr != InputActionSkillRef.Object)
 	{
 		SkillAction = InputActionSkillRef.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionTeleportRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Action/IA_Teleport.IA_Teleport'"));
+	if (nullptr != InputActionTeleportRef.Object)
+	{
+		TeleportAction = InputActionTeleportRef.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionConfirmRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Action/IA_Confirm.IA_Confirm'"));
+	if (nullptr != InputActionConfirmRef.Object)
+	{
+		ConfirmAction = InputActionConfirmRef.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> CancelActionConfirmRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Action/IA_Cancel.IA_Cancel'"));
+	if (nullptr != CancelActionConfirmRef.Object)
+	{
+		CancelAction = CancelActionConfirmRef.Object;
 	}
 
 	static ConstructorHelpers::FObjectFinder<UAnimMontage> ComboActionMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/OutsideAsset/ParagonGreystone/Characters/Heroes/Greystone/Animations/CustomAnimation/AM_ComboAttack.AM_ComboAttack'"));
@@ -74,12 +101,23 @@ AUNPlayerCharacter::AUNPlayerCharacter()
 		WeaponMesh = WeaponMeshRef.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> StunMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/OutsideAsset/ParagonGreystone/Characters/Heroes/Greystone/Animations/CustomAnimation/AM_Stun.AM_Stun'"));
+	if (StunMontageRef.Object)
+	{
+		StunMontage = StunMontageRef.Object;
+	}
+
 	Weapon = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Weapon"));
 	Weapon->SetupAttachment(GetMesh(), TEXT("hand_rSocket"));
 
 	//추후 무기액터의 데이터로 넣을 예정
 	WeaponRange = 175.f;
 	WeaponAttackRate = 40.f;
+
+	// 스킬 범위 데칼
+	Decal = CreateDefaultSubobject<UDecalComponent>(TEXT("Decal"));
+	Decal->DecalSize = FVector();
+	Decal->SetupAttachment(RootComponent);
 }
 
 UAbilitySystemComponent* AUNPlayerCharacter::GetAbilitySystemComponent() const
@@ -96,7 +134,7 @@ void AUNPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
 	if (EnhancedInputComponent)
 	{
-		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Started, this, &AUNPlayerCharacter::OnInputStarted);
+		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Started, this, &AUNPlayerCharacter::RightClickAction); //&AUNPlayerCharacter::OnInputStarted
 		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::OnSetDestinationTriggered);
 		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Completed, this, &AUNPlayerCharacter::OnSetDestinationReleased);
 		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Canceled, this, &AUNPlayerCharacter::OnSetDestinationReleased);
@@ -114,8 +152,12 @@ void AUNPlayerCharacter::SetupPlayerGASInputComponent()
 	{
 		UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
 
-		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::GASInputPressed, 0);
+		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::LeftClickAction); //&AUNPlayerCharacter::GASInputPressed, 0
+		//EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::GASInputPressed, 0);
 		EnhancedInputComponent->BindAction(SkillAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::GASInputPressed, 1);
+		EnhancedInputComponent->BindAction(TeleportAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::GASInputPressed, 2);
+		EnhancedInputComponent->BindAction(ConfirmAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::SendConfirmToTargetActor);
+		EnhancedInputComponent->BindAction(CancelAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::SendCancelToTargetActor);
 
 		UN_LOG(LogUNNetwork, Log, TEXT("GAS Input Bind Complete"));
 	}
@@ -154,6 +196,7 @@ void AUNPlayerCharacter::PossessedBy(AController* NewController)
 
 		ASC->GenericGameplayEventCallbacks.FindOrAdd(UNTAG_EVENT_CHARACTER_WEAPONEQUIP).AddUObject(this, &AUNPlayerCharacter::EquipWeapon);
 		ASC->GenericGameplayEventCallbacks.FindOrAdd(UNTAG_EVENT_CHARACTER_WEAPONUNEQUIP).AddUObject(this, &AUNPlayerCharacter::UnEquipWeapon);
+		ASC->RegisterGameplayTagEvent(UNTAG_CHARACTER_STATE_ISSTUNING, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &AUNPlayerCharacter::OnStunTagChange);
 	}
 	else
 	{
@@ -260,6 +303,11 @@ void AUNPlayerCharacter::OnSetDestinationTriggered()
 
 void AUNPlayerCharacter::OnSetDestinationReleased()
 {
+	if (bisCanceled)
+	{
+		return;
+	}
+
 	if (FollowTime <= ShortPressThreshold)
 	{
 		UAIBlueprintHelperLibrary::SimpleMoveToLocation(PlayerController, CachedDestination);
@@ -268,8 +316,30 @@ void AUNPlayerCharacter::OnSetDestinationReleased()
 	FollowTime = 0.f;
 }
 
-// ================================================== End
+// ==================== 이동 관련 ==================== End
 
+void AUNPlayerCharacter::LeftClickAction()
+{
+	if (bisTargeting)
+	{
+		SendConfirmToTargetActor();
+		return;
+	}
+
+	GASInputPressed(0);
+}
+
+void AUNPlayerCharacter::RightClickAction()
+{
+	if (bisTargeting)
+	{
+		SendCancelToTargetActor();
+		bisCanceled = true;
+		return;
+	}
+
+	OnInputStarted();
+}
 
 // ==================== GAS 관련 ==================== Start
 
@@ -279,7 +349,6 @@ void AUNPlayerCharacter::GASInputPressed(int32 InputId)
 	FGameplayAbilitySpec* Spec = ASC->FindAbilitySpecFromInputID(InputId);
 	if (Spec)
 	{
-		UN_LOG(LogUNNetwork, Log, TEXT("ATTACK!"));
 		Spec->InputPressed = true;
 		if (Spec->IsActive())
 		{
@@ -332,8 +401,36 @@ void AUNPlayerCharacter::InitalizeGameplayAbilities()
 		ASC->GiveAbility(StartSpec);
 	}
 }
+
 // ==================== GAS 관련 ==================== End
 
+void AUNPlayerCharacter::SendConfirmToTargetActor()
+{
+	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
+
+	ASC->SpawnedTargetActors.Last()->ConfirmTargeting();
+	//for (const auto& TargetActor : ASC->SpawnedTargetActors)
+	//{
+	//	if (TargetActor)
+	//	{
+	//		TargetActor->ConfirmTargeting();
+	//	}
+	//}
+}
+
+void AUNPlayerCharacter::SendCancelToTargetActor()
+{
+	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
+	ASC->SpawnedTargetActors.Last()->CancelTargeting();
+
+	//for (const auto& TargetActor : ASC->SpawnedTargetActors)
+	//{
+	//	if (TargetActor)
+	//	{
+	//		TargetActor->CancelTargeting();
+	//	}
+	//}
+}
 
 // 무기 장착. 무기는 추후 액터로 변경
 void AUNPlayerCharacter::EquipWeapon(const FGameplayEventData* EventData)
@@ -384,4 +481,55 @@ void AUNPlayerCharacter::UnEquipWeapon(const FGameplayEventData* EventData)
 		ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute(), CurrentAttackRange - WeaponRange);
 		ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute(), CurrentAttackRate - WeaponAttackRate);
 	}
+}
+
+void AUNPlayerCharacter::OnStunTagChange(const FGameplayTag CallbackTag, int32 NewCount)
+{
+	if (NewCount > 0)
+	{
+		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+		PlayStunAnimation();
+	}
+	else
+	{
+		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+		StopStunAnimation();
+	}
+}
+
+void AUNPlayerCharacter::TeleportToLocation_Implementation(FVector NewLocation)
+{
+	TeleportTo(NewLocation, (NewLocation - GetActorLocation()).Rotation(), false, true);
+}
+
+void AUNPlayerCharacter::PlayStunAnimation_Implementation()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	AnimInstance->StopAllMontages(0.f);
+	AnimInstance->Montage_Play(StunMontage, 1.f);
+}
+
+void AUNPlayerCharacter::StopStunAnimation_Implementation()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	AnimInstance->Montage_Stop(0.5f, StunMontage);
+}
+
+void AUNPlayerCharacter::ActivateDecal(FDecalStruct DecalStruct)
+{
+	SetCurrentActiveDecalData(DecalStruct);
+	Decal->SetMaterial(0, DecalStruct.GetMaterial());
+	Decal->SetRelativeLocationAndRotation(DecalStruct.GetLocation(), DecalStruct.GetRotation());
+	Decal->DecalSize = DecalStruct.GetScale();
+
+	bisTargeting = true;
+}
+
+void AUNPlayerCharacter::EndDecal()
+{
+	Decal->SetMaterial(0, nullptr);
+	Decal->DecalSize = FVector();
+	ClearCurrentActiveDecalData();
+
+	bisTargeting = false;
 }
