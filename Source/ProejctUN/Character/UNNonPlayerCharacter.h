@@ -23,7 +23,7 @@ public:
 	virtual void PossessedBy(AController* NewController) override;
 
 	UPROPERTY(EditAnywhere, Category = GAS)
-	TObjectPtr<class UAbilitySystemComponent> ASC;
+	TObjectPtr<class UUNAbilitySystemComponent> ASC;
 
 	UPROPERTY()
 	TObjectPtr<class UUNCharacterAttributeSet> AttributeSet;

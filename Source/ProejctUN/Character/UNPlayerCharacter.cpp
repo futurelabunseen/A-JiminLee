@@ -11,12 +11,12 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/DecalComponent.h"
 
-#include "AbilitySystemComponent.h"
+#include "UNAbilitySystemComponent.h"
 #include "UNComboActionData.h"
 #include "Attribute/UNCharacterAttributeSet.h"
 #include "Tag/UNGameplayTag.h"
 #include "UI/UNGASWidgetComponent.h"
-#include "Abilities/GameplayAbilityTargetActor_GroundTrace.h"
+#include "Abilities/GameplayAbilityTargetActor.h"
 
 #include "ProejctUN.h"
 
@@ -191,7 +191,7 @@ void AUNPlayerCharacter::PossessedBy(AController* NewController)
 	AUNGASPlayerState* GASPS = GetPlayerState<AUNGASPlayerState>();
 	if (GASPS)
 	{
-		ASC = Cast<UAbilitySystemComponent>(GASPS->GetAbilitySystemComponent());
+		ASC = Cast<UUNAbilitySystemComponent>(GASPS->GetAbilitySystemComponent());
 		ASC->InitAbilityActorInfo(GASPS, this);
 
 		ASC->GenericGameplayEventCallbacks.FindOrAdd(UNTAG_EVENT_CHARACTER_WEAPONEQUIP).AddUObject(this, &AUNPlayerCharacter::EquipWeapon);
@@ -246,7 +246,7 @@ void AUNPlayerCharacter::OnRep_PlayerState()
 	AUNGASPlayerState* GASPS = GetPlayerState<AUNGASPlayerState>();
 	if (GASPS)
 	{
-		ASC = Cast<UAbilitySystemComponent>(GASPS->GetAbilitySystemComponent());
+		ASC = Cast<UUNAbilitySystemComponent>(GASPS->GetAbilitySystemComponent());
 		ASC->InitAbilityActorInfo(GASPS, this);
 
 		ASC->GenericGameplayEventCallbacks.FindOrAdd(UNTAG_EVENT_CHARACTER_WEAPONEQUIP).AddUObject(this, &AUNPlayerCharacter::EquipWeapon);
