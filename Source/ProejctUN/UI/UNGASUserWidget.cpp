@@ -4,6 +4,12 @@
 #include "UI/UNGASUserWidget.h"
 #include "AbilitySystemBlueprintLibrary.h"
 
+void UUNGASUserWidget::SetWidgetController(UObject* InWidgetController)
+{
+	WidgetController = InWidgetController;
+	WidgetControllerSet();
+}
+
 void UUNGASUserWidget::SetAbilitySystemComponent(AActor* InOwner)
 {
 	if (IsValid(InOwner))

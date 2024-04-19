@@ -16,10 +16,19 @@ class PROEJCTUN_API UUNGASUserWidget : public UUserWidget, public IAbilitySystem
 	GENERATED_BODY()
 	
 public:
+	UFUNCTION(BlueprintCallable)
+	void SetWidgetController(UObject* InWidgetController);
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UObject> WidgetController;
+
 	virtual void SetAbilitySystemComponent(AActor* InOwner);
 	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
 protected:
+	UFUNCTION(BlueprintImplementableEvent)
+	void WidgetControllerSet();
+
 	UPROPERTY(EditAnywhere, Category = GAS)
 	TObjectPtr<class UAbilitySystemComponent> ASC;
 };

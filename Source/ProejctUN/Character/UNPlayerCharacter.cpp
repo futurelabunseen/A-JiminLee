@@ -11,7 +11,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/DecalComponent.h"
 
-#include "UNAbilitySystemComponent.h"
+#include "ASC/UNAbilitySystemComponent.h"
 #include "UNComboActionData.h"
 #include "Attribute/UNCharacterAttributeSet.h"
 #include "Tag/UNGameplayTag.h"

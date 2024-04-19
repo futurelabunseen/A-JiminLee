@@ -2,7 +2,7 @@
 
 
 #include "Player/UNGASPlayerState.h"
-#include "UNAbilitySystemComponent.h"
+#include "ASC/UNAbilitySystemComponent.h"
 #include "Attribute/UNCharacterAttributeSet.h"
 #include "Attribute/UNCharacterSkillAttributeSet.h"
 

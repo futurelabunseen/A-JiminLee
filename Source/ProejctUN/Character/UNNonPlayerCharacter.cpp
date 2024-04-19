@@ -2,7 +2,7 @@
 
 
 #include "Character/UNNonPlayerCharacter.h"
-#include "UNAbilitySystemComponent.h"
+#include "ASC/UNAbilitySystemComponent.h"
 #include "Attribute/UNCharacterAttributeSet.h"
 
 AUNNonPlayerCharacter::AUNNonPlayerCharacter()
