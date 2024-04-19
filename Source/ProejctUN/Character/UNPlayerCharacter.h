@@ -123,10 +123,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
 	TObjectPtr<class UAnimMontage> StunMontage;
 
-public:
-	UFUNCTION(Server, reliable)
-	void TeleportToLocation(FVector NewLocation);
-
 // GAS
 protected:
 	UPROPERTY(EditAnywhere)

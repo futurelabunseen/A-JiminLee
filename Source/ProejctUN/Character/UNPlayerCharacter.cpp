@@ -483,11 +483,6 @@ void AUNPlayerCharacter::OnStunTagChange(const FGameplayTag CallbackTag, int32 N
 	}
 }
 
-void AUNPlayerCharacter::TeleportToLocation_Implementation(FVector NewLocation)
-{
-	TeleportTo(NewLocation, (NewLocation - GetActorLocation()).Rotation(), false, true);
-}
-
 void AUNPlayerCharacter::PlayStunAnimation_Implementation()
 {
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();

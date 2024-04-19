@@ -38,8 +38,14 @@ protected:
 	UFUNCTION()
 	void EndDecal();
 
+	UFUNCTION(Server, reliable)
+	void TeleportToLocation(FVector NewLocation);
+
 	UPROPERTY(EditAnywhere, Category = GAS)
 	TSubclassOf<class AUNTA_TraceLocation> TargetActorClass;
+
+	UPROPERTY()
+	TObjectPtr<class AUNPlayerCharacter> PlayerCharacter;
 
 public:
 
