@@ -18,3 +18,8 @@ UAbilitySystemComponent* AUNGASPlayerState::GetAbilitySystemComponent() const
 {
 	return ASC;
 }
+
+UUNCharacterAttributeSet* AUNGASPlayerState::GetAttributeSet()
+{
+	return AttributeSet;
+}

@@ -7,6 +7,9 @@
 #include "AbilitySystemInterface.h"
 #include "UNGASPlayerState.generated.h"
 
+class UUNAbilitySystemComponent;
+class UUNCharacterAttributeSet;
+class UUNCharacterSkillAttributeSet;
 /**
  * 
  */
@@ -19,14 +22,16 @@ public:
 	AUNGASPlayerState();
 
 	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+
+	UUNCharacterAttributeSet* GetAttributeSet();
 protected:
 	UPROPERTY()
-	TObjectPtr<class UUNAbilitySystemComponent> ASC;
+	TObjectPtr<UUNAbilitySystemComponent> ASC;
 
 	UPROPERTY()
-	TObjectPtr<class UUNCharacterAttributeSet> AttributeSet;
+	TObjectPtr<UUNCharacterAttributeSet> AttributeSet;
 
 	UPROPERTY()
-	TObjectPtr<class UUNCharacterSkillAttributeSet> SkillAttributeSet;
+	TObjectPtr<UUNCharacterSkillAttributeSet> SkillAttributeSet;
 
 };

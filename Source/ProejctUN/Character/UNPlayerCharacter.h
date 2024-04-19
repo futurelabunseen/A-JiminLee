@@ -70,6 +70,8 @@ protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void BeginPlay();
 
+	void InitAbilityActorInfo();
+
 	void SetCharacterControl();
 	void OnInputStarted();
 	void OnSetDestinationTriggered();

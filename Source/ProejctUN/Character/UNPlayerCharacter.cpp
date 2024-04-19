@@ -2,6 +2,8 @@
 
 #include "UNPlayerCharacter.h"
 #include "Player/UNGASPlayerState.h"
+#include "Player/UNPlayerController.h"
+#include "UI/UNHUD.h"
 #include "Blueprint/AIBlueprintHelperLibrary.h"
 
 #include "EnhancedInputComponent.h"
@@ -187,30 +189,11 @@ void AUNPlayerCharacter::PossessedBy(AController* NewController)
 {
 	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
 	Super::PossessedBy(NewController);
-	
-	AUNGASPlayerState* GASPS = GetPlayerState<AUNGASPlayerState>();
-	if (GASPS)
-	{
-		ASC = Cast<UUNAbilitySystemComponent>(GASPS->GetAbilitySystemComponent());
-		ASC->InitAbilityActorInfo(GASPS, this);
 
-		ASC->GenericGameplayEventCallbacks.FindOrAdd(UNTAG_EVENT_CHARACTER_WEAPONEQUIP).AddUObject(this, &AUNPlayerCharacter::EquipWeapon);
-		ASC->GenericGameplayEventCallbacks.FindOrAdd(UNTAG_EVENT_CHARACTER_WEAPONUNEQUIP).AddUObject(this, &AUNPlayerCharacter::UnEquipWeapon);
-		ASC->RegisterGameplayTagEvent(UNTAG_CHARACTER_STATE_ISSTUNING, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &AUNPlayerCharacter::OnStunTagChange);
-	}
-	else
-	{
-		UN_LOG(LogUNNetwork, Log, TEXT("Not Have GAS"));
-	}
-	
 	PlayerController = CastChecked<APlayerController>(GetController());
-	UN_LOG(LogUNNetwork, Log, TEXT("PlayerController : %s"), *PlayerController->GetName());
 	PlayerController->ConsoleCommand(TEXT("showdebug abilitysystem"));
 
-	InitializeAttributes();
-	InitalizeGameplayAbilities();
-	EquipWeapon(nullptr);
-	HpBar->InitWidget();
+	InitAbilityActorInfo();
 
 	UN_LOG(LogUNNetwork, Log, TEXT("End"));
 }
@@ -243,6 +226,14 @@ void AUNPlayerCharacter::OnRep_PlayerState()
 	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
 	Super::OnRep_PlayerState();
 
+	InitAbilityActorInfo();
+
+	UN_LOG(LogUNNetwork, Log, TEXT("End"));
+}
+
+void AUNPlayerCharacter::InitAbilityActorInfo()
+{
+	// Player State
 	AUNGASPlayerState* GASPS = GetPlayerState<AUNGASPlayerState>();
 	if (GASPS)
 	{
@@ -251,15 +242,25 @@ void AUNPlayerCharacter::OnRep_PlayerState()
 
 		ASC->GenericGameplayEventCallbacks.FindOrAdd(UNTAG_EVENT_CHARACTER_WEAPONEQUIP).AddUObject(this, &AUNPlayerCharacter::EquipWeapon);
 		ASC->GenericGameplayEventCallbacks.FindOrAdd(UNTAG_EVENT_CHARACTER_WEAPONUNEQUIP).AddUObject(this, &AUNPlayerCharacter::UnEquipWeapon);
+		ASC->RegisterGameplayTagEvent(UNTAG_CHARACTER_STATE_ISSTUNING, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &AUNPlayerCharacter::OnStunTagChange);
+	}
+	else
+	{
+		UN_LOG(LogUNNetwork, Log, TEXT("Not Have GAS"));
 	}
 
 	InitializeAttributes();
 	InitalizeGameplayAbilities();
-	SetupPlayerGASInputComponent(); //race condition 방지
 	EquipWeapon(nullptr);
 	HpBar->InitWidget();
 
-	UN_LOG(LogUNNetwork, Log, TEXT("End"));
+	if (AUNPlayerController* PC = Cast<AUNPlayerController>(PlayerController))
+	{
+		if (AUNHUD* HUD = Cast<AUNHUD>(PC->GetHUD()))
+		{
+			HUD->InitOverlay(PC, GASPS, ASC, GASPS->GetAttributeSet());
+		}
+	}
 }
 
 void AUNPlayerCharacter::SetCharacterControl()
@@ -377,6 +378,7 @@ void AUNPlayerCharacter::GASInputReleased(int32 InputId)
 // Attribute 초기화
 void AUNPlayerCharacter::InitializeAttributes()
 {
+	// Attribute
 	const UUNCharacterAttributeSet* CurrentAttributeSet = ASC->GetSet<UUNCharacterAttributeSet>();
 	if (CurrentAttributeSet)
 	{
