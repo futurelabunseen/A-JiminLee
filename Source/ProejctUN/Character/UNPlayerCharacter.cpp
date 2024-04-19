@@ -259,6 +259,8 @@ void AUNPlayerCharacter::InitAbilityActorInfo()
 		if (AUNHUD* HUD = Cast<AUNHUD>(PC->GetHUD()))
 		{
 			HUD->InitOverlay(PC, GASPS, ASC, GASPS->GetAttributeSet());
+
+			HUD->InitProgressBar(PC, GASPS, ASC, GASPS->GetAttributeSet());
 		}
 	}
 }

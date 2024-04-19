@@ -14,6 +14,8 @@ class PROEJCTUN_API AUNCharacter : public ACharacter
 public:
 	AUNCharacter();
 
+	virtual void PostInitializeComponents() override;
+
 	FORCEINLINE class UCameraComponent* GetTopDownCameraComponent() const { return TopDownCameraComponent; }
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 private:

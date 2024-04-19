@@ -8,6 +8,7 @@
 
 class UAbilitySystemComponent;
 class UAttributeSet;
+class UUNProgressBarWidgetController;
 class UUNOverlayWidgetController;
 class UUNGASUserWidget;
 struct FWidgetControllerParams;
@@ -23,12 +24,27 @@ public:
 	UPROPERTY()
 	TObjectPtr<UUNGASUserWidget> OverlayWidget;
 
+	UPROPERTY()
+	TObjectPtr<UUNGASUserWidget> ProgressBarWidget;
+
 	UUNOverlayWidgetController* GetOverlayWidgetController(const FWidgetControllerParams& WCParams);
+
+	UUNProgressBarWidgetController* GetProgressBarWidgetController(const FWidgetControllerParams& WCParams);
 
 	void InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAttributeSet* AS);
 
+	void InitProgressBar(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAttributeSet* AS);
 
 private:
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UUserWidget> ProgressBarWidgetClass;
+
+	UPROPERTY()
+	TObjectPtr<UUNProgressBarWidgetController> ProgressBarWidgetController;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UUNProgressBarWidgetController> ProgressBarWidgetControllerClass;
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UUserWidget> OverlayWidgetClass;
