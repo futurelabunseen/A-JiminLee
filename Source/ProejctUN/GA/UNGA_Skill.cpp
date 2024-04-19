@@ -17,36 +17,37 @@ void UUNGA_Skill::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	AUNPlayerCharacter* TargetCharacter = Cast<AUNPlayerCharacter>(ActorInfo->AvatarActor.Get());
-	if (!TargetCharacter)
+	AUNPlayerCharacter* PlayerCharacter = Cast<AUNPlayerCharacter>(ActorInfo->AvatarActor.Get());
+	if (!PlayerCharacter)
 	{
 		return;
 	}
 
-	ActiveSkillActionMontage = TargetCharacter->GetSkillActionMontage();
+	ActiveSkillActionMontage = PlayerCharacter->GetSkillActionMontage();
 	if (!ActiveSkillActionMontage)
 	{
 		return;
 	}
 
-	TargetCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+	PlayerCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 
 	// 필요한 델리게이트를 지정하고 AT를 실행
 	UAbilityTask_PlayMontageAndWait* PlayMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, TEXT("SKillMontage"), ActiveSkillActionMontage, 1.f);
 	PlayMontageTask->OnCompleted.AddDynamic(this, &UUNGA_Skill::OnCompleteCallback);
 	PlayMontageTask->OnInterrupted.AddDynamic(this, &UUNGA_Skill::OnInterruptedCallback);
-
 	PlayMontageTask->ReadyForActivation();
 }
 
 void UUNGA_Skill::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
-	AUNPlayerCharacter* TargetCharacter = Cast<AUNPlayerCharacter>(ActorInfo->AvatarActor.Get());
-	if (TargetCharacter)
+	AUNPlayerCharacter* PlayerCharacter = Cast<AUNPlayerCharacter>(ActorInfo->AvatarActor.Get());
+	if (PlayerCharacter)
 	{
-		TargetCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+		PlayerCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 	}
 	
+	CommitAbilityCooldown(FGameplayAbilitySpecHandle(), CurrentActorInfo, GetCurrentActivationInfoRef(), false);
+
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 

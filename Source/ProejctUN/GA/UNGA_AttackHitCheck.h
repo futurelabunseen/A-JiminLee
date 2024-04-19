@@ -28,6 +28,9 @@ protected:
 	TSubclassOf<class UGameplayEffect> AttackDamageEffect;
 
 	UPROPERTY(EditAnywhere, Category = GAS)
+	TSubclassOf<class UGameplayEffect> StunEffect;
+
+	UPROPERTY(EditAnywhere, Category = GAS)
 	TSubclassOf<class AUNTA_Trace> TargetActorClass;
 
 	float CurrentLevel;

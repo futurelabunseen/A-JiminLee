@@ -21,7 +21,7 @@ AUNGASItemBox::AUNGASItemBox()
 	Trigger->SetCollisionProfileName(CPROFILE_UNTRIGGER);
 	Trigger->SetBoxExtent(FVector(40.f, 42.f, 30.f));
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> BoxMeshRef(TEXT("/Script/Engine.StaticMesh'/Game/StarterContent/Props/SM_CornerFrame.SM_CornerFrame'"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> BoxMeshRef(TEXT("/Script/Engine.StaticMesh'/Engine/BasicShapes/Cube.Cube'"));
 	if (BoxMeshRef.Object)
 	{
 		Mesh->SetStaticMesh(BoxMeshRef.Object);

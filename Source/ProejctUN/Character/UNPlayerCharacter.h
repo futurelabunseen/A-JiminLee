@@ -6,6 +6,7 @@
 #include "Character/UNCharacter.h"
 #include "Abilities/GameplayAbilityTypes.h"
 #include "AbilitySystemInterface.h"
+#include "Struct/DecalStruct.h"
 #include "UNPlayerCharacter.generated.h"
 
 class UInputAction;
@@ -32,6 +33,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputMappingContext> DefaultMappingContext;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputMappingContext> ConfirmCancelMappingContext;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* SetDestinationClickAction;
 
@@ -40,6 +44,18 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* SkillAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* TeleportAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* ConfirmAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* CancelAction;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	class UDecalComponent* Decal;
 
 	UPROPERTY(EditAnywhere)
 	APlayerController* PlayerController;
@@ -59,6 +75,12 @@ protected:
 	void OnSetDestinationTriggered();
 	void OnSetDestinationReleased();
 
+	void LeftClickAction();
+	void RightClickAction();
+
+	uint8 bisTargeting;
+	uint8 bisCanceled;
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
 	TObjectPtr<class UAnimMontage> ComboActionMontage;
@@ -73,13 +95,14 @@ private:
 	float FollowTime;
 
 // Weapon
-protected:
+public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Equipment, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class USkeletalMeshComponent> Weapon;
 
 	UPROPERTY(EditAnywhere, Category = Weapon)
 	TObjectPtr<class USkeletalMesh> WeaponMesh;
 
+protected:
 	UPROPERTY(EditAnywhere, Category = Weapon)
 	float WeaponRange;
 	
@@ -88,6 +111,21 @@ protected:
 
 	void EquipWeapon(const FGameplayEventData* EventData);
 	void UnEquipWeapon(const FGameplayEventData* EventData);
+
+	void OnStunTagChange(const FGameplayTag CallbackTag, int32 NewCount);
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void PlayStunAnimation();
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void StopStunAnimation();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
+	TObjectPtr<class UAnimMontage> StunMontage;
+
+public:
+	UFUNCTION(Server, reliable)
+	void TeleportToLocation(FVector NewLocation);
 
 // GAS
 protected:
@@ -113,4 +151,29 @@ protected:
 
 	void InitializeAttributes();
 	void InitalizeGameplayAbilities();
+
+	void SendConfirmToTargetActor();
+	void SendCancelToTargetActor();
+
+// Decal
+
+private:
+	UPROPERTY()
+	FDecalStruct CurrentActiveDecalData;
+
+public:
+	UFUNCTION(BlueprintCallable)
+	void ActivateDecal(FDecalStruct DecalStruct);
+
+	UFUNCTION(BlueprintCallable)
+	void EndDecal();
+
+	UFUNCTION(BlueprintCallable)
+	FDecalStruct GetCurrentActiveDecalData() { return CurrentActiveDecalData; }
+
+	UFUNCTION(BlueprintCallable)
+	void SetCurrentActiveDecalData(FDecalStruct NewDecalData) { CurrentActiveDecalData = NewDecalData; }
+
+	UFUNCTION(BlueprintCallable)
+	void ClearCurrentActiveDecalData() { CurrentActiveDecalData = FDecalStruct(); }
 };
