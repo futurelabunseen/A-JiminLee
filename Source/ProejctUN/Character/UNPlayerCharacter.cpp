@@ -18,6 +18,7 @@
 #include "Attribute/UNCharacterAttributeSet.h"
 #include "Tag/UNGameplayTag.h"
 #include "UI/UNGASWidgetComponent.h"
+#include "UI/UNGASInventoryWidgetComponent.h"
 #include "Abilities/GameplayAbilityTargetActor.h"
 
 #include "ProejctUN.h"
@@ -120,6 +121,9 @@ AUNPlayerCharacter::AUNPlayerCharacter()
 	Decal = CreateDefaultSubobject<UDecalComponent>(TEXT("Decal"));
 	Decal->DecalSize = FVector();
 	Decal->SetupAttachment(RootComponent);
+
+	// UI
+	Inventory = CreateDefaultSubobject<UUNGASInventoryWidgetComponent>(TEXT("Inventory"));
 }
 
 UAbilitySystemComponent* AUNPlayerCharacter::GetAbilitySystemComponent() const

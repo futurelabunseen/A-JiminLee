@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "UI/UNGASUserWidget.h"
+#include "UI/Widget/UNGASUserWidget.h"
 #include "AbilitySystemBlueprintLibrary.h"
 
 void UUNGASUserWidget::SetWidgetController(UObject* InWidgetController)

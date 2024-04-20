@@ -10,7 +10,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 
 #include "UI/UNGASWidgetComponent.h"
-#include "UI/UNGASUserWidget.h"
+#include "UI/Widget/UNGASUserWidget.h"
 #include "EngineUtils.h"
 #include "ProejctUN.h"
 

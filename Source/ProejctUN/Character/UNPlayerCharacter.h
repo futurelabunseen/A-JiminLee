@@ -174,4 +174,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void ClearCurrentActiveDecalData() { CurrentActiveDecalData = FDecalStruct(); }
+
+// UI
+public:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Equipment, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UUNGASInventoryWidgetComponent> Inventory;
 };

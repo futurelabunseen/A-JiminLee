@@ -8,8 +8,9 @@
 
 class UAbilitySystemComponent;
 class UAttributeSet;
-class UUNProgressBarWidgetController;
 class UUNOverlayWidgetController;
+class UUNGASInventoryWidgetController;
+class UUNProgressBarWidgetController;
 class UUNGASUserWidget;
 struct FWidgetControllerParams;
 /**
@@ -21,18 +22,28 @@ class PROEJCTUN_API AUNHUD : public AHUD
 	GENERATED_BODY()
 	
 public:
+
 	UPROPERTY()
 	TObjectPtr<UUNGASUserWidget> OverlayWidget;
+	
+	UUNOverlayWidgetController* GetOverlayWidgetController(const FWidgetControllerParams& WCParams);
+	
+	void InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAttributeSet* AS);
+	
+
+	UPROPERTY()
+	TObjectPtr<UUNGASUserWidget> InventoryWidget;
+
+	UUNGASInventoryWidgetController* GetInventoryWidgetController(const FWidgetControllerParams& WCParams);
+
+	void InitInventory(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAttributeSet* AS);
+
 
 	UPROPERTY()
 	TObjectPtr<UUNGASUserWidget> ProgressBarWidget;
-
-	UUNOverlayWidgetController* GetOverlayWidgetController(const FWidgetControllerParams& WCParams);
-
+	
 	UUNProgressBarWidgetController* GetProgressBarWidgetController(const FWidgetControllerParams& WCParams);
-
-	void InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAttributeSet* AS);
-
+	
 	void InitProgressBar(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAttributeSet* AS);
 
 private:
@@ -45,6 +56,17 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UUNProgressBarWidgetController> ProgressBarWidgetControllerClass;
+
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UUserWidget> InventoryWidgetClass;
+
+	UPROPERTY()
+	TObjectPtr<UUNGASInventoryWidgetController> InventoryWidgetController;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UUNGASInventoryWidgetController> InventoryWidgetControllerClass;
+
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UUserWidget> OverlayWidgetClass;
