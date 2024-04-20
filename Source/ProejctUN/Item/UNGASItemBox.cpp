@@ -85,5 +85,3 @@ void AUNGASItemBox::InvokeGameplayCue(AActor* Target)
 	Param.Location = GetActorLocation();
 	ASC->ExecuteGameplayCue(GameplayCueTag, Param);
 }
-
-
