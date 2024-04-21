@@ -18,7 +18,8 @@
 #include "Attribute/UNCharacterAttributeSet.h"
 #include "Tag/UNGameplayTag.h"
 #include "UI/UNGASWidgetComponent.h"
-#include "UI/UNGASInventoryComponent.h"
+#include "UI/Widget/UNGASUserWidget.h"
+#include "UI/UNInventoryComponent.h"
 #include "Abilities/GameplayAbilityTargetActor.h"
 
 #include "ProejctUN.h"
@@ -80,6 +81,12 @@ AUNPlayerCharacter::AUNPlayerCharacter()
 		CancelAction = CancelActionConfirmRef.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<UInputAction> InventoryActionConfirmRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Action/IA_Inventroy.IA_Inventroy'"));
+	if (nullptr != InventoryActionConfirmRef.Object)
+	{
+		InventoryAction = InventoryActionConfirmRef.Object;
+	}
+
 	static ConstructorHelpers::FObjectFinder<UAnimMontage> ComboActionMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/OutsideAsset/ParagonGreystone/Characters/Heroes/Greystone/Animations/CustomAnimation/AM_ComboAttack.AM_ComboAttack'"));
 	if (ComboActionMontageRef.Object)
 	{
@@ -122,7 +129,7 @@ AUNPlayerCharacter::AUNPlayerCharacter()
 	Decal->DecalSize = FVector();
 	Decal->SetupAttachment(RootComponent);
 
-	Inventory = CreateDefaultSubobject<UUNGASInventoryComponent>(TEXT("Inventory"));
+	Inventory = CreateDefaultSubobject<UUNInventoryComponent>(TEXT("Inventory"));
 }
 
 UAbilitySystemComponent* AUNPlayerCharacter::GetAbilitySystemComponent() const
@@ -143,6 +150,8 @@ void AUNPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::OnSetDestinationTriggered);
 		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Completed, this, &AUNPlayerCharacter::OnSetDestinationReleased);
 		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Canceled, this, &AUNPlayerCharacter::OnSetDestinationReleased);
+
+		EnhancedInputComponent->BindAction(InventoryAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::InventoryInteraction);
 	}
 	SetupPlayerGASInputComponent();
 
@@ -175,7 +184,6 @@ void AUNPlayerCharacter::BeginPlay()
 	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
 	Super::BeginPlay();
 
-	PlayerController = Cast<APlayerController>(GetController());
 	if (PlayerController)
 	{
 		UN_LOG(LogUNNetwork, Log, TEXT("%s"), TEXT("Have Controller"));
@@ -236,6 +244,9 @@ void AUNPlayerCharacter::OnRep_PlayerState()
 
 void AUNPlayerCharacter::InitAbilityActorInfo()
 {
+
+	PlayerController = Cast<APlayerController>(GetController());
+
 	// Player State
 	AUNGASPlayerState* GASPS = GetPlayerState<AUNGASPlayerState>();
 	if (GASPS)
@@ -258,10 +269,10 @@ void AUNPlayerCharacter::InitAbilityActorInfo()
 
 	if (AUNPlayerController* PC = Cast<AUNPlayerController>(PlayerController))
 	{
-		if (AUNHUD* HUD = Cast<AUNHUD>(PC->GetHUD()))
+		if (HUD = Cast<AUNHUD>(PC->GetHUD()))
 		{
 			HUD->InitOverlay(PC, GASPS, ASC, GASPS->GetAttributeSet());
-			//HUD->InitInventory(PC, GASPS, ASC, GASPS->GetAttributeSet());
+			HUD->InitInventory(PC, GASPS, ASC, GASPS->GetAttributeSet());
 			HUD->InitProgressBar(PC, GASPS, ASC, GASPS->GetAttributeSet());
 		}
 	}
@@ -521,4 +532,18 @@ void AUNPlayerCharacter::EndDecal()
 	ClearCurrentActiveDecalData();
 
 	bisTargeting = false;
+}
+
+void AUNPlayerCharacter::InventoryInteraction()
+{
+	//if(binventoryopen)
+	// {
+	//		InventoryComponent->OpenIntentory()
+	// }
+	// else
+	// {
+	//		InventoryComponent->CloseIntentory()
+	// }
+	// 
+	HUD->ToggleInventory();
 }

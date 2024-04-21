@@ -63,6 +63,8 @@ void AUNHUD::InitInventory(APlayerController* PC, APlayerState* PS, UAbilitySyst
 	UUNGASInventoryWidgetController* WidgetController = GetInventoryWidgetController(WidgetControllerParams);
 
 	InventoryWidget->SetWidgetController(WidgetController);
+	InventoryWidget->AddToViewport();
+	InventoryWidget->SetVisibility(ESlateVisibility::Collapsed);
 }
 
 
@@ -92,4 +94,26 @@ UUNProgressBarWidgetController* AUNHUD::GetProgressBarWidgetController(const FWi
 		return ProgressBarWidgetController;
 	}
 	return ProgressBarWidgetController;
+}
+
+
+void AUNHUD::ToggleInventory()
+{
+	UE_LOG(LogTemp, Log, TEXT("ToggleInventory"));
+	if (bisInventoryOpen)
+	{
+		if (InventoryWidget)
+		{
+			bisInventoryOpen = false;
+			InventoryWidget->SetVisibility(ESlateVisibility::Collapsed);
+		}
+	}
+	else
+	{
+		if (InventoryWidget)
+		{
+			bisInventoryOpen = true;
+			InventoryWidget->SetVisibility(ESlateVisibility::Visible);
+		}
+	}
 }

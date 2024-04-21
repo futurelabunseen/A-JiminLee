@@ -46,6 +46,12 @@ public:
 	
 	void InitProgressBar(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAttributeSet* AS);
 
+
+	UFUNCTION(BlueprintCallable)
+	void ToggleInventory();
+
+	int8 bisInventoryOpen;
+
 private:
 
 	UPROPERTY(EditAnywhere)

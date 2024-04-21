@@ -11,7 +11,8 @@
 
 class UInputAction;
 class UInputMappingContext;
-class UUNGASInventoryComponent;
+class UUNInventoryComponent;
+class AUNHUD;
 
 /**
  * 
@@ -30,6 +31,9 @@ public:
 	FORCEINLINE virtual class UAnimMontage* GetSkillActionMontage() const { return SkillActionMontage; }
 	FORCEINLINE class UUNComboActionData* GetComboActionData() const { return ComboActionData; }
 	
+	UPROPERTY()
+	TObjectPtr<AUNHUD> HUD;
+
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputMappingContext> DefaultMappingContext;
@@ -54,6 +58,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* CancelAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* InventoryAction;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UDecalComponent* Decal;
@@ -179,5 +186,7 @@ public:
 // UI
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Equipment, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UUNGASInventoryComponent> Inventory;
+	TObjectPtr<UUNInventoryComponent> Inventory;
+
+	void InventoryInteraction();
 };
