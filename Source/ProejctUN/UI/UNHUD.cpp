@@ -7,6 +7,8 @@
 #include "UI/WC/UNProgressBarWidgetController.h"
 #include "UI/WC/UNGASInventoryWidgetController.h"
 
+#include "EngineUtils.h"
+
 UUNOverlayWidgetController* AUNHUD::GetOverlayWidgetController(const FWidgetControllerParams& WCParams)
 {
 	if (OverlayWidgetController == nullptr)
@@ -77,6 +79,7 @@ void AUNHUD::InitProgressBar(APlayerController* PC, APlayerState* PS, UAbilitySy
 	UUNProgressBarWidgetController* WidgetController = GetProgressBarWidgetController(WidgetControllerParams);
 
 	ProgressBarWidget->SetWidgetController(WidgetController);
+	
 }
 
 UUNProgressBarWidgetController* AUNHUD::GetProgressBarWidgetController(const FWidgetControllerParams& WCParams)

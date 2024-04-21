@@ -11,6 +11,7 @@
 
 class UInputAction;
 class UInputMappingContext;
+class UUNGASInventoryComponent;
 
 /**
  * 
@@ -178,5 +179,5 @@ public:
 // UI
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Equipment, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UUNGASInventoryWidgetComponent> Inventory;
+	TObjectPtr<UUNGASInventoryComponent> Inventory;
 };

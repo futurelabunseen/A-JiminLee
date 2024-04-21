@@ -18,7 +18,7 @@
 #include "Attribute/UNCharacterAttributeSet.h"
 #include "Tag/UNGameplayTag.h"
 #include "UI/UNGASWidgetComponent.h"
-#include "UI/UNGASInventoryWidgetComponent.h"
+#include "UI/UNGASInventoryComponent.h"
 #include "Abilities/GameplayAbilityTargetActor.h"
 
 #include "ProejctUN.h"
@@ -122,8 +122,7 @@ AUNPlayerCharacter::AUNPlayerCharacter()
 	Decal->DecalSize = FVector();
 	Decal->SetupAttachment(RootComponent);
 
-	// UI
-	Inventory = CreateDefaultSubobject<UUNGASInventoryWidgetComponent>(TEXT("Inventory"));
+	Inventory = CreateDefaultSubobject<UUNGASInventoryComponent>(TEXT("Inventory"));
 }
 
 UAbilitySystemComponent* AUNPlayerCharacter::GetAbilitySystemComponent() const
@@ -256,17 +255,18 @@ void AUNPlayerCharacter::InitAbilityActorInfo()
 	InitializeAttributes();
 	InitalizeGameplayAbilities();
 	EquipWeapon(nullptr);
-	HpBar->InitWidget();
 
 	if (AUNPlayerController* PC = Cast<AUNPlayerController>(PlayerController))
 	{
 		if (AUNHUD* HUD = Cast<AUNHUD>(PC->GetHUD()))
 		{
 			HUD->InitOverlay(PC, GASPS, ASC, GASPS->GetAttributeSet());
-
+			//HUD->InitInventory(PC, GASPS, ASC, GASPS->GetAttributeSet());
 			HUD->InitProgressBar(PC, GASPS, ASC, GASPS->GetAttributeSet());
 		}
 	}
+
+	HpBar->InitWidget();
 }
 
 void AUNPlayerCharacter::SetCharacterControl()
