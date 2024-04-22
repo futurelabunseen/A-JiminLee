@@ -82,4 +82,11 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UUNOverlayWidgetController> OverlayWidgetControllerClass;
+
+public:
+	UFUNCTION()
+	void OpenInventory();
+
+	UFUNCTION()
+	void CloseInventory();
 };

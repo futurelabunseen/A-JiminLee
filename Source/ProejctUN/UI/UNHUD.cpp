@@ -115,3 +115,15 @@ void AUNHUD::ToggleInventory()
 		}
 	}
 }
+
+
+// TESTING
+void AUNHUD::OpenInventory()
+{
+	InventoryWidget->SetVisibility(ESlateVisibility::Visible);
+}
+
+void AUNHUD::CloseInventory()
+{
+	InventoryWidget->SetVisibility(ESlateVisibility::Collapsed);
+}

@@ -13,6 +13,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/DecalComponent.h"
 
+#include "Props/UNInteractableObjectBase.h"
 #include "ASC/UNAbilitySystemComponent.h"
 #include "UNComboActionData.h"
 #include "Attribute/UNCharacterAttributeSet.h"
@@ -323,6 +324,7 @@ void AUNPlayerCharacter::OnSetDestinationReleased()
 {
 	if (bisCanceled)
 	{
+		bisCanceled = false;
 		return;
 	}
 
@@ -354,6 +356,19 @@ void AUNPlayerCharacter::RightClickAction()
 		SendCancelToTargetActor();
 		bisCanceled = true;
 		return;
+	}
+
+	// To Do .. : CollisionChannel
+	FHitResult OutHitResult;
+	if (PlayerController->GetHitResultUnderCursor(ECC_Visibility, false, OutHitResult))
+	{
+		if (AUNInteractableObjectBase* Object = Cast<AUNInteractableObjectBase>(OutHitResult.GetActor()))
+		{
+			Object->Interact();
+			bisCanceled = true;
+			UAIBlueprintHelperLibrary::SimpleMoveToActor(PlayerController, Object);
+			return;
+		}
 	}
 
 	OnInputStarted();
