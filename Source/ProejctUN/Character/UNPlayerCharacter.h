@@ -30,7 +30,8 @@ public:
 	FORCEINLINE virtual class UAnimMontage* GetComboActionMontage() const { return ComboActionMontage; }
 	FORCEINLINE virtual class UAnimMontage* GetSkillActionMontage() const { return SkillActionMontage; }
 	FORCEINLINE class UUNComboActionData* GetComboActionData() const { return ComboActionData; }
-	
+	FORCEINLINE UUNInventoryComponent* GetInventoryComponent() const { return Inventory; }
+
 	UPROPERTY()
 	TObjectPtr<AUNHUD> HUD;
 

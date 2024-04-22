@@ -81,7 +81,6 @@ void AUNHUD::InitProgressBar(APlayerController* PC, APlayerState* PS, UAbilitySy
 	UUNProgressBarWidgetController* WidgetController = GetProgressBarWidgetController(WidgetControllerParams);
 
 	ProgressBarWidget->SetWidgetController(WidgetController);
-	
 }
 
 UUNProgressBarWidgetController* AUNHUD::GetProgressBarWidgetController(const FWidgetControllerParams& WCParams)
@@ -99,7 +98,6 @@ UUNProgressBarWidgetController* AUNHUD::GetProgressBarWidgetController(const FWi
 
 void AUNHUD::ToggleInventory()
 {
-	UE_LOG(LogTemp, Log, TEXT("ToggleInventory"));
 	if (bisInventoryOpen)
 	{
 		if (InventoryWidget)

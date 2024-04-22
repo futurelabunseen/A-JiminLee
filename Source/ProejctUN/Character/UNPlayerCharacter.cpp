@@ -536,14 +536,5 @@ void AUNPlayerCharacter::EndDecal()
 
 void AUNPlayerCharacter::InventoryInteraction()
 {
-	//if(binventoryopen)
-	// {
-	//		InventoryComponent->OpenIntentory()
-	// }
-	// else
-	// {
-	//		InventoryComponent->CloseIntentory()
-	// }
-	// 
 	HUD->ToggleInventory();
 }
