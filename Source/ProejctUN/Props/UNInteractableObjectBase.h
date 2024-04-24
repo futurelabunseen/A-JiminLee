@@ -16,6 +16,8 @@ public:
 	AUNInteractableObjectBase();
 	
 protected:
+	virtual void BeginPlay() override;
+
 	UPROPERTY(EditAnywhere, Category = "Test Actor")
 	UStaticMeshComponent* Mesh;
 
@@ -31,5 +33,5 @@ public:
 	virtual void EndInteract() override;
 	virtual void Interact() override;
 
-	virtual void BeginPlay() override;
+
 };

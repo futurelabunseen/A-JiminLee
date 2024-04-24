@@ -36,12 +36,18 @@ void AUNInteractableObjectBase::SendEndDataToController(UPrimitiveComponent* Ove
 
 void AUNInteractableObjectBase::BeginFocus()
 {
-	UE_LOG(LogTemp, Log, TEXT("BeginFocus"));
+	if (Mesh)
+	{
+		Mesh->SetRenderCustomDepth(true);
+	}
 }
 
 void AUNInteractableObjectBase::EndFocus()
 {
-	UE_LOG(LogTemp, Log, TEXT("EndFocus"));
+	if (Mesh)
+	{
+		Mesh->SetRenderCustomDepth(false);
+	}
 }
 
 void AUNInteractableObjectBase::BeginInteract()

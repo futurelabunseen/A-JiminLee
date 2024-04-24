@@ -43,6 +43,8 @@ void AUNInteractableBox::NotifyActorEndOverlap(AActor* Other)
 
 void AUNInteractableBox::Interact()
 {
+    Super::Interact();
+
     if (bisOverlap)
     {
         OpenItemPanel();
@@ -50,7 +52,7 @@ void AUNInteractableBox::Interact()
     }
 
     bisSelected = true;
-    GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, "Interact!");
+    GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, "1");
 }
 
 void AUNInteractableBox::OpenItemPanel()
@@ -73,9 +75,4 @@ void AUNInteractableBox::CloseItemPanel()
         HUD->CloseInventory();
     }
     GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, "Close Panel!");
-}
-
-void AUNInteractableBox::BeginFocus()
-{
-    Super::BeginFocus();
 }

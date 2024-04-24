@@ -357,19 +357,24 @@ void AUNPlayerCharacter::RightClickAction()
 		bisCanceled = true;
 		return;
 	}
-	
-	// To Do .. : CollisionChannel
-	FHitResult OutHitResult;
-	if (PlayerController->GetHitResultUnderCursor(ECC_Visibility, false, OutHitResult))
+
+	if (AUNPlayerController* PC = Cast<AUNPlayerController>(PlayerController))
 	{
-		if (AUNInteractableObjectBase* Object = Cast<AUNInteractableObjectBase>(OutHitResult.GetActor()))
-		{
-			Object->Interact();
-			bisCanceled = true;
-			UAIBlueprintHelperLibrary::SimpleMoveToActor(PlayerController, Object);
-			return;
-		}
+		PC->BeginInteract();
 	}
+
+	//// To Do .. : CollisionChannel
+	//FHitResult OutHitResult;
+	//if (PlayerController->GetHitResultUnderCursor(ECC_Visibility, false, OutHitResult))
+	//{
+	//	if (AUNInteractableObjectBase* Object = Cast<AUNInteractableObjectBase>(OutHitResult.GetActor()))
+	//	{
+	//		Object->Interact();
+	//		bisCanceled = true;
+	//		UAIBlueprintHelperLibrary::SimpleMoveToActor(PlayerController, Object);
+	//		return;
+	//	}
+	//}
 
 	OnInputStarted();
 }

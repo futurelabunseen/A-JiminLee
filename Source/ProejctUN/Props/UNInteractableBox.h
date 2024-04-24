@@ -19,6 +19,8 @@ class PROEJCTUN_API AUNInteractableBox : public AUNInteractableObjectBase
 	
 protected:
 
+
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UBoxComponent* BoxCollision;
 
@@ -29,10 +31,8 @@ public:
 
 	virtual void NotifyActorEndOverlap(class AActor* Other) override;
 
-
-
 	UFUNCTION(BlueprintCallable)
-	void Interact();
+	virtual void Interact() override;
 
 	UFUNCTION()
 	void OpenItemPanel();
@@ -48,7 +48,4 @@ public:
 
 	UPROPERTY()
 	uint8 bisOverlap;
-
-
-	virtual void BeginFocus() override;
 };
