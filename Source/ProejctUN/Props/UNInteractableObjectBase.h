@@ -26,6 +26,7 @@ protected:
 
 	UFUNCTION()
 	void SendEndDataToController(UPrimitiveComponent* OverlapActor);
+
 public:
 	virtual void BeginFocus() override;
 	virtual void EndFocus() override;

@@ -163,7 +163,6 @@ protected:
 	void SendCancelToTargetActor();
 
 // Decal
-
 private:
 	UPROPERTY()
 	FDecalStruct CurrentActiveDecalData;

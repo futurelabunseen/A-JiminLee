@@ -61,7 +61,6 @@ void AUNPlayerController::OnPossess(APawn* InPawn)
 
 
 // Interact
-
 void AUNPlayerController::BeginOverInteractable(AActor* NewInteractable)
 {
 	if (IsInteracting())
@@ -81,7 +80,6 @@ void AUNPlayerController::BeginOverInteractable(AActor* NewInteractable)
 	TargetInteractable->BeginFocus();
 }
 
-// To Do .. : 변화주기
 void AUNPlayerController::EndOverInteractable()
 {
 	if(IsInteracting())
@@ -103,8 +101,6 @@ void AUNPlayerController::EndOverInteractable()
 
 void AUNPlayerController::BeginInteract()
 {
-	// 재확인 함수
-
 	if (InteractionData.CurrentInteractable)
 	{
 		if (IsValid(TargetInteractable.GetObject()))

@@ -23,7 +23,6 @@ void AUNInteractableBox::NotifyActorBeginOverlap(AActor* Other)
         if (bisSelected)
         {
             OpenItemPanel();
-            GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, "Hello Character!");
         }
     }
 }
@@ -37,7 +36,6 @@ void AUNInteractableBox::NotifyActorEndOverlap(AActor* Other)
         CloseItemPanel();
         bisSelected = false;
         PlayerCharacter = nullptr;
-        GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, "Bye Character!");
     }
 }
 
@@ -62,8 +60,6 @@ void AUNInteractableBox::OpenItemPanel()
         HUD->OpenBoxInventory();
         HUD->OpenInventory();
     }
-
-    GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, "Open Panel!");
     // To Do ..
 }
 
@@ -74,5 +70,4 @@ void AUNInteractableBox::CloseItemPanel()
         HUD->CloseBoxInventory();
         HUD->CloseInventory();
     }
-    GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, "Close Panel!");
 }
