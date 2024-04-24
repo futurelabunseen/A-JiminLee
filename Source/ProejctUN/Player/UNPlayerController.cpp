@@ -15,6 +15,13 @@ AUNPlayerController::AUNPlayerController()
 	bEnableTouchEvents = false;
 }
 
+void AUNPlayerController::CheckCursorOverObject(AActor* CursorOverObject)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, "TE");
+	UE_LOG(LogTemp, Log, TEXT("%s"), *CursorOverObject->GetName());
+}
+
+
 // NetInitÈÄ ½ÇÇà
 void AUNPlayerController::PostNetInit()
 {
@@ -43,3 +50,4 @@ void AUNPlayerController::OnPossess(APawn* InPawn)
 	Super::OnPossess(InPawn);
 	UN_LOG(LogUNNetwork, Log, TEXT("%s"), TEXT("End"));
 }
+

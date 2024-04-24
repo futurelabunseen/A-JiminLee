@@ -19,6 +19,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Test Actor")
 	UStaticMeshComponent* Mesh;
 
+	UFUNCTION()
+	void SendDataToController(UPrimitiveComponent* PC);
+
 public:
 	virtual void BeginFocus() override;
 	virtual void EndFocus() override;
@@ -28,6 +31,5 @@ public:
 
 	virtual void BeginPlay() override;
 
-	UFUNCTION()
-	void TEST(UPrimitiveComponent* PC);
+
 };

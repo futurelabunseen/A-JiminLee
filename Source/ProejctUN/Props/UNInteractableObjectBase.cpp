@@ -3,23 +3,26 @@
 
 #include "Props/UNInteractableObjectBase.h"
 #include "Components/StaticMeshComponent.h"
+#include "Player/UNPlayerController.h"
 
 AUNInteractableObjectBase::AUNInteractableObjectBase()
 {
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 }
 
-
 void AUNInteractableObjectBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Mesh->OnBeginCursorOver.AddDynamic(this, &AUNInteractableObjectBase::TEST);
+	Mesh->OnBeginCursorOver.AddDynamic(this, &AUNInteractableObjectBase::SendDataToController);
 }
 
-void AUNInteractableObjectBase::TEST(UPrimitiveComponent* PC)
+void AUNInteractableObjectBase::SendDataToController(UPrimitiveComponent* PC)
 {
-	UE_LOG(LogTemp, Log, TEXT("hi"));
+	if (AUNPlayerController* PC = Cast<AUNPlayerController>(GetWorld()->GetFirstPlayerController()))
+	{
+		PC->CheckCursorOverObject(this);
+	}
 }
 
 
