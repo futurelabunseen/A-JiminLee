@@ -14,10 +14,11 @@ void AUNInteractableObjectBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Mesh->OnBeginCursorOver.AddDynamic(this, &AUNInteractableObjectBase::SendDataToController);
+	Mesh->OnBeginCursorOver.AddDynamic(this, &AUNInteractableObjectBase::SendBeginDataToController);
+	Mesh->OnEndCursorOver.AddDynamic(this, &AUNInteractableObjectBase::SendEndDataToController);
 }
 
-void AUNInteractableObjectBase::SendDataToController(UPrimitiveComponent* PC)
+void AUNInteractableObjectBase::SendBeginDataToController(UPrimitiveComponent* OverlapActor)
 {
 	if (AUNPlayerController* PC = Cast<AUNPlayerController>(GetWorld()->GetFirstPlayerController()))
 	{
@@ -25,6 +26,13 @@ void AUNInteractableObjectBase::SendDataToController(UPrimitiveComponent* PC)
 	}
 }
 
+void AUNInteractableObjectBase::SendEndDataToController(UPrimitiveComponent* OverlapActor)
+{
+	if (AUNPlayerController* PC = Cast<AUNPlayerController>(GetWorld()->GetFirstPlayerController()))
+	{
+		PC->ClearCursorOverObject(this);
+	}
+}
 
 void AUNInteractableObjectBase::BeginFocus()
 {

@@ -17,8 +17,13 @@ AUNPlayerController::AUNPlayerController()
 
 void AUNPlayerController::CheckCursorOverObject(AActor* CursorOverObject)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, "TE");
 	UE_LOG(LogTemp, Log, TEXT("%s"), *CursorOverObject->GetName());
+	BeginOverInteractable(CursorOverObject);
+}
+
+void AUNPlayerController::ClearCursorOverObject(AActor* CursorOverObject)
+{
+	EndOverInteractable();
 }
 
 
@@ -51,3 +56,90 @@ void AUNPlayerController::OnPossess(APawn* InPawn)
 	UN_LOG(LogUNNetwork, Log, TEXT("%s"), TEXT("End"));
 }
 
+
+
+
+
+// Interact
+
+void AUNPlayerController::BeginOverInteractable(AActor* NewInteractable)
+{
+	if (IsInteracting())
+	{
+		EndInteract();
+	}
+
+	if (InteractionData.CurrentInteractable)
+	{
+		TargetInteractable = InteractionData.CurrentInteractable;
+		TargetInteractable->EndFocus();
+	}
+
+	InteractionData.CurrentInteractable = NewInteractable;
+	TargetInteractable = NewInteractable;
+
+	TargetInteractable->BeginFocus();
+}
+
+// To Do .. : 변화주기
+void AUNPlayerController::EndOverInteractable()
+{
+	if(IsInteracting())
+	{
+		GetWorldTimerManager().ClearTimer(TimerHandle_Interaction);
+	}
+
+	if (InteractionData.CurrentInteractable)
+	{
+		if (IsValid(TargetInteractable.GetObject()))
+		{
+			TargetInteractable->EndFocus();
+		}
+
+		InteractionData.CurrentInteractable = nullptr;
+		TargetInteractable = nullptr;
+	}
+}
+
+void AUNPlayerController::BeginInteract()
+{
+	// 재확인 함수
+
+	if (InteractionData.CurrentInteractable)
+	{
+		if (IsValid(TargetInteractable.GetObject()))
+		{
+			TargetInteractable->BeginInteract();
+
+			if (FMath::IsNearlyZero(TargetInteractable->InteractableData.InteractionDuration, 0.1f))
+			{
+				Interact();
+			}
+			else
+			{
+				GetWorldTimerManager().SetTimer(TimerHandle_Interaction, this, 
+					&AUNPlayerController::Interact, TargetInteractable->InteractableData.InteractionDuration, false);
+			}
+		}
+	}
+}
+
+void AUNPlayerController::EndInteract()
+{
+	GetWorldTimerManager().ClearTimer(TimerHandle_Interaction);
+	
+	if (IsValid(TargetInteractable.GetObject()))
+	{
+		TargetInteractable->EndInteract();
+	}
+}
+
+void AUNPlayerController::Interact()
+{
+	GetWorldTimerManager().ClearTimer(TimerHandle_Interaction);
+
+	if (IsValid(TargetInteractable.GetObject()))
+	{
+		TargetInteractable->Interact();
+	}
+}

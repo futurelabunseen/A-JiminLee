@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Character/UNCharacter.h"
-#include "Interface/UNInteractionInterface.h"
 #include "Abilities/GameplayAbilityTypes.h"
 #include "AbilitySystemInterface.h"
 #include "Struct/DecalStruct.h"
@@ -14,23 +13,6 @@ class UInputAction;
 class UInputMappingContext;
 class UUNInventoryComponent;
 class AUNHUD;
-
-//USTRUCT()
-//struct FInteractionData
-//{
-//	GENERATED_USTRUCT_BODY()
-//	
-//	FInteractionData() : CurrentInteractable(nullptr), LastInteractionCheckTime(0.f)
-//	{
-//
-//	};
-//
-//	UPROPERTY()
-//	AActor* CurrentInteractable;
-//
-//	UPROPERTY()
-//	float LastInteractionCheckTime;
-//};
 
 /**
  * 
@@ -208,27 +190,5 @@ public:
 	TObjectPtr<UUNInventoryComponent> Inventory;
 
 	void InventoryInteraction();
-
-
-// Interaction
-
-//protected:
-//
-//	FORCEINLINE bool IsInteracting() const { return GetWorldTimerManager().IsTimerActive(TimerHandle_Interaction); }
-//
-//	UPROPERTY(VisibleAnywhere, Category = "Character | Interaction")
-//	TScriptInterface<IUNInteractionInterface> TargetInteractable;
-//
-//	FTimerHandle TimerHandle_Interaction;
-//
-//	FInteractionData InteractionData;
-
-//public:
-
-	//void FoundInteractable(AActor* NewInteractable);
-	//void NoInteractableFound();
-	//void BeginInteract();
-	//void EndInteract();
-	//void Interact();
 	
 };

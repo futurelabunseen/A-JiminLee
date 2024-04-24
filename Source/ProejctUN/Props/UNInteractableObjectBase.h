@@ -20,8 +20,10 @@ protected:
 	UStaticMeshComponent* Mesh;
 
 	UFUNCTION()
-	void SendDataToController(UPrimitiveComponent* PC);
+	void SendBeginDataToController(UPrimitiveComponent* OverlapActor);
 
+	UFUNCTION()
+	void SendEndDataToController(UPrimitiveComponent* OverlapActor);
 public:
 	virtual void BeginFocus() override;
 	virtual void EndFocus() override;
@@ -30,6 +32,4 @@ public:
 	virtual void Interact() override;
 
 	virtual void BeginPlay() override;
-
-
 };
