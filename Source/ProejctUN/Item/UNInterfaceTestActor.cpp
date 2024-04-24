@@ -13,7 +13,6 @@ AUNInterfaceTestActor::AUNInterfaceTestActor()
 
 void AUNInterfaceTestActor::BeginFocus()
 {
-	UE_LOG(LogTemp, Log, TEXT("BeginFocus"));
 	//if (Mesh)
 	//{
 	//	Mesh->SetRenderCustomDepth(true);
@@ -22,7 +21,6 @@ void AUNInterfaceTestActor::BeginFocus()
 
 void AUNInterfaceTestActor::EndFocus()
 {
-	UE_LOG(LogTemp, Log, TEXT("EndFocus"));
 	//if (Mesh)
 	//{
 	//	Mesh->SetRenderCustomDepth(false);
@@ -39,7 +37,7 @@ void AUNInterfaceTestActor::EndInteract()
 	UE_LOG(LogTemp, Log, TEXT("EndInteract"));
 }
 
-void AUNInterfaceTestActor::Interact()
+void AUNInterfaceTestActor::Interact(AActor* Actor)
 {
 	UE_LOG(LogTemp, Log, TEXT("Interact"));
 }

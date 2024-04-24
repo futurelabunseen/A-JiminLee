@@ -8,6 +8,7 @@
 AUNInteractableObjectBase::AUNInteractableObjectBase()
 {
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
+	SetRootComponent(Mesh);
 }
 
 void AUNInteractableObjectBase::BeginPlay()
@@ -58,6 +59,6 @@ void AUNInteractableObjectBase::EndInteract()
 {
 }
 
-void AUNInteractableObjectBase::Interact()
+void AUNInteractableObjectBase::Interact(AActor* Actor)
 {
 }

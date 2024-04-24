@@ -99,7 +99,7 @@ struct FItemData : public FTableRowBase
 	FName ID;
 	
 	UPROPERTY(EditAnywhere, Category = "Item Data")
-	EItemType EItemType;
+	EItemType ItemType;
 
 	UPROPERTY(EditAnywhere, Category = "Item Data")
 	EItemQuality ItemQuality;

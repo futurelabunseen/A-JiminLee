@@ -66,7 +66,7 @@ void AUNHUD::InitBoxInventory()
 	UUserWidget* Widget = CreateWidget<UUserWidget>(GetWorld(), BoxInventoryWidgetClass);
 	BoxInventoryWidget = Cast<UUNGASUserWidget>(Widget);
 
-	BoxInventoryWidget->AddToViewport();
+	BoxInventoryWidget->AddToViewport(3);
 	BoxInventoryWidget->SetVisibility(ESlateVisibility::Collapsed);
 }
 
@@ -97,7 +97,7 @@ void AUNHUD::InitInventory(APlayerController* PC, APlayerState* PS, UAbilitySyst
 	UUNGASInventoryWidgetController* WidgetController = GetInventoryWidgetController(WidgetControllerParams);
 
 	InventoryWidget->SetWidgetController(WidgetController);
-	InventoryWidget->AddToViewport();
+	InventoryWidget->AddToViewport(2);
 	InventoryWidget->SetVisibility(ESlateVisibility::Collapsed);
 }
 
@@ -133,11 +133,13 @@ UUNProgressBarWidgetController* AUNHUD::GetProgressBarWidgetController(const FWi
 void AUNHUD::OpenInventory()
 {
 	InventoryWidget->SetVisibility(ESlateVisibility::Visible);
+	bisInventoryOpen = true;
 }
 
 void AUNHUD::CloseInventory()
 {
 	InventoryWidget->SetVisibility(ESlateVisibility::Collapsed);
+	bisInventoryOpen = false;
 }
 
 void AUNHUD::OpenBoxInventory()

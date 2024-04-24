@@ -21,6 +21,6 @@ void IUNInteractionInterface::EndInteract()
 {
 }
 
-void IUNInteractionInterface::Interact()
+void IUNInteractionInterface::Interact(AActor* Actor)
 {
 }

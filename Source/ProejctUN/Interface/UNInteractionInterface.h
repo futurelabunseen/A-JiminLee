@@ -29,8 +29,7 @@ struct FInteractableData
 	InteractionDuration(0.f)
 	{
 
-	}
-		;
+	};
 
 	UPROPERTY(EditInstanceOnly)
 	EInteractableType InteractableType;
@@ -69,7 +68,7 @@ public:
 	virtual void EndFocus();
 	virtual void BeginInteract();
 	virtual void EndInteract();
-	virtual void Interact();
+	virtual void Interact(AActor* Actor);
 
 	FInteractableData InteractableData;
 };

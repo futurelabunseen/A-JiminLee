@@ -14,7 +14,6 @@ AUNInteractableBox::AUNInteractableBox()
     Mesh->SetupAttachment(BoxCollision);
 }
 
-//To Do .. : 시뮬리이티드프록시도 해당 함수에 진입하여 크래시
 void AUNInteractableBox::NotifyActorBeginOverlap(AActor* Other)
 {
     if (PlayerCharacter = Cast<AUNPlayerCharacter>(Other))
@@ -43,9 +42,9 @@ void AUNInteractableBox::NotifyActorEndOverlap(AActor* Other)
     }
 }
 
-void AUNInteractableBox::Interact()
+void AUNInteractableBox::Interact(AActor* Actor)
 {
-    Super::Interact();
+    Super::Interact(Actor);
 
     if (bisOverlap)
     {

@@ -15,18 +15,6 @@ AUNPlayerController::AUNPlayerController()
 	bEnableTouchEvents = false;
 }
 
-void AUNPlayerController::CheckCursorOverObject(AActor* CursorOverObject)
-{
-	UE_LOG(LogTemp, Log, TEXT("%s"), *CursorOverObject->GetName());
-	BeginOverInteractable(CursorOverObject);
-}
-
-void AUNPlayerController::ClearCursorOverObject(AActor* CursorOverObject)
-{
-	EndOverInteractable();
-}
-
-
 // NetInitÈÄ ½ÇÇà
 void AUNPlayerController::PostNetInit()
 {
@@ -58,9 +46,18 @@ void AUNPlayerController::OnPossess(APawn* InPawn)
 
 
 
-
-
 // Interact
+
+void AUNPlayerController::CheckCursorOverObject(AActor* CursorOverObject)
+{
+	BeginOverInteractable(CursorOverObject);
+}
+
+void AUNPlayerController::ClearCursorOverObject(AActor* CursorOverObject)
+{
+	EndOverInteractable();
+}
+
 void AUNPlayerController::BeginOverInteractable(AActor* NewInteractable)
 {
 	if (IsInteracting())
@@ -136,6 +133,6 @@ void AUNPlayerController::Interact()
 
 	if (IsValid(TargetInteractable.GetObject()))
 	{
-		TargetInteractable->Interact();
+		TargetInteractable->Interact(GetPawn());
 	}
 }

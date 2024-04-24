@@ -29,7 +29,7 @@ public:
 	virtual void NotifyActorEndOverlap(class AActor* Other) override;
 
 	UFUNCTION(BlueprintCallable)
-	virtual void Interact() override;
+	virtual void Interact(AActor* Actor) override;
 
 	UFUNCTION()
 	void OpenItemPanel();

@@ -558,11 +558,11 @@ void AUNPlayerCharacter::InventoryInteraction()
 {
 	if (HUD->bisInventoryOpen)
 	{
-		HUD->OpenInventory();
+		HUD->CloseInventory();
 	}
 	else
 	{
-		HUD->CloseInventory();
+		HUD->OpenInventory();
 	}
 	
 }
