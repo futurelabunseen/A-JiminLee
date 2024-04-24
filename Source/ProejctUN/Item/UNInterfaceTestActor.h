@@ -5,29 +5,25 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Interface/UNInteractionInterface.h"
-#include "UNInteractableObjectBase.generated.h"
+#include "UNInterfaceTestActor.generated.h"
 
 UCLASS()
-class PROEJCTUN_API AUNInteractableObjectBase : public AActor, public IUNInteractionInterface
+class PROEJCTUN_API AUNInterfaceTestActor : public AActor, public IUNInteractionInterface
 {
 	GENERATED_BODY()
 	
-public:
-	AUNInteractableObjectBase();
-	
+public:	
+	AUNInterfaceTestActor();
+
 protected:
 	UPROPERTY(EditAnywhere, Category = "Test Actor")
 	UStaticMeshComponent* Mesh;
 
 public:
+
 	virtual void BeginFocus() override;
 	virtual void EndFocus() override;
 	virtual void BeginInteract() override;
 	virtual void EndInteract() override;
 	virtual void Interact() override;
-
-	virtual void BeginPlay() override;
-
-	UFUNCTION()
-	void TEST(UPrimitiveComponent* PC);
 };

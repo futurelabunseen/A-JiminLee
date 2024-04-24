@@ -2,81 +2,45 @@
 
 
 #include "Props/UNInteractableObjectBase.h"
-#include "Character/UNPlayerCharacter.h"
-#include "UI/UNHUD.h"
-
-#include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 
-// Sets default values
 AUNInteractableObjectBase::AUNInteractableObjectBase()
 {
-    BoxCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxCollision"));
-    RootComponent = BoxCollision;
-
-    Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
-    Mesh->SetupAttachment(BoxCollision);
+	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 }
 
-void AUNInteractableObjectBase::NotifyActorBeginOverlap(AActor* Other)
+
+void AUNInteractableObjectBase::BeginPlay()
 {
-    if (PlayerCharacter = Cast<AUNPlayerCharacter>(Other))
-    {
-        bisOverlap = true;
-        PlayerCharacter->GetController()->StopMovement();
-        if (bisSelected)
-        {
-            OpenItemPanel();
-            GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, "Hello Character!");
-        }
-    }
+	Super::BeginPlay();
+
+	Mesh->OnBeginCursorOver.AddDynamic(this, &AUNInteractableObjectBase::TEST);
 }
 
-void AUNInteractableObjectBase::NotifyActorEndOverlap(AActor* Other)
+void AUNInteractableObjectBase::TEST(UPrimitiveComponent* PC)
 {
-    if (PlayerCharacter = Cast<AUNPlayerCharacter>(Other))
-    {
-        bisOverlap = false;
+	UE_LOG(LogTemp, Log, TEXT("hi"));
+}
 
-        CloseItemPanel();
-        bisSelected = false;
 
-        PlayerCharacter = nullptr;
+void AUNInteractableObjectBase::BeginFocus()
+{
+	UE_LOG(LogTemp, Log, TEXT("BeginFocus"));
+}
 
-        GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, "Bye Character!");
-    }
+void AUNInteractableObjectBase::EndFocus()
+{
+	UE_LOG(LogTemp, Log, TEXT("EndFocus"));
+}
+
+void AUNInteractableObjectBase::BeginInteract()
+{
+}
+
+void AUNInteractableObjectBase::EndInteract()
+{
 }
 
 void AUNInteractableObjectBase::Interact()
 {
-    if (bisOverlap)
-    {
-        OpenItemPanel();
-        return;
-    }
-
-    bisSelected = true;
-    GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, "Interact!");
 }
-
-void AUNInteractableObjectBase::OpenItemPanel()
-{
-    if (AUNHUD* HUD = Cast<AUNHUD>(PlayerCharacter->HUD))
-    {
-        HUD->OpenInventory();
-    }
-
-    GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, "Open Panel!");
-    // To Do ..
-}
-
-void AUNInteractableObjectBase::CloseItemPanel()
-{
-    if (AUNHUD* HUD = Cast<AUNHUD>(PlayerCharacter->HUD))
-    {
-        HUD->CloseInventory();
-    }
-    GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, "Close Panel!");
-    // To Do ..
-}
-    

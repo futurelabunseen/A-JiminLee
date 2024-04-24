@@ -11,6 +11,7 @@ class UAttributeSet;
 class UUNOverlayWidgetController;
 class UUNGASInventoryWidgetController;
 class UUNProgressBarWidgetController;
+class UUNBoxInventoryWidgetController;
 class UUNGASUserWidget;
 struct FWidgetControllerParams;
 /**
@@ -22,37 +23,33 @@ class PROEJCTUN_API AUNHUD : public AHUD
 	GENERATED_BODY()
 	
 public:
-
-	UPROPERTY()
-	TObjectPtr<UUNGASUserWidget> OverlayWidget;
-	
 	UUNOverlayWidgetController* GetOverlayWidgetController(const FWidgetControllerParams& WCParams);
 	
 	void InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAttributeSet* AS);
 	
 
-	UPROPERTY()
-	TObjectPtr<UUNGASUserWidget> InventoryWidget;
+	//UPROPERTY()
+	//TObjectPtr<UUNGASUserWidget> BoxInventoryWidget;
+
+	UUNBoxInventoryWidgetController* GetBoxInventoryWidgetController(const FWidgetControllerParams& WCParams);
+
+	//void InitInventory(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAttributeSet* AS);
+
 
 	UUNGASInventoryWidgetController* GetInventoryWidgetController(const FWidgetControllerParams& WCParams);
 
 	void InitInventory(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAttributeSet* AS);
 
-
-	UPROPERTY()
-	TObjectPtr<UUNGASUserWidget> ProgressBarWidget;
 	
 	UUNProgressBarWidgetController* GetProgressBarWidgetController(const FWidgetControllerParams& WCParams);
 	
 	void InitProgressBar(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAttributeSet* AS);
 
-
-	UFUNCTION(BlueprintCallable)
-	void ToggleInventory();
-
 	int8 bisInventoryOpen;
 
 private:
+	UPROPERTY()
+	TObjectPtr<UUNGASUserWidget> ProgressBarWidget;
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UUserWidget> ProgressBarWidgetClass;
@@ -63,6 +60,10 @@ private:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UUNProgressBarWidgetController> ProgressBarWidgetControllerClass;
 
+	
+	
+	UPROPERTY()
+	TObjectPtr<UUNGASUserWidget> InventoryWidget;
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UUserWidget> InventoryWidgetClass;
@@ -74,6 +75,10 @@ private:
 	TSubclassOf<UUNGASInventoryWidgetController> InventoryWidgetControllerClass;
 
 
+
+	UPROPERTY()
+	TObjectPtr<UUNGASUserWidget> OverlayWidget;
+
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UUserWidget> OverlayWidgetClass;
 
@@ -83,10 +88,23 @@ private:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UUNOverlayWidgetController> OverlayWidgetControllerClass;
 
+
+	UPROPERTY()
+	TObjectPtr<UUNBoxInventoryWidgetController> BoxInventoryWidgetController;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UUNBoxInventoryWidgetController> BoxInventoryWidgetControllerClass;
+
 public:
 	UFUNCTION()
 	void OpenInventory();
 
 	UFUNCTION()
 	void CloseInventory();
+
+	UFUNCTION()
+	void OpenBoxInventory();
+
+	UFUNCTION()
+	void CloseBoxInventory();
 };

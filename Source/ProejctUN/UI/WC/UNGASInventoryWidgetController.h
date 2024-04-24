@@ -9,9 +9,11 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(BlueprintType, Blueprintable)
 class PROEJCTUN_API UUNGASInventoryWidgetController : public UUNWidgetController
 {
 	GENERATED_BODY()
-	
+public:
+	virtual void BindCallbacksToDependencies() override;
+	virtual void BroadcastInitialValues() override;
 };

@@ -3,3 +3,10 @@
 
 #include "UNGASInventoryWidgetController.h"
 
+void UUNGASInventoryWidgetController::BindCallbacksToDependencies()
+{
+}
+
+void UUNGASInventoryWidgetController::BroadcastInitialValues()
+{
+}

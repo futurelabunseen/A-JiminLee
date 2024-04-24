@@ -9,7 +9,10 @@
 AUNPlayerController::AUNPlayerController()
 {
 	bShowMouseCursor = true;
+	bEnableMouseOverEvents = true;
 	DefaultMouseCursor = EMouseCursor::Default;
+
+	bEnableTouchEvents = false;
 }
 
 // NetInitÈÄ ½ÇÇà

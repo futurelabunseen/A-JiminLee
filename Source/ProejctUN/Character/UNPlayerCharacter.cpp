@@ -203,7 +203,7 @@ void AUNPlayerCharacter::PossessedBy(AController* NewController)
 	Super::PossessedBy(NewController);
 
 	PlayerController = CastChecked<APlayerController>(GetController());
-	PlayerController->ConsoleCommand(TEXT("showdebug abilitysystem"));
+	//PlayerController->ConsoleCommand(TEXT("showdebug abilitysystem"));
 
 	InitAbilityActorInfo();
 
@@ -217,7 +217,7 @@ void AUNPlayerCharacter::OnRep_Owner()
 	Super::OnRep_Owner();
 
 	PlayerController = CastChecked<APlayerController>(GetController());
-	PlayerController->ConsoleCommand(TEXT("showdebug abilitysystem"));
+	//PlayerController->ConsoleCommand(TEXT("showdebug abilitysystem"));
 
 	AActor* OwnerActor = GetOwner();
 	if (OwnerActor)
@@ -357,7 +357,7 @@ void AUNPlayerCharacter::RightClickAction()
 		bisCanceled = true;
 		return;
 	}
-
+	
 	// To Do .. : CollisionChannel
 	FHitResult OutHitResult;
 	if (PlayerController->GetHitResultUnderCursor(ECC_Visibility, false, OutHitResult))
@@ -551,5 +551,98 @@ void AUNPlayerCharacter::EndDecal()
 
 void AUNPlayerCharacter::InventoryInteraction()
 {
-	HUD->ToggleInventory();
+	if (HUD->bisInventoryOpen)
+	{
+		HUD->OpenInventory();
+	}
+	else
+	{
+		HUD->CloseInventory();
+	}
+	
 }
+
+
+// Interact
+
+//void AUNPlayerCharacter::FoundInteractable(AActor* NewInteractable)
+//{
+//	if (IsInteracting())
+//	{
+//		EndInteract();
+//	}
+//
+//	if (InteractionData.CurrentInteractable)
+//	{
+//		TargetInteractable = InteractionData.CurrentInteractable;
+//		TargetInteractable->EndFocus();
+//	}
+//
+//	InteractionData.CurrentInteractable = NewInteractable;
+//	TargetInteractable = NewInteractable;
+//
+//	TargetInteractable->BeginFocus();
+//}
+//
+//// To Do .. : 변화주기
+//void AUNPlayerCharacter::NoInteractableFound()
+//{
+//	if(IsInteracting())
+//	{
+//		GetWorldTimerManager().ClearTimer(TimerHandle_Interaction);
+//	}
+//
+//	if (InteractionData.CurrentInteractable)
+//	{
+//		if (IsValid(TargetInteractable.GetObject()))
+//		{
+//			TargetInteractable->EndFocus();
+//		}
+//
+//		InteractionData.CurrentInteractable = nullptr;
+//		TargetInteractable = nullptr;
+//	}
+//}
+//
+//void AUNPlayerCharacter::BeginInteract()
+//{
+//	// 재확인 함수
+//
+//	if (InteractionData.CurrentInteractable)
+//	{
+//		if (IsValid(TargetInteractable.GetObject()))
+//		{
+//			TargetInteractable->BeginInteract();
+//
+//			if (FMath::IsNearlyZero(TargetInteractable->InteractableData.InteractionDuration, 0.1f))
+//			{
+//				Interact();
+//			}
+//			else
+//			{
+//				GetWorldTimerManager().SetTimer(TimerHandle_Interaction, this, 
+//					&AUNPlayerCharacter::Interact, TargetInteractable->InteractableData.InteractionDuration, false);
+//			}
+//		}
+//	}
+//}
+//
+//void AUNPlayerCharacter::EndInteract()
+//{
+//	GetWorldTimerManager().ClearTimer(TimerHandle_Interaction);
+//	
+//	if (IsValid(TargetInteractable.GetObject()))
+//	{
+//		TargetInteractable->EndInteract();
+//	}
+//}
+//
+//void AUNPlayerCharacter::Interact()
+//{
+//	GetWorldTimerManager().ClearTimer(TimerHandle_Interaction);
+//
+//	if (IsValid(TargetInteractable.GetObject()))
+//	{
+//		TargetInteractable->Interact();
+//	}
+//}
