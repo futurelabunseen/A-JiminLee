@@ -14,6 +14,7 @@ AUNInteractableBox::AUNInteractableBox()
     Mesh->SetupAttachment(BoxCollision);
 }
 
+//To Do .. : 시뮬리이티드프록시도 해당 함수에 진입하여 크래시
 void AUNInteractableBox::NotifyActorBeginOverlap(AActor* Other)
 {
     if (PlayerCharacter = Cast<AUNPlayerCharacter>(Other))
@@ -50,7 +51,6 @@ void AUNInteractableBox::Interact()
     }
 
     bisSelected = true;
-    GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, "1");
 }
 
 void AUNInteractableBox::OpenItemPanel()

@@ -10,6 +10,12 @@
 
 #include "EngineUtils.h"
 
+void AUNHUD::BeginPlay()
+{
+	Super::BeginPlay();
+	InitBoxInventory();
+}
+
 UUNOverlayWidgetController* AUNHUD::GetOverlayWidgetController(const FWidgetControllerParams& WCParams)
 {
 	if (OverlayWidgetController == nullptr)
@@ -39,36 +45,6 @@ void AUNHUD::InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySystem
 	Widget->AddToViewport();
 }
 
-//UUNGASInventoryWidgetController* AUNHUD::GetBoxInventoryWidgetController(const FWidgetControllerParams& WCParams)
-//{
-//	if (InventoryWidgetController == nullptr)
-//	{
-//		InventoryWidgetController = NewObject<UUNGASInventoryWidgetController>(this, InventoryWidgetControllerClass);
-//		InventoryWidgetController->SetWidgetControllerParams(WCParams);
-//
-//		return InventoryWidgetController;
-//	}
-//	return InventoryWidgetController;
-//}
-
-//void AUNHUD::InitInventory(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAttributeSet* AS)
-//{
-//	checkf(InventoryWidgetClass, TEXT("Inventory Widget Class uninitialized, please fill out BP_UNHUD"));
-//	checkf(InventoryWidgetControllerClass, TEXT("Inventory Widget Controller Class uninitialized, please fill out BP_UNHUD"));
-//
-//	UUserWidget* Widget = CreateWidget<UUserWidget>(GetWorld(), InventoryWidgetClass);
-//	InventoryWidget = Cast<UUNGASUserWidget>(Widget);
-//
-//	const FWidgetControllerParams WidgetControllerParams(PC, PS, ASC, AS);
-//	UUNGASInventoryWidgetController* WidgetController = GetInventoryWidgetController(WidgetControllerParams);
-//
-//	InventoryWidget->SetWidgetController(WidgetController);
-//	InventoryWidget->AddToViewport();
-//	InventoryWidget->SetVisibility(ESlateVisibility::Collapsed);
-//}
-
-
-
 
 
 UUNBoxInventoryWidgetController* AUNHUD::GetBoxInventoryWidgetController(const FWidgetControllerParams& WCParams)
@@ -82,6 +58,20 @@ UUNBoxInventoryWidgetController* AUNHUD::GetBoxInventoryWidgetController(const F
 	}
 	return BoxInventoryWidgetController;
 }
+
+void AUNHUD::InitBoxInventory()
+{
+	checkf(BoxInventoryWidgetClass, TEXT("Inventory Widget Class uninitialized, please fill out BP_UNHUD"));
+
+	UUserWidget* Widget = CreateWidget<UUserWidget>(GetWorld(), BoxInventoryWidgetClass);
+	BoxInventoryWidget = Cast<UUNGASUserWidget>(Widget);
+
+	BoxInventoryWidget->AddToViewport();
+	BoxInventoryWidget->SetVisibility(ESlateVisibility::Collapsed);
+}
+
+
+
 
 UUNGASInventoryWidgetController* AUNHUD::GetInventoryWidgetController(const FWidgetControllerParams& WCParams)
 {
@@ -152,10 +142,10 @@ void AUNHUD::CloseInventory()
 
 void AUNHUD::OpenBoxInventory()
 {
-	InventoryWidget->SetVisibility(ESlateVisibility::Visible);
+	BoxInventoryWidget->SetVisibility(ESlateVisibility::Visible);
 }
 
 void AUNHUD::CloseBoxInventory()
 {
-	InventoryWidget->SetVisibility(ESlateVisibility::Collapsed);
+	BoxInventoryWidget->SetVisibility(ESlateVisibility::Collapsed);
 }

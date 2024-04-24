@@ -22,18 +22,18 @@ class PROEJCTUN_API AUNHUD : public AHUD
 {
 	GENERATED_BODY()
 	
+protected:
+	virtual void BeginPlay() override;
+
 public:
 	UUNOverlayWidgetController* GetOverlayWidgetController(const FWidgetControllerParams& WCParams);
 	
 	void InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAttributeSet* AS);
-	
 
-	//UPROPERTY()
-	//TObjectPtr<UUNGASUserWidget> BoxInventoryWidget;
 
 	UUNBoxInventoryWidgetController* GetBoxInventoryWidgetController(const FWidgetControllerParams& WCParams);
 
-	//void InitInventory(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAttributeSet* AS);
+	void InitBoxInventory();
 
 
 	UUNGASInventoryWidgetController* GetInventoryWidgetController(const FWidgetControllerParams& WCParams);
@@ -88,6 +88,12 @@ private:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UUNOverlayWidgetController> OverlayWidgetControllerClass;
 
+
+	UPROPERTY()
+	TObjectPtr<UUNGASUserWidget> BoxInventoryWidget;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UUserWidget> BoxInventoryWidgetClass;
 
 	UPROPERTY()
 	TObjectPtr<UUNBoxInventoryWidgetController> BoxInventoryWidgetController;
