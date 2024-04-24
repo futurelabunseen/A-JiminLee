@@ -19,11 +19,14 @@ void AUNInteractableBox::NotifyActorBeginOverlap(AActor* Other)
 {
     if (PlayerCharacter = Cast<AUNPlayerCharacter>(Other))
     {
-        bisOverlap = true;
-        PlayerCharacter->GetController()->StopMovement();
-        if (bisSelected)
+        if (PlayerCharacter->IsLocallyControlled())
         {
-            OpenItemPanel();
+            bisOverlap = true;
+            PlayerCharacter->GetController()->StopMovement();
+            if (bisSelected)
+            {
+                OpenItemPanel();
+            }
         }
     }
 }
