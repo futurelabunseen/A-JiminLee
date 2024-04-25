@@ -8,6 +8,7 @@
 #include "UObject/NoExportTypes.h"
 #include "ItemBase.generated.h"
 
+class UUNInventoryComponent;
 /**
  * 
  */

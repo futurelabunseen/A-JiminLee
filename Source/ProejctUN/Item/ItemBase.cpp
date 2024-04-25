@@ -2,6 +2,7 @@
 
 
 #include "Item/ItemBase.h"
+#include "UI/UNInventoryComponent.h"
 
 UItemBase::UItemBase()
 {
@@ -33,7 +34,7 @@ void UItemBase::SetQuantity(const int32 NewQuantity)
 		{
 			if (Quantity <= 0)
 			{
-				//OwningInventory->RemoveItem(this);
+				OwningInventory->RemoveSingleInstanceOfItem(this);
 			}
 		}
 	}
