@@ -3,6 +3,7 @@
 
 #include "Props/UNPickupObject.h"
 #include "Character/UNPlayerCharacter.h"
+#include "UI/UNInventoryComponent.h"
 #include "Components/BoxComponent.h"
 #include "Item/ItemBase.h"
 
@@ -68,32 +69,67 @@ void AUNPickupObject::UpdateInteractableData()
 
 void AUNPickupObject::TakePickUp(AActor* Taker)
 {
-	AUNPlayerCharacter* PlayerCharacter = Cast<AUNPlayerCharacter>(Taker);
-
-	if (!IsPendingKillPending())
+	if (AUNPlayerCharacter* Player = Cast<AUNPlayerCharacter>(Taker))
 	{
-		if (ItemReference)
+		if (!IsPendingKillPending())
 		{
-			//if(UInventoryComponent* PlayerInventory  = Taker->GetInventory));
+			if (ItemReference)
+			{
+				if (UUNInventoryComponent* PlayerInventory = Player->GetInventoryComponent())
+				{
+					const FItemAddResult AddResult = PlayerInventory->HandleAddItem(ItemReference);
+
+					switch (AddResult.OperationResult)
+					{
+					case EItemAddResult::IAR_NoItemAdded:
+						break;
+					case EItemAddResult::IAR_PartialAmountItemAdded:
+						UpdateInteractableData();
+						// PlayerCharacter->UpdateInteractionWidget();
+						break;
+					case EItemAddResult::IAR_AllItemAddeed:
+						Destroy();
+						break;
+					}
+
+					UE_LOG(LogTemp, Log, TEXT("%s"), *AddResult.ResultMessage.ToString());
+				}
+				else
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Player inventory component is null!"));
+				}
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Pickup internal item reference was somehow null!"));
+			}
 		}
 	}
 }
 
-void AUNPickupObject::Interact(AActor* Actor)
+
+// 버그 있을 듯. 체크 꼭 하기!
+void AUNPickupObject::Interact(AActor* Player)
 {
-	if (Actor)
-	{
-		TakePickUp(Actor);
-	}
+	bIsSelected = true;
+	InteractingActor = Player;
 }
 
 void AUNPickupObject::NotifyActorBeginOverlap(AActor* Other)
 {
-	UE_LOG(LogTemp, Log, TEXT("Overlap"));
+	if (bIsSelected && Other == InteractingActor)
+	{
+		TakePickUp(Other);
+	}
 }
 
 void AUNPickupObject::NotifyActorEndOverlap(AActor* Other)
 {
+	if (Other == InteractingActor)
+	{
+		bIsSelected = false;
+		InteractingActor = nullptr;
+	}
 }
 
 

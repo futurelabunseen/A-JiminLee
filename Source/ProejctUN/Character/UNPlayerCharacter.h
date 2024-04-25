@@ -30,7 +30,7 @@ public:
 	FORCEINLINE virtual class UAnimMontage* GetComboActionMontage() const { return ComboActionMontage; }
 	FORCEINLINE virtual class UAnimMontage* GetSkillActionMontage() const { return SkillActionMontage; }
 	FORCEINLINE class UUNComboActionData* GetComboActionData() const { return ComboActionData; }
-	FORCEINLINE UUNInventoryComponent* GetInventoryComponent() const { return Inventory; }
+	FORCEINLINE UUNInventoryComponent* GetInventoryComponent() const { return PlayerInventory; }
 
 	UPROPERTY()
 	TObjectPtr<AUNHUD> HUD;
@@ -185,8 +185,8 @@ public:
 
 // UI
 public:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Equipment, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UUNInventoryComponent> Inventory;
+	UPROPERTY(VisibleAnywhere, Category = "Character | Inventory")
+	UUNInventoryComponent* PlayerInventory;
 
 	void InventoryInteraction();
 	

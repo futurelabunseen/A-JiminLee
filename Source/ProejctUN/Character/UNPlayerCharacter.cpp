@@ -130,7 +130,9 @@ AUNPlayerCharacter::AUNPlayerCharacter()
 	Decal->DecalSize = FVector();
 	Decal->SetupAttachment(RootComponent);
 
-	Inventory = CreateDefaultSubobject<UUNInventoryComponent>(TEXT("Inventory"));
+	PlayerInventory = CreateDefaultSubobject<UUNInventoryComponent>(TEXT("Inventory"));
+	PlayerInventory->SetSlotsCapacity(20);
+	PlayerInventory->SetWeightCapacity(50.f);
 }
 
 UAbilitySystemComponent* AUNPlayerCharacter::GetAbilitySystemComponent() const

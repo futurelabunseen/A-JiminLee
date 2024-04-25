@@ -9,6 +9,7 @@
 class UBoxComponent;
 class UItemBase;
 class UDataTable;
+class AUNPlayerCharacter;
 
 /**
  * 
@@ -26,7 +27,7 @@ public:
 	AUNPickupObject();
 
 	virtual void BeginPlay() override;
-	virtual void Interact(AActor* Actor) override;
+	virtual void Interact(AActor* Player) override;
 
 	virtual void NotifyActorBeginOverlap(class AActor* Other) override;
 	virtual void NotifyActorEndOverlap(class AActor* Other) override;
@@ -52,6 +53,12 @@ public:
 
 	UPROPERTY(VisibleAnywhere, Category = "Pickup | Interaction")
 	FInteractableData InstanceInteractableData;
+
+	bool bIsSelected;
+
+	UPROPERTY()
+	AActor* InteractingActor;
+
 
 #if WITH_EDITOR
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangeEvent) override;
