@@ -2,6 +2,7 @@
 
 
 #include "UNCharacter.h"
+
 #include "Components/CapsuleComponent.h"
 #include "Physics/UNCollision.h"
 #include "Camera/CameraComponent.h"
@@ -9,14 +10,12 @@
 #include "GameFramework/CharacterMovementComponent.h"
 
 #include "UI/UNGASWidgetComponent.h"
-#include "UI/UNGASUserWidget.h"
+#include "UI/Widget/UNGASUserWidget.h"
 #include "EngineUtils.h"
 #include "ProejctUN.h"
 
 AUNCharacter::AUNCharacter()
 {
-	bReplicates = true;
-
 	//기본 세팅
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 	GetCapsuleComponent()->SetCollisionProfileName(CPROFILE_UNCAPSULE);
@@ -74,6 +73,7 @@ AUNCharacter::AUNCharacter()
 	HpBar = CreateDefaultSubobject<UUNGASWidgetComponent>(TEXT("Widget"));
 	HpBar->SetupAttachment(GetMesh());
 	HpBar->SetRelativeLocation(FVector(0.f, 0.f, 250.f));
+
 	static ConstructorHelpers::FClassFinder<UUserWidget> HpBarWidgetRef(TEXT("/Game/UI/WBP_HpBar.WBP_HpBar_C"));
 	if (HpBarWidgetRef.Class)
 	{
@@ -82,6 +82,11 @@ AUNCharacter::AUNCharacter()
 		HpBar->SetDrawSize(FVector2D(200.f, 20.f));
 		HpBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
+}
+
+void AUNCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
 }
 
 // 델리게이트에 등록되는 함수. 사망 시 Attribute에서 Broadcast됨.

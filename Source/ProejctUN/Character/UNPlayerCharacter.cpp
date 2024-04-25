@@ -2,6 +2,8 @@
 
 #include "UNPlayerCharacter.h"
 #include "Player/UNGASPlayerState.h"
+#include "Player/UNPlayerController.h"
+#include "UI/UNHUD.h"
 #include "Blueprint/AIBlueprintHelperLibrary.h"
 
 #include "EnhancedInputComponent.h"
@@ -11,11 +13,14 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/DecalComponent.h"
 
-#include "UNAbilitySystemComponent.h"
+#include "Props/UNInteractableObjectBase.h"
+#include "ASC/UNAbilitySystemComponent.h"
 #include "UNComboActionData.h"
 #include "Attribute/UNCharacterAttributeSet.h"
 #include "Tag/UNGameplayTag.h"
 #include "UI/UNGASWidgetComponent.h"
+#include "UI/Widget/UNGASUserWidget.h"
+#include "UI/UNInventoryComponent.h"
 #include "Abilities/GameplayAbilityTargetActor.h"
 
 #include "ProejctUN.h"
@@ -77,6 +82,12 @@ AUNPlayerCharacter::AUNPlayerCharacter()
 		CancelAction = CancelActionConfirmRef.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<UInputAction> InventoryActionConfirmRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Action/IA_Inventroy.IA_Inventroy'"));
+	if (nullptr != InventoryActionConfirmRef.Object)
+	{
+		InventoryAction = InventoryActionConfirmRef.Object;
+	}
+
 	static ConstructorHelpers::FObjectFinder<UAnimMontage> ComboActionMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/OutsideAsset/ParagonGreystone/Characters/Heroes/Greystone/Animations/CustomAnimation/AM_ComboAttack.AM_ComboAttack'"));
 	if (ComboActionMontageRef.Object)
 	{
@@ -118,6 +129,10 @@ AUNPlayerCharacter::AUNPlayerCharacter()
 	Decal = CreateDefaultSubobject<UDecalComponent>(TEXT("Decal"));
 	Decal->DecalSize = FVector();
 	Decal->SetupAttachment(RootComponent);
+
+	PlayerInventory = CreateDefaultSubobject<UUNInventoryComponent>(TEXT("Inventory"));
+	PlayerInventory->SetSlotsCapacity(20);
+	PlayerInventory->SetWeightCapacity(50.f);
 }
 
 UAbilitySystemComponent* AUNPlayerCharacter::GetAbilitySystemComponent() const
@@ -138,6 +153,8 @@ void AUNPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::OnSetDestinationTriggered);
 		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Completed, this, &AUNPlayerCharacter::OnSetDestinationReleased);
 		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Canceled, this, &AUNPlayerCharacter::OnSetDestinationReleased);
+
+		EnhancedInputComponent->BindAction(InventoryAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::InventoryInteraction);
 	}
 	SetupPlayerGASInputComponent();
 
@@ -170,7 +187,6 @@ void AUNPlayerCharacter::BeginPlay()
 	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
 	Super::BeginPlay();
 
-	PlayerController = Cast<APlayerController>(GetController());
 	if (PlayerController)
 	{
 		UN_LOG(LogUNNetwork, Log, TEXT("%s"), TEXT("Have Controller"));
@@ -187,30 +203,11 @@ void AUNPlayerCharacter::PossessedBy(AController* NewController)
 {
 	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
 	Super::PossessedBy(NewController);
-	
-	AUNGASPlayerState* GASPS = GetPlayerState<AUNGASPlayerState>();
-	if (GASPS)
-	{
-		ASC = Cast<UUNAbilitySystemComponent>(GASPS->GetAbilitySystemComponent());
-		ASC->InitAbilityActorInfo(GASPS, this);
 
-		ASC->GenericGameplayEventCallbacks.FindOrAdd(UNTAG_EVENT_CHARACTER_WEAPONEQUIP).AddUObject(this, &AUNPlayerCharacter::EquipWeapon);
-		ASC->GenericGameplayEventCallbacks.FindOrAdd(UNTAG_EVENT_CHARACTER_WEAPONUNEQUIP).AddUObject(this, &AUNPlayerCharacter::UnEquipWeapon);
-		ASC->RegisterGameplayTagEvent(UNTAG_CHARACTER_STATE_ISSTUNING, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &AUNPlayerCharacter::OnStunTagChange);
-	}
-	else
-	{
-		UN_LOG(LogUNNetwork, Log, TEXT("Not Have GAS"));
-	}
-	
 	PlayerController = CastChecked<APlayerController>(GetController());
-	UN_LOG(LogUNNetwork, Log, TEXT("PlayerController : %s"), *PlayerController->GetName());
-	PlayerController->ConsoleCommand(TEXT("showdebug abilitysystem"));
+	//PlayerController->ConsoleCommand(TEXT("showdebug abilitysystem"));
 
-	InitializeAttributes();
-	InitalizeGameplayAbilities();
-	EquipWeapon(nullptr);
-	HpBar->InitWidget();
+	InitAbilityActorInfo();
 
 	UN_LOG(LogUNNetwork, Log, TEXT("End"));
 }
@@ -222,7 +219,7 @@ void AUNPlayerCharacter::OnRep_Owner()
 	Super::OnRep_Owner();
 
 	PlayerController = CastChecked<APlayerController>(GetController());
-	PlayerController->ConsoleCommand(TEXT("showdebug abilitysystem"));
+	//PlayerController->ConsoleCommand(TEXT("showdebug abilitysystem"));
 
 	AActor* OwnerActor = GetOwner();
 	if (OwnerActor)
@@ -243,6 +240,17 @@ void AUNPlayerCharacter::OnRep_PlayerState()
 	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
 	Super::OnRep_PlayerState();
 
+	InitAbilityActorInfo();
+
+	UN_LOG(LogUNNetwork, Log, TEXT("End"));
+}
+
+void AUNPlayerCharacter::InitAbilityActorInfo()
+{
+
+	PlayerController = Cast<APlayerController>(GetController());
+
+	// Player State
 	AUNGASPlayerState* GASPS = GetPlayerState<AUNGASPlayerState>();
 	if (GASPS)
 	{
@@ -251,15 +259,28 @@ void AUNPlayerCharacter::OnRep_PlayerState()
 
 		ASC->GenericGameplayEventCallbacks.FindOrAdd(UNTAG_EVENT_CHARACTER_WEAPONEQUIP).AddUObject(this, &AUNPlayerCharacter::EquipWeapon);
 		ASC->GenericGameplayEventCallbacks.FindOrAdd(UNTAG_EVENT_CHARACTER_WEAPONUNEQUIP).AddUObject(this, &AUNPlayerCharacter::UnEquipWeapon);
+		ASC->RegisterGameplayTagEvent(UNTAG_CHARACTER_STATE_ISSTUNING, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &AUNPlayerCharacter::OnStunTagChange);
+	}
+	else
+	{
+		UN_LOG(LogUNNetwork, Log, TEXT("Not Have GAS"));
 	}
 
 	InitializeAttributes();
 	InitalizeGameplayAbilities();
-	SetupPlayerGASInputComponent(); //race condition 방지
 	EquipWeapon(nullptr);
-	HpBar->InitWidget();
 
-	UN_LOG(LogUNNetwork, Log, TEXT("End"));
+	if (AUNPlayerController* PC = Cast<AUNPlayerController>(PlayerController))
+	{
+		if (HUD = Cast<AUNHUD>(PC->GetHUD()))
+		{
+			HUD->InitOverlay(PC, GASPS, ASC, GASPS->GetAttributeSet());
+			HUD->InitInventory(PC, GASPS, ASC, GASPS->GetAttributeSet());
+			HUD->InitProgressBar(PC, GASPS, ASC, GASPS->GetAttributeSet());
+		}
+	}
+
+	HpBar->InitWidget();
 }
 
 void AUNPlayerCharacter::SetCharacterControl()
@@ -305,6 +326,7 @@ void AUNPlayerCharacter::OnSetDestinationReleased()
 {
 	if (bisCanceled)
 	{
+		bisCanceled = false;
 		return;
 	}
 
@@ -337,6 +359,24 @@ void AUNPlayerCharacter::RightClickAction()
 		bisCanceled = true;
 		return;
 	}
+
+	if (AUNPlayerController* PC = Cast<AUNPlayerController>(PlayerController))
+	{
+		PC->BeginInteract();
+	}
+
+	//// To Do .. : CollisionChannel
+	//FHitResult OutHitResult;
+	//if (PlayerController->GetHitResultUnderCursor(ECC_Visibility, false, OutHitResult))
+	//{
+	//	if (AUNInteractableObjectBase* Object = Cast<AUNInteractableObjectBase>(OutHitResult.GetActor()))
+	//	{
+	//		Object->Interact();
+	//		bisCanceled = true;
+	//		UAIBlueprintHelperLibrary::SimpleMoveToActor(PlayerController, Object);
+	//		return;
+	//	}
+	//}
 
 	OnInputStarted();
 }
@@ -377,6 +417,7 @@ void AUNPlayerCharacter::GASInputReleased(int32 InputId)
 // Attribute 초기화
 void AUNPlayerCharacter::InitializeAttributes()
 {
+	// Attribute
 	const UUNCharacterAttributeSet* CurrentAttributeSet = ASC->GetSet<UUNCharacterAttributeSet>();
 	if (CurrentAttributeSet)
 	{
@@ -513,4 +554,17 @@ void AUNPlayerCharacter::EndDecal()
 	ClearCurrentActiveDecalData();
 
 	bisTargeting = false;
+}
+
+void AUNPlayerCharacter::InventoryInteraction()
+{
+	if (HUD->bisInventoryOpen)
+	{
+		HUD->CloseInventory();
+	}
+	else
+	{
+		HUD->OpenInventory();
+	}
+	
 }

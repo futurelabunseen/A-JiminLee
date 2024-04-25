@@ -3,7 +3,7 @@
 
 #include "UNAT_TraceLocation.h"
 #include "GA/TA/UNTA_TraceLocation.h"
-#include "UNAbilitySystemComponent.h"
+#include "ASC/UNAbilitySystemComponent.h"
 
 UUNAT_TraceLocation* UUNAT_TraceLocation::CreateTask(UGameplayAbility* OwningAbility, TSubclassOf<class AUNTA_TraceLocation> TargetActorClass)
 {

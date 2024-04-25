@@ -11,6 +11,8 @@
 
 class UInputAction;
 class UInputMappingContext;
+class UUNInventoryComponent;
+class AUNHUD;
 
 /**
  * 
@@ -28,7 +30,11 @@ public:
 	FORCEINLINE virtual class UAnimMontage* GetComboActionMontage() const { return ComboActionMontage; }
 	FORCEINLINE virtual class UAnimMontage* GetSkillActionMontage() const { return SkillActionMontage; }
 	FORCEINLINE class UUNComboActionData* GetComboActionData() const { return ComboActionData; }
-	
+	FORCEINLINE UUNInventoryComponent* GetInventoryComponent() const { return PlayerInventory; }
+
+	UPROPERTY()
+	TObjectPtr<AUNHUD> HUD;
+
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputMappingContext> DefaultMappingContext;
@@ -54,6 +60,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* CancelAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* InventoryAction;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UDecalComponent* Decal;
 
@@ -69,6 +78,8 @@ protected:
 	virtual void OnRep_PlayerState() override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void BeginPlay();
+
+	void InitAbilityActorInfo();
 
 	void SetCharacterControl();
 	void OnInputStarted();
@@ -152,7 +163,6 @@ protected:
 	void SendCancelToTargetActor();
 
 // Decal
-
 private:
 	UPROPERTY()
 	FDecalStruct CurrentActiveDecalData;
@@ -172,4 +182,12 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void ClearCurrentActiveDecalData() { CurrentActiveDecalData = FDecalStruct(); }
+
+// UI
+public:
+	UPROPERTY(VisibleAnywhere, Category = "Character | Inventory")
+	UUNInventoryComponent* PlayerInventory;
+
+	void InventoryInteraction();
+	
 };

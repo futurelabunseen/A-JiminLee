@@ -4,7 +4,7 @@
 #include "UNTA_TraceLocation.h"
 #include "NavigationSystem.h"
 
-#include "AbilitySystemComponent.h"
+//#include "AbilitySystemComponent.h"
 #include "Abilities/GameplayAbility.h"
 #include "Character/UNPlayerCharacter.h"
 #include "Player/UNPlayerController.h"

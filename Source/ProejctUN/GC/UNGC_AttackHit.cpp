@@ -7,7 +7,7 @@
 
 UUNGC_AttackHit::UUNGC_AttackHit()
 {
-	static ConstructorHelpers::FObjectFinder<UParticleSystem> ExplosionRef(TEXT("/Script/Engine.ParticleSystem'/Game/StarterContent/Particles/P_Explosion.P_Explosion'"));
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> ExplosionRef(TEXT("/Script/Engine.ParticleSystem'/Game/OutsideAsset/ParagonGreystone/FX/Particles/Greystone/Abilities/Ultimate/FX/P_Greystone_HToKill_Resurrect_Local.P_Greystone_HToKill_Resurrect_Local'"));
 	if (ExplosionRef.Object)
 	{
 		ParticleSystem = ExplosionRef.Object;

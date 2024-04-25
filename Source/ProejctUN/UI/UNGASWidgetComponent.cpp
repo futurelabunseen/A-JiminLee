@@ -2,7 +2,7 @@
 
 
 #include "UNGASWidgetComponent.h"
-#include "UNGASUserWidget.h"
+#include "Widget/UNGASUserWidget.h"
 
 void UUNGASWidgetComponent::InitWidget()
 {

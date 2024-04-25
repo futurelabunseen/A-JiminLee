@@ -2,7 +2,7 @@
 
 
 #include "Player/UNGASPlayerState.h"
-#include "UNAbilitySystemComponent.h"
+#include "ASC/UNAbilitySystemComponent.h"
 #include "Attribute/UNCharacterAttributeSet.h"
 #include "Attribute/UNCharacterSkillAttributeSet.h"
 
@@ -17,4 +17,9 @@ AUNGASPlayerState::AUNGASPlayerState()
 UAbilitySystemComponent* AUNGASPlayerState::GetAbilitySystemComponent() const
 {
 	return ASC;
+}
+
+UUNCharacterAttributeSet* AUNGASPlayerState::GetAttributeSet()
+{
+	return AttributeSet;
 }
