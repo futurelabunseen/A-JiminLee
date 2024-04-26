@@ -5,7 +5,7 @@
 #include "UI/Widget/UNGASUserWidget.h"
 #include "UI/WC/UNOverlayWidgetController.h"
 #include "UI/WC/UNProgressBarWidgetController.h"
-#include "UI/WC/UNGASInventoryWidgetController.h"
+#include "UI/WC/UNInventoryWidgetController.h"
 #include "UI/WC/UNBoxInventoryWidgetController.h"
 
 #include "EngineUtils.h"
@@ -73,11 +73,11 @@ void AUNHUD::InitBoxInventory()
 
 
 
-UUNGASInventoryWidgetController* AUNHUD::GetInventoryWidgetController(const FWidgetControllerParams& WCParams)
+UUNInventoryWidgetController* AUNHUD::GetInventoryWidgetController(const FWidgetControllerParams& WCParams)
 {
 	if (InventoryWidgetController == nullptr)
 	{
-		InventoryWidgetController = NewObject<UUNGASInventoryWidgetController>(this, InventoryWidgetControllerClass);
+		InventoryWidgetController = NewObject<UUNInventoryWidgetController>(this, InventoryWidgetControllerClass);
 		InventoryWidgetController->SetWidgetControllerParams(WCParams);
 		
 		return InventoryWidgetController;
@@ -94,7 +94,7 @@ void AUNHUD::InitInventory(APlayerController* PC, APlayerState* PS, UAbilitySyst
 	InventoryWidget = Cast<UUNGASUserWidget>(Widget);
 	
 	const FWidgetControllerParams WidgetControllerParams(PC, PS, ASC, AS);
-	UUNGASInventoryWidgetController* WidgetController = GetInventoryWidgetController(WidgetControllerParams);
+	UUNInventoryWidgetController* WidgetController = GetInventoryWidgetController(WidgetControllerParams);
 
 	InventoryWidget->SetWidgetController(WidgetController);
 	InventoryWidget->AddToViewport(2);

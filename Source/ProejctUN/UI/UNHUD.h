@@ -9,7 +9,7 @@
 class UAbilitySystemComponent;
 class UAttributeSet;
 class UUNOverlayWidgetController;
-class UUNGASInventoryWidgetController;
+class UUNInventoryWidgetController;
 class UUNProgressBarWidgetController;
 class UUNBoxInventoryWidgetController;
 class UUNGASUserWidget;
@@ -36,7 +36,7 @@ public:
 	void InitBoxInventory();
 
 
-	UUNGASInventoryWidgetController* GetInventoryWidgetController(const FWidgetControllerParams& WCParams);
+	UUNInventoryWidgetController* GetInventoryWidgetController(const FWidgetControllerParams& WCParams);
 
 	void InitInventory(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAttributeSet* AS);
 
@@ -69,10 +69,10 @@ private:
 	TSubclassOf<UUserWidget> InventoryWidgetClass;
 
 	UPROPERTY()
-	TObjectPtr<UUNGASInventoryWidgetController> InventoryWidgetController;
+	TObjectPtr<UUNInventoryWidgetController> InventoryWidgetController;
 
 	UPROPERTY(EditAnywhere)
-	TSubclassOf<UUNGASInventoryWidgetController> InventoryWidgetControllerClass;
+	TSubclassOf<UUNInventoryWidgetController> InventoryWidgetControllerClass;
 
 
 

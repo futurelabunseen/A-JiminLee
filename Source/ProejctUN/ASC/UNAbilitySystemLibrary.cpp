@@ -24,7 +24,7 @@ UUNOverlayWidgetController* UUNAbilitySystemLibrary::GetoverlayWidgetController(
 	return nullptr;
 }
 
-UUNGASInventoryWidgetController* UUNAbilitySystemLibrary::GetInventoryWidgetController(const UObject* WorldContextObject)
+UUNInventoryWidgetController* UUNAbilitySystemLibrary::GetInventoryWidgetController(const UObject* WorldContextObject)
 {
 	if (APlayerController* PC = UGameplayStatics::GetPlayerController(WorldContextObject, 0))
 	{
