@@ -27,10 +27,10 @@ void UUNPlayerInventoryWidget::NativeOnInitialized()
 
 void UUNPlayerInventoryWidget::SetInfoText() const
 {
-	WeightInfo->SetText(FText::FormatNamed(FText::FromString("{0}/{1}"),
+	WeightInfo->SetText(FText::Format(FText::FromString("{0}/{1}"),
 		InventoryReference->GetInventoryTotalWeight(),
 		InventoryReference->GetWeightCapacity()));
-	CapacityInfo->SetText(FText::FormatNamed(FText::FromString("{0}/{1}"),
+	CapacityInfo->SetText(FText::Format(FText::FromString("{0}/{1}"),
 		InventoryReference->GetInventoryContents().Num(),
 		InventoryReference->GetSlotsCapacity()));
 

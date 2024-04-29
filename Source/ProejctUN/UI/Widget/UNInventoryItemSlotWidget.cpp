@@ -59,10 +59,10 @@ void UUNInventoryItemSlotWidget::NativeConstruct()
 	}
 }
 
-FReply UUNInventoryItemSlotWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
-{
-	return FReply();
-}
+//FReply UUNInventoryItemSlotWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+//{
+//	return FReplay();
+//}
 
 void UUNInventoryItemSlotWidget::NativeOnMouseLeave(const FPointerEvent& InMouseEvent)
 {
