@@ -558,13 +558,5 @@ void AUNPlayerCharacter::EndDecal()
 
 void AUNPlayerCharacter::InventoryInteraction()
 {
-	if (HUD->bisInventoryOpen)
-	{
-		HUD->CloseInventory();
-	}
-	else
-	{
-		HUD->OpenInventory();
-	}
-	
+	HUD->ToggleInventory();
 }

@@ -109,6 +109,9 @@ public:
 	void CloseInventory();
 
 	UFUNCTION()
+	void ToggleInventory();
+
+	UFUNCTION()
 	void OpenBoxInventory();
 
 	UFUNCTION()

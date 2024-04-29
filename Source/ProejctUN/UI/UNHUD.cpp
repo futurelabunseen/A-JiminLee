@@ -142,6 +142,18 @@ void AUNHUD::CloseInventory()
 	bisInventoryOpen = false;
 }
 
+void AUNHUD::ToggleInventory()
+{
+	if (bisInventoryOpen)
+	{
+		CloseInventory();
+	}
+	else
+	{
+		OpenInventory();
+	}
+}
+
 void AUNHUD::OpenBoxInventory()
 {
 	BoxInventoryWidget->SetVisibility(ESlateVisibility::Visible);
