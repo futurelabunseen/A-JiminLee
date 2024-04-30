@@ -75,10 +75,10 @@ void AUNPlayerController::BeginOverInteractable(AActor* NewInteractable)
 	InteractionData.CurrentInteractable = NewInteractable;
 	TargetInteractable = NewInteractable;
 
-	if (AUNHUD* HUD = Cast<AUNHUD>(GetHUD()))
-	{
-		HUD->UpdateInteractionWidget(&TargetInteractable->InteractableData);
-	}
+	//if (AUNHUD* HUD = Cast<AUNHUD>(GetHUD()))
+	//{
+	//	HUD->UpdateInteractionWidget(&TargetInteractable->InteractableData);
+	//}
 
 	TargetInteractable->BeginFocus();
 	
@@ -98,10 +98,10 @@ void AUNPlayerController::EndOverInteractable()
 			TargetInteractable->EndFocus();
 		}
 
-		if (AUNHUD* HUD = Cast<AUNHUD>(GetHUD()))
-		{
-			HUD->HideInteractionWidget();
-		}
+		//if (AUNHUD* HUD = Cast<AUNHUD>(GetHUD()))
+		//{
+		//	HUD->HideInteractionWidget();
+		//}
 
 		InteractionData.CurrentInteractable = nullptr;
 		TargetInteractable = nullptr;

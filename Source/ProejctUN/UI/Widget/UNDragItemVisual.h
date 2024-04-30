@@ -6,12 +6,26 @@
 #include "UI/Widget/UNGASUserWidget.h"
 #include "UNDragItemVisual.generated.h"
 
+
+class UBorder;
+class UImage;
+class UTextBlock;
 /**
  * 
- */
+ */ 
 UCLASS()
 class PROEJCTUN_API UUNDragItemVisual : public UUNGASUserWidget
 {
 	GENERATED_BODY()
 	
+protected:
+	UPROPERTY(VisibleAnywhere, Category = "Drag Item Visual", meta = (BindWidget))
+	UBorder* ItemBorder;
+
+	UPROPERTY(VisibleAnywhere, Category = "Drag Item Visual", meta = (BindWidget))
+	UImage* ItemIcon;
+
+	UPROPERTY(VisibleAnywhere, Category = "Drag Item Visual", meta = (BindWidget))
+	UTextBlock* ItemQuantity;
+
 };
