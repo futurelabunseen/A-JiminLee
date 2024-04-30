@@ -7,6 +7,8 @@
 #include "UI/WC/UNProgressBarWidgetController.h"
 #include "UI/WC/UNInventoryWidgetController.h"
 #include "UI/WC/UNBoxInventoryWidgetController.h"
+#include "UI/Widget/UNInteractionWidget.h"
+
 
 #include "EngineUtils.h"
 
@@ -14,6 +16,7 @@ void AUNHUD::BeginPlay()
 {
 	Super::BeginPlay();
 	InitBoxInventory();
+	InitInteractionWidget();
 }
 
 UUNOverlayWidgetController* AUNHUD::GetOverlayWidgetController(const FWidgetControllerParams& WCParams)
@@ -129,6 +132,16 @@ UUNProgressBarWidgetController* AUNHUD::GetProgressBarWidgetController(const FWi
 	return ProgressBarWidgetController;
 }
 
+void AUNHUD::InitInteractionWidget()
+{
+	checkf(InteractionWidgetClass, TEXT("InteractionWidget Class uninitialized, please fill out BP_UNHUD"));
+
+	InteractionWidget = CreateWidget<UUNInteractionWidget>(GetWorld(), InteractionWidgetClass);
+	InteractionWidget->AddToViewport(-1);
+	InteractionWidget->SetIsEnabled(false);
+	InteractionWidget->SetVisibility(ESlateVisibility::Collapsed);
+}
+
 // TESTING
 void AUNHUD::OpenInventory()
 {
@@ -140,6 +153,35 @@ void AUNHUD::CloseInventory()
 {
 	InventoryWidget->SetVisibility(ESlateVisibility::Collapsed);
 	bisInventoryOpen = false;
+}
+
+void AUNHUD::ShowInteractionWidget()
+{
+	if (InteractionWidget)
+	{
+		InteractionWidget->SetVisibility(ESlateVisibility::Visible);
+	}
+}
+
+void AUNHUD::HideInteractionWidget()
+{
+	if (InteractionWidget)
+	{
+		InteractionWidget->SetVisibility(ESlateVisibility::Collapsed);
+	}
+}
+
+void AUNHUD::UpdateInteractionWidget(const FInteractableData* InteractableData)
+{
+	if (InteractionWidget)
+	{
+		if (InteractionWidget->GetVisibility() == ESlateVisibility::Collapsed)
+		{
+			InteractionWidget->SetVisibility(ESlateVisibility::Visible);
+		}
+
+		InteractionWidget->UpdateWidget(InteractableData);
+	}
 }
 
 void AUNHUD::ToggleInventory()

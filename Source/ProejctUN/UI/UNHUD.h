@@ -14,6 +14,9 @@ class UUNProgressBarWidgetController;
 class UUNBoxInventoryWidgetController;
 class UUNGASUserWidget;
 struct FWidgetControllerParams;
+
+struct FInteractableData;
+class UUNInteractionWidget;
 /**
  * 
  */
@@ -101,12 +104,29 @@ private:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UUNBoxInventoryWidgetController> BoxInventoryWidgetControllerClass;
 
+	//======================================================
+	UPROPERTY(EditDefaultsOnly, Category = "Widget")
+	TSubclassOf<UUserWidget> InteractionWidgetClass;
+
+	UPROPERTY()
+	TObjectPtr<UUNInteractionWidget> InteractionWidget;
+
+	void InitInteractionWidget();
+
 public:
 	UFUNCTION()
 	void OpenInventory();
 
 	UFUNCTION()
 	void CloseInventory();
+
+	UFUNCTION()
+	void ShowInteractionWidget();
+
+	UFUNCTION()
+	void HideInteractionWidget();
+
+	void UpdateInteractionWidget(const FInteractableData* InteractableData);
 
 	UFUNCTION()
 	void ToggleInventory();
