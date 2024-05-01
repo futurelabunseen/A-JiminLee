@@ -41,11 +41,11 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* MaxStackSize;
 
-	UPROPERTY(meta = (BindWidget))
-	UTextBlock* StackSizeText;
+	//UPROPERTY(meta = (BindWidget))
+	//UTextBlock* StackSizeText;
 
-	UPROPERTY(meta = (BindWidget))
-	UTextBlock* SellValue;
+	//UPROPERTY(meta = (BindWidget))
+	//UTextBlock* SellValue;
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* StackWeight;

@@ -13,6 +13,7 @@ class UInputAction;
 class UInputMappingContext;
 class UUNInventoryComponent;
 class AUNHUD;
+class UItemBase;
 
 /**
  * 
@@ -190,4 +191,5 @@ public:
 
 	void InventoryInteraction();
 	
+	void DropItem(UItemBase* ItemToDrop, const int32 QuantityToDrop);
 };

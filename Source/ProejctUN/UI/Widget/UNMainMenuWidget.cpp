@@ -2,6 +2,9 @@
 
 
 #include "UI/Widget/UNMainMenuWidget.h"
+#include "UI/UNItemDragDropOperation.h"
+#include "Item/ItemBase.h"
+
 #include "Character/UNPlayerCharacter.h"
 
 void UUNMainMenuWidget::NativeOnInitialized()
@@ -18,5 +21,12 @@ void UUNMainMenuWidget::NativeConstruct()
 
 bool UUNMainMenuWidget::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
 {
-	return Super::NativeOnDrop(InGeometry, InDragDropEvent, InOperation);
+	const UUNItemDragDropOperation* ItemDragDrop = Cast<UUNItemDragDropOperation>(InOperation);
+
+	if (PlayerCharacter && ItemDragDrop->SourceItem)
+	{
+		PlayerCharacter->DropItem(ItemDragDrop->SourceItem, ItemDragDrop->SourceItem->Quantity);
+		return true;
+	}
+	return false;
 }

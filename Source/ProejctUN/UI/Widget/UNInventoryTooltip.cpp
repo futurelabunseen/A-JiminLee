@@ -31,7 +31,7 @@ void UUNInventoryTooltip::NativeConstruct()
 		ItemType->SetText(FText::FromString("Consumable"));
 		DamageValue->SetVisibility(ESlateVisibility::Collapsed);
 		ArmorRating->SetVisibility(ESlateVisibility::Collapsed);
-		SellValue->SetVisibility(ESlateVisibility::Collapsed);
+		//SellValue->SetVisibility(ESlateVisibility::Collapsed);
 		break;
 
 	case EItemType::Quest:
@@ -42,7 +42,7 @@ void UUNInventoryTooltip::NativeConstruct()
 		DamageValue->SetVisibility(ESlateVisibility::Collapsed);
 		ArmorRating->SetVisibility(ESlateVisibility::Collapsed);
 		UsageText->SetVisibility(ESlateVisibility::Collapsed);
-		SellValue->SetVisibility(ESlateVisibility::Collapsed);
+		//SellValue->SetVisibility(ESlateVisibility::Collapsed);
 		break;
 	default:;
 	}
@@ -52,12 +52,15 @@ void UUNInventoryTooltip::NativeConstruct()
 	ArmorRating->SetText(FText::AsNumber(ItemBeingHovered->ItemStatistics.ArmorRating));
 	UsageText->SetText(ItemBeingHovered->TextData.UsageText);
 	ItemDescription->SetText(ItemBeingHovered->TextData.Description);
-	SellValue->SetText(FText::AsNumber(ItemBeingHovered->ItemStatistics.SellValue));
-	StackWeight->SetText(FText::AsNumber(ItemBeingHovered->GetItemStackWeight()));
+	//SellValue->SetText(FText::AsNumber(ItemBeingHovered->ItemStatistics.SellValue));
+
+	const FString WeightInfo = { "Weight : " + FString::SanitizeFloat(ItemBeingHovered->GetItemStackWeight()) };
+	StackWeight->SetText(FText::FromString(WeightInfo));
 
 	if (ItemBeingHovered->NumericData.bIsStackable)
 	{
-		MaxStackSize->SetText(FText::AsNumber(ItemBeingHovered->NumericData.MaxStackSize));
+		const FString StackInfo = { "Max stack size: " + FString::FromInt(ItemBeingHovered->NumericData.MaxStackSize)};
+		MaxStackSize->SetText(FText::FromString(StackInfo));
 	}
 	else
 	{
