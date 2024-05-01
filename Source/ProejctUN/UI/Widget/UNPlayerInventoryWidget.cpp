@@ -49,6 +49,8 @@ void UUNPlayerInventoryWidget::RefreshInventory()
 
 			InventoryPanel->AddChildToWrapBox(ItemSlot);
 		}
+
+		SetInfoText();
 	}
 }
 
