@@ -12,6 +12,7 @@ AUNGASPlayerState::AUNGASPlayerState()
 	AttributeSet = CreateDefaultSubobject<UUNCharacterAttributeSet>(TEXT("AttributeSet"));
 	SkillAttributeSet = CreateDefaultSubobject<UUNCharacterSkillAttributeSet>(TEXT("SkillAttributeSet"));
 	ASC->SetIsReplicated(true);
+	NetUpdateFrequency = 60.f;
 }
 
 UAbilitySystemComponent* AUNGASPlayerState::GetAbilitySystemComponent() const

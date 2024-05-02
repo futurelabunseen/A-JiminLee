@@ -40,6 +40,7 @@ void AUNPickupObject::InitializePickup(const TSubclassOf<UItemBase> BaseClass, c
 		ItemReference->TextData = ItemData->TextData;
 		ItemReference->AssetData = ItemData->AssetData;
 
+		ItemReference->NumericData.bIsStackable = ItemData->NumericData.MaxStackSize > 1;
 		InQuantity <= 0 ? ItemReference->SetQuantity(1) : ItemReference->SetQuantity(InQuantity);
 
 		Mesh->SetStaticMesh(ItemData->AssetData.Mesh);
@@ -51,8 +52,10 @@ void AUNPickupObject::InitializePickup(const TSubclassOf<UItemBase> BaseClass, c
 void AUNPickupObject::InitializeDrop(UItemBase* ItemToDrop, const int32 InQuantity)
 {
 	ItemReference = ItemToDrop;
+
 	InQuantity <= 0 ? ItemReference->SetQuantity(1) : ItemReference->SetQuantity(InQuantity);
 	ItemReference->NumericData.Weight = ItemToDrop->GetItemSingleWeight();
+	ItemReference->OwningInventory = nullptr;
 	Mesh->SetStaticMesh(ItemToDrop->AssetData.Mesh);
 
 	UpdateInteractableData();

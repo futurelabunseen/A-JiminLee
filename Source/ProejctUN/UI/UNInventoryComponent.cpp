@@ -126,7 +126,98 @@ FItemAddResult UUNInventoryComponent::HandleNonStackableItems(UItemBase* InputIt
 
 int32 UUNInventoryComponent::HandleStackableItems(UItemBase* ItemIn, int32 RequestedAddAmount)
 {
-	return int32();
+	if (RequestedAddAmount <= 0 || FMath::IsNearlyZero(ItemIn->GetItemStackWeight()))
+	{
+		// invalid item data
+		return 0;
+	}
+
+	int32 AmountToDistribute = RequestedAddAmount;
+
+	// 입력 항목이 인벤토리에 이미 존재하고 전체 스택이 아닌지 확인
+	UItemBase* ExistingItemStack = FindNextPartialStack(ItemIn);
+
+	// 만약 있다면 남아 있는 스택에 분산
+	while (ExistingItemStack)
+	{
+		// 다음 전체 스택을 만들기 위해 필요한 기존 항목 수를 계산
+		const int32 AmountToMakeFullStack = CalculateNumberForFullStack(ExistingItemStack, AmountToDistribute);
+		//무게 용량에 따라 실제로 운반할 수 있는 "MountToMakeFullStack"의 수를 계산
+		const int32 WeightLimitAddAmount = CalculateWeightAddAmount(ExistingItemStack, AmountToMakeFullStack);
+
+		// 아이템의 잔여량이 무게 용량을 초과하지 않을 때
+		if (WeightLimitAddAmount > 0)
+		{
+			// 기존 아이템의 스택 수량 및 무게 중량 수정
+			ExistingItemStack->SetQuantity(ExistingItemStack->Quantity + WeightLimitAddAmount);
+			InventoryTotalWeight += ExistingItemStack->GetItemSingleWeight() * WeightLimitAddAmount;
+
+			// 남은 아이템 갯수 조절
+			AmountToDistribute -= WeightLimitAddAmount;
+
+			ItemIn->SetQuantity(AmountToDistribute);
+
+			// 가방의 최대 무게 도달 시 루프 종료
+			if (InventoryTotalWeight + ExistingItemStack->GetItemSingleWeight() > InventoryWeightCapacity)
+			{
+				OnInventoryUpdated.Broadcast();
+				return RequestedAddAmount - AmountToDistribute;
+			}
+		}
+		else if(WeightLimitAddAmount <= 0)
+		{
+			if (AmountToDistribute != RequestedAddAmount)
+			{
+				// 여러 스택에 분산 및 아이템을 증가시키고 해당 기능 수행 중에 무게 제한에 도달할 경우
+				OnInventoryUpdated.Broadcast();
+				return RequestedAddAmount - AmountToDistribute;
+			}
+
+			return 0;
+		}
+
+		if (AmountToDistribute <= 0)
+		{
+			// 모든 분산이 완료됐을 때
+			OnInventoryUpdated.Broadcast();
+			return RequestedAddAmount;
+		}
+
+		// 다른 스택이 있는지 확인(A아이템의 최대 중첩이 64인데 A(55), A(11) 이런 식으로 들어가 있는 경우)
+		ExistingItemStack = FindNextPartialStack(ItemIn);
+	}
+
+	// 인벤토리에 같은 아이템이 없을 때, 새로운 항목을 만들 수 있는 지 확인
+	if (InventoryContents.Num() + 1 <= InventorySlotsCapacity)
+	{
+		// 공간이 있을 시 남은 무게에 맞는 아이템 추가 시도
+		const int32 WeightLimitAddAmount = CalculateWeightAddAmount(ItemIn, AmountToDistribute);
+
+		if (WeightLimitAddAmount > 0)
+		{
+			// 무게 제한에 걸릴 경우 (남은 아이템의 무게보다 가방 무게가 적을 경우)
+			if (WeightLimitAddAmount < AmountToDistribute)
+			{
+				// 넣을 수 있는 최대한의 아이템을 넣는다.
+				AmountToDistribute -= WeightLimitAddAmount;
+				ItemIn->SetQuantity(AmountToDistribute);
+
+				// 복사본을 생성하여 추가
+				AddNewItem(ItemIn->CreateItemCopy(), WeightLimitAddAmount);
+				return RequestedAddAmount - AmountToDistribute;
+			}
+
+			// 남은 무게가 충분하다면 전부 추가
+			AddNewItem(ItemIn, AmountToDistribute);
+			return RequestedAddAmount;;
+		}
+		
+		// 공간은 있지만 무게가 무족하다면
+		return RequestedAddAmount - AmountToDistribute;
+	}
+
+	// 공간이 없을 때 (기존에 스택된 같은 아이템도 없음)
+	return 0;
 }
 
 FItemAddResult UUNInventoryComponent::HandleAddItem(UItemBase* InputItem)

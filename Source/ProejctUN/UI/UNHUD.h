@@ -9,11 +9,14 @@
 class UAbilitySystemComponent;
 class UAttributeSet;
 class UUNOverlayWidgetController;
-class UUNGASInventoryWidgetController;
+class UUNInventoryWidgetController;
 class UUNProgressBarWidgetController;
 class UUNBoxInventoryWidgetController;
 class UUNGASUserWidget;
 struct FWidgetControllerParams;
+
+struct FInteractableData;
+class UUNInteractionWidget;
 /**
  * 
  */
@@ -36,7 +39,7 @@ public:
 	void InitBoxInventory();
 
 
-	UUNGASInventoryWidgetController* GetInventoryWidgetController(const FWidgetControllerParams& WCParams);
+	UUNInventoryWidgetController* GetInventoryWidgetController(const FWidgetControllerParams& WCParams);
 
 	void InitInventory(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAttributeSet* AS);
 
@@ -69,10 +72,10 @@ private:
 	TSubclassOf<UUserWidget> InventoryWidgetClass;
 
 	UPROPERTY()
-	TObjectPtr<UUNGASInventoryWidgetController> InventoryWidgetController;
+	TObjectPtr<UUNInventoryWidgetController> InventoryWidgetController;
 
 	UPROPERTY(EditAnywhere)
-	TSubclassOf<UUNGASInventoryWidgetController> InventoryWidgetControllerClass;
+	TSubclassOf<UUNInventoryWidgetController> InventoryWidgetControllerClass;
 
 
 
@@ -101,12 +104,32 @@ private:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UUNBoxInventoryWidgetController> BoxInventoryWidgetControllerClass;
 
+	//======================================================
+	UPROPERTY(EditDefaultsOnly, Category = "Widget")
+	TSubclassOf<UUserWidget> InteractionWidgetClass;
+
+	UPROPERTY()
+	TObjectPtr<UUNInteractionWidget> InteractionWidget;
+
+	void InitInteractionWidget();
+
 public:
 	UFUNCTION()
 	void OpenInventory();
 
 	UFUNCTION()
 	void CloseInventory();
+
+	UFUNCTION()
+	void ShowInteractionWidget();
+
+	UFUNCTION()
+	void HideInteractionWidget();
+
+	void UpdateInteractionWidget(const FInteractableData* InteractableData);
+
+	UFUNCTION()
+	void ToggleInventory();
 
 	UFUNCTION()
 	void OpenBoxInventory();

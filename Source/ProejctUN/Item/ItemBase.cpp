@@ -44,6 +44,11 @@ void UItemBase::SetQuantity(const int32 NewQuantity)
 				OwningInventory->RemoveSingleInstanceOfItem(this);
 			}
 		}
+
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("ItemBase OwningInventory was null (Item may be a Pickup)."))
+		}
 	}
 }
 

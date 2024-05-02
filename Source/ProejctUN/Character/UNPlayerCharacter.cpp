@@ -22,6 +22,7 @@
 #include "UI/Widget/UNGASUserWidget.h"
 #include "UI/UNInventoryComponent.h"
 #include "Abilities/GameplayAbilityTargetActor.h"
+#include "Props/UNPickupObject.h"
 
 #include "ProejctUN.h"
 
@@ -558,13 +559,29 @@ void AUNPlayerCharacter::EndDecal()
 
 void AUNPlayerCharacter::InventoryInteraction()
 {
-	if (HUD->bisInventoryOpen)
+	HUD->ToggleInventory();
+}
+
+void AUNPlayerCharacter::DropItem(UItemBase* ItemToDrop, const int32 QuantityToDrop)
+{
+	if (PlayerInventory->FindMatchingItem(ItemToDrop))
 	{
-		HUD->CloseInventory();
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = this;
+		SpawnParams.bNoFail = true;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+		const FVector SpawnLocation{ GetActorLocation() + (GetActorForwardVector() + 50.f) };
+		const FTransform SpawnTransform(GetActorRotation(), SpawnLocation);
+		
+		const int32 RemovedQuantity = PlayerInventory->RemoveAmountOfItem(ItemToDrop, QuantityToDrop);
+
+		AUNPickupObject* PickUpObject = GetWorld()->SpawnActor<AUNPickupObject>(AUNPickupObject::StaticClass(), SpawnTransform, SpawnParams);
+
+		PickUpObject->InitializeDrop(ItemToDrop, RemovedQuantity);
 	}
 	else
 	{
-		HUD->OpenInventory();
+		UE_LOG(LogTemp, Log, TEXT("Item Drop Failed. Item to drop was somehow null"));
 	}
-	
 }

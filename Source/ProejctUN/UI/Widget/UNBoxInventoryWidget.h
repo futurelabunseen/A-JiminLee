@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "UI/Widget/UNGASUserWidget.h"
-#include "UNGASBoxInventoryWidget.generated.h"
+#include "UNBoxInventoryWidget.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class PROEJCTUN_API UUNGASBoxInventoryWidget : public UUNGASUserWidget
+class PROEJCTUN_API UUNBoxInventoryWidget : public UUNGASUserWidget
 {
 	GENERATED_BODY()
 	

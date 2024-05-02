@@ -7,7 +7,7 @@
 #include "UNAbilitySystemLibrary.generated.h"
 
 class UUNOverlayWidgetController;
-class UUNGASInventoryWidgetController;
+class UUNInventoryWidgetController;
 
 /**
  * 
@@ -22,5 +22,5 @@ public:
 	static UUNOverlayWidgetController* GetoverlayWidgetController(const UObject* WorldContextObject);
 	
 	UFUNCTION(BlueprintPure, Category = "UNAbilitySystemLibrary|WidgetController")
-	static UUNGASInventoryWidgetController* GetInventoryWidgetController(const UObject* WorldContextObject);
+	static UUNInventoryWidgetController* GetInventoryWidgetController(const UObject* WorldContextObject);
 };
