@@ -89,7 +89,8 @@ void UUNInventoryItemSlotWidget::NativeOnDragDetected(const FGeometry& InGeometr
 		const TObjectPtr<UUNDragItemVisual> DragVisual = CreateWidget<UUNDragItemVisual>(this, DragItemVisualClass);
 		DragVisual->ItemIcon->SetBrushFromTexture(ItemReference->AssetData.Icon);
 		DragVisual->ItemBorder->SetBrushColor(ItemBorder->GetBrushColor());
-		DragVisual->ItemQuantity->SetText(FText::AsNumber(ItemReference->Quantity));
+
+		ItemReference->NumericData.bIsStackable ? DragVisual->ItemQuantity->SetText(FText::AsNumber(ItemReference->Quantity)) : DragVisual->ItemQuantity->SetVisibility(ESlateVisibility::Collapsed);
 
 		UUNItemDragDropOperation* DragItemOperation = NewObject<UUNItemDragDropOperation>();
 		DragItemOperation->SourceItem = ItemReference;
