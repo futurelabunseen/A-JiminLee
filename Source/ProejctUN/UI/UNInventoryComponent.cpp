@@ -158,7 +158,7 @@ int32 UUNInventoryComponent::HandleStackableItems(UItemBase* ItemIn, int32 Reque
 			ItemIn->SetQuantity(AmountToDistribute);
 
 			// 가방의 최대 무게 도달 시 루프 종료
-			if (InventoryTotalWeight >= InventoryWeightCapacity)
+			if (InventoryTotalWeight + ExistingItemStack->GetItemSingleWeight() > InventoryWeightCapacity)
 			{
 				OnInventoryUpdated.Broadcast();
 				return RequestedAddAmount - AmountToDistribute;
@@ -211,10 +211,13 @@ int32 UUNInventoryComponent::HandleStackableItems(UItemBase* ItemIn, int32 Reque
 			AddNewItem(ItemIn, AmountToDistribute);
 			return RequestedAddAmount;;
 		}
+		
+		// 공간은 있지만 무게가 무족하다면
+		return RequestedAddAmount - AmountToDistribute;
 	}
 
-	OnInventoryUpdated.Broadcast();
-	return RequestedAddAmount - AmountToDistribute;
+	// 공간이 없을 때 (기존에 스택된 같은 아이템도 없음)
+	return 0;
 }
 
 FItemAddResult UUNInventoryComponent::HandleAddItem(UItemBase* InputItem)
