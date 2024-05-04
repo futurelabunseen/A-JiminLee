@@ -209,7 +209,7 @@ int32 UUNInventoryComponent::HandleStackableItems(UItemBase* ItemIn, int32 Reque
 
 			// 남은 무게가 충분하다면 전부 추가
 			AddNewItem(ItemIn, AmountToDistribute);
-			return RequestedAddAmount;;
+			return RequestedAddAmount;
 		}
 		
 		// 공간은 있지만 무게가 무족하다면

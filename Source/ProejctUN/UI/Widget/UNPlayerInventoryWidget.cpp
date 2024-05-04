@@ -65,6 +65,7 @@ void UUNPlayerInventoryWidget::RefreshInventory()
 
 bool UUNPlayerInventoryWidget::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
 {
+
 	const UUNItemDragDropOperation* ItemDragDrop = Cast<UUNItemDragDropOperation>(InOperation);
 	if (ItemDragDrop->SourceItem && InventoryReference)
 	{

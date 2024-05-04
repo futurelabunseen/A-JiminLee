@@ -49,7 +49,7 @@ public:
 	
 	bool bIsCopy;
 	bool bIsPickup;
-
+	bool bIsEquip; //
 	UItemBase();
 
 	void ResetItemFlags();

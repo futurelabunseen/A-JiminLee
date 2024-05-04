@@ -17,6 +17,7 @@ struct FWidgetControllerParams;
 
 struct FInteractableData;
 class UUNInteractionWidget;
+class UUNPlayerInventoryWidget;
 /**
  * 
  */
