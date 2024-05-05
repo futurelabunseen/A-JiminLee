@@ -6,6 +6,7 @@
 #include "UI/Widget/UNDragItemVisual.h"
 #include "UI/UNItemDragDropOperation.h"
 #include "Character/UNPlayerCharacter.h"
+#include "UI/UNInventoryComponent.h"
 #include "UI/Widget/UNInventoryTooltip.h"
 
 #include "Components/Border.h"
@@ -16,35 +17,23 @@ void UUNInventoryEquipSlot::NativeOnInitialized()
 {
 	//Super::NativeOnInitialized();
 	ItemQuantity->SetVisibility(ESlateVisibility::Collapsed);
+
+	PlayerCharacter = Cast<AUNPlayerCharacter>(GetOwningPlayerPawn());
+	if (PlayerCharacter)
+	{
+		InventoryReference = PlayerCharacter->GetInventoryComponent();
+		if (InventoryReference)
+		{
+			InventoryReference->OnInventoryUpdated.AddUObject(this, &UUNInventoryEquipSlot::UpdateSlotData);
+		}
+	}
 }
 
 void UUNInventoryEquipSlot::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	PlayerCharacter = Cast<AUNPlayerCharacter>(GetOwningPlayerPawn());
-}
 
-FReply UUNInventoryEquipSlot::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
-{
-	FReply Reply = Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
-
-	if (InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
-	{
-		return Reply.Handled().DetectDrag(TakeWidget(), EKeys::LeftMouseButton);
-	}
-
-	else if (InMouseEvent.GetEffectingButton() == EKeys::RightMouseButton)
-	{
-		CheckItemTypeAndTryEquip();
-		return Reply.Handled();
-	}
-
-	// Right Mouse Click Event(Ex. ItemMenu)
-	//
-	/////////////////////////////////////////
-
-	return Reply.Unhandled();
 }
 
 void UUNInventoryEquipSlot::NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation)
@@ -77,15 +66,11 @@ bool UUNInventoryEquipSlot::NativeOnDrop(const FGeometry& InGeometry, const FDra
 	if (ItemDragDrop)
 	{
 		ItemReference = ItemDragDrop->SourceItem;
-		UpdateSlot();
-		CreateToolTip();
-		ItemReference->bIsEquip = true;
+		UpdateSlotData();
 
-		UE_LOG(LogTemp, Log, TEXT("true"));
 		return true;
 	}
 
-	UE_LOG(LogTemp, Log, TEXT("false"));
 	return false;
 }
 
@@ -93,4 +78,19 @@ void UUNInventoryEquipSlot::ClearSlotData()
 {
 	ItemBorder->SetBrushColor(DefaultBorderColor);
 	ItemIcon->SetBrushFromTexture(DefaultIconImage);
+}
+
+
+void UUNInventoryEquipSlot::UpdateSlotData()
+{
+	ItemReference = InventoryReference->WeaponSlot;
+	if (ItemReference)
+	{
+		UpdateSlot();
+		CreateToolTip();
+	}
+	else
+	{
+		ClearSlotData();
+	}
 }

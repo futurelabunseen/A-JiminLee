@@ -7,6 +7,7 @@
 #include "UNInventoryEquipSlot.generated.h"
 
 class AUNPlayerCharacter;
+class UUNInventoryComponent;
 class UUNInventoryTooltip;
 class UUNDragItemVisual;
 class UItemBase;
@@ -30,15 +31,20 @@ public:
 	UPROPERTY()
 	AUNPlayerCharacter* PlayerCharacter;
 
+	UPROPERTY()
+	UUNInventoryComponent* InventoryReference;
+
 	UPROPERTY(EditAnywhere)
 	FLinearColor DefaultBorderColor;
 
 	UPROPERTY(EditAnywhere)
 	UTexture2D* DefaultIconImage;
 
+	UFUNCTION()
+	void UpdateSlotData();
+
 	virtual void NativeOnInitialized() override;
 	virtual void NativeConstruct() override;
-	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	virtual void NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation) override;
 	virtual bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
 

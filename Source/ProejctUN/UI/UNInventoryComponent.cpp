@@ -279,3 +279,53 @@ void UUNInventoryComponent::AddNewItem(UItemBase* Item, const int32 AmountToAdd)
 	InventoryTotalWeight += NewItem->GetItemStackWeight();
 	OnInventoryUpdated.Broadcast();
 }
+
+////////////
+
+void UUNInventoryComponent::EquipItem(UItemBase* ItemIn)
+{
+	switch (ItemIn->ItemType)
+	{
+	case EItemType::Weapon:
+		if (WeaponSlot != nullptr)
+		{
+			WeaponSlot->bIsEquip = false;
+			HandleAddItem(WeaponSlot);
+		}
+		ItemIn->bIsEquip = true;
+		WeaponSlot = ItemIn;
+		RemoveAmountOfItem(ItemIn, 1);
+		break;
+	case EItemType::Armor:
+		if (ArmorSlot != nullptr)
+		{
+			ArmorSlot->bIsEquip = false;
+			HandleAddItem(ArmorSlot);
+		}
+		ItemIn->bIsEquip = true;
+		ArmorSlot = ItemIn;
+		RemoveAmountOfItem(ItemIn, 1);
+		break;
+	default:
+		break;
+	}
+}
+
+void UUNInventoryComponent::UnEquipItem(UItemBase* ItemIn)
+{
+	switch (ItemIn->ItemType)
+	{
+	case EItemType::Weapon:
+		ItemIn->bIsEquip = false;
+		WeaponSlot = nullptr;
+		HandleAddItem(ItemIn);
+		break;
+	case EItemType::Armor:
+		ItemIn->bIsEquip = false;
+		ArmorSlot = nullptr;
+		HandleAddItem(ItemIn);
+		break;
+	default:
+		break;
+	}
+}

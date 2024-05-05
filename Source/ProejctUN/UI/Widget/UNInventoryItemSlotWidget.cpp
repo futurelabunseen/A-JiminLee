@@ -129,24 +129,23 @@ void UUNInventoryItemSlotWidget::UpdateSlot()
 
 void UUNInventoryItemSlotWidget::CheckItemTypeAndTryEquip()
 {
-	UE_LOG(LogTemp, Log, TEXT("CHeck"));
+	if (!ItemReference)
+	{
+		UE_LOG(LogTemp, Log, TEXT("ItemReference is null!"));
+		return;
+	}
+		
 	if (AUNPlayerCharacter* PlayerCharacter = Cast<AUNPlayerCharacter>(GetOwningPlayerPawn()))
 	{
 		if (UUNInventoryComponent* Inventory = PlayerCharacter->GetInventoryComponent())
 		{
-			switch (ItemReference->ItemType)
+			if (ItemReference->bIsEquip)
 			{
-			case EItemType::Weapon:
-				UE_LOG(LogTemp, Log, TEXT("Weapon"));
-				Inventory->WeaponSlot = ItemReference;
-				Inventory->RemoveAmountOfItem(ItemReference, 1);
-				break;
-			case EItemType::Armor:
-				Inventory->ArmorSlot = ItemReference;
-				Inventory->RemoveAmountOfItem(ItemReference, 1);
-				break;
-			default:
-				break;
+				Inventory->UnEquipItem(ItemReference);
+			}
+			else
+			{
+				Inventory->EquipItem(ItemReference);
 			}
 		}
 	}
