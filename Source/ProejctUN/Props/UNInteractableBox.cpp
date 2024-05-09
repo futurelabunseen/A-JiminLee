@@ -4,14 +4,11 @@
 #include "Props/UNInteractableBox.h"
 #include "Character/UNPlayerCharacter.h"
 #include "UI/UNHUD.h"
-#include "Components/BoxComponent.h"
 
 
 AUNInteractableBox::AUNInteractableBox()
 {
-    BoxCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxCollision"));
-    RootComponent = BoxCollision;
-    Mesh->SetupAttachment(BoxCollision);
+
 }
 
 void AUNInteractableBox::NotifyActorBeginOverlap(AActor* Other)

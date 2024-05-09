@@ -209,7 +209,7 @@ int32 UUNInventoryComponent::HandleStackableItems(UItemBase* ItemIn, int32 Reque
 
 			// 남은 무게가 충분하다면 전부 추가
 			AddNewItem(ItemIn, AmountToDistribute);
-			return RequestedAddAmount;;
+			return RequestedAddAmount;
 		}
 		
 		// 공간은 있지만 무게가 무족하다면
@@ -278,4 +278,54 @@ void UUNInventoryComponent::AddNewItem(UItemBase* Item, const int32 AmountToAdd)
 	InventoryContents.Add(NewItem);
 	InventoryTotalWeight += NewItem->GetItemStackWeight();
 	OnInventoryUpdated.Broadcast();
+}
+
+////////////
+
+void UUNInventoryComponent::EquipItem(UItemBase* ItemIn)
+{
+	switch (ItemIn->ItemType)
+	{
+	case EItemType::Weapon:
+		if (WeaponSlot != nullptr)
+		{
+			WeaponSlot->bIsEquip = false;
+			HandleAddItem(WeaponSlot);
+		}
+		ItemIn->bIsEquip = true;
+		WeaponSlot = ItemIn;
+		RemoveAmountOfItem(ItemIn, 1);
+		break;
+	case EItemType::Armor:
+		if (ArmorSlot != nullptr)
+		{
+			ArmorSlot->bIsEquip = false;
+			HandleAddItem(ArmorSlot);
+		}
+		ItemIn->bIsEquip = true;
+		ArmorSlot = ItemIn;
+		RemoveAmountOfItem(ItemIn, 1);
+		break;
+	default:
+		break;
+	}
+}
+
+void UUNInventoryComponent::UnEquipItem(UItemBase* ItemIn)
+{
+	switch (ItemIn->ItemType)
+	{
+	case EItemType::Weapon:
+		ItemIn->bIsEquip = false;
+		WeaponSlot = nullptr;
+		HandleAddItem(ItemIn);
+		break;
+	case EItemType::Armor:
+		ItemIn->bIsEquip = false;
+		ArmorSlot = nullptr;
+		HandleAddItem(ItemIn);
+		break;
+	default:
+		break;
+	}
 }

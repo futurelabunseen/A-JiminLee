@@ -8,6 +8,7 @@
 #include "UI/WC/UNInventoryWidgetController.h"
 #include "UI/WC/UNBoxInventoryWidgetController.h"
 #include "UI/Widget/UNInteractionWidget.h"
+#include "UI/Widget/UNPlayerInventoryWidget.h"
 
 
 #include "EngineUtils.h"
@@ -48,6 +49,33 @@ void AUNHUD::InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySystem
 	Widget->AddToViewport();
 }
 
+UUNInventoryWidgetController* AUNHUD::GetInventoryWidgetController(const FWidgetControllerParams& WCParams)
+{
+	if (InventoryWidgetController == nullptr)
+	{
+		InventoryWidgetController = NewObject<UUNInventoryWidgetController>(this, InventoryWidgetControllerClass);
+		InventoryWidgetController->SetWidgetControllerParams(WCParams);
+
+		return InventoryWidgetController;
+	}
+	return InventoryWidgetController;
+}
+
+void AUNHUD::InitInventory(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAttributeSet* AS)
+{
+	checkf(InventoryWidgetClass, TEXT("Inventory Widget Class uninitialized, please fill out BP_UNHUD"));
+	checkf(InventoryWidgetControllerClass, TEXT("Inventory Widget Controller Class uninitialized, please fill out BP_UNHUD"));
+
+	UUserWidget* Widget = CreateWidget<UUserWidget>(GetWorld(), InventoryWidgetClass);
+	InventoryWidget = Cast<UUNGASUserWidget>(Widget);
+
+	const FWidgetControllerParams WidgetControllerParams(PC, PS, ASC, AS);
+	UUNInventoryWidgetController* WidgetController = GetInventoryWidgetController(WidgetControllerParams);
+
+	InventoryWidget->SetWidgetController(WidgetController);
+	InventoryWidget->AddToViewport();
+	InventoryWidget->SetVisibility(ESlateVisibility::Collapsed);
+}
 
 
 UUNBoxInventoryWidgetController* AUNHUD::GetBoxInventoryWidgetController(const FWidgetControllerParams& WCParams)
@@ -72,38 +100,6 @@ void AUNHUD::InitBoxInventory()
 	BoxInventoryWidget->AddToViewport(3);
 	BoxInventoryWidget->SetVisibility(ESlateVisibility::Collapsed);
 }
-
-
-
-
-UUNInventoryWidgetController* AUNHUD::GetInventoryWidgetController(const FWidgetControllerParams& WCParams)
-{
-	if (InventoryWidgetController == nullptr)
-	{
-		InventoryWidgetController = NewObject<UUNInventoryWidgetController>(this, InventoryWidgetControllerClass);
-		InventoryWidgetController->SetWidgetControllerParams(WCParams);
-		
-		return InventoryWidgetController;
-	}
-	return InventoryWidgetController;
-}
-
-void AUNHUD::InitInventory(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAttributeSet* AS)
-{
-	checkf(InventoryWidgetClass, TEXT("Inventory Widget Class uninitialized, please fill out BP_UNHUD"));
-	checkf(InventoryWidgetControllerClass, TEXT("Inventory Widget Controller Class uninitialized, please fill out BP_UNHUD"));
-
-	UUserWidget* Widget = CreateWidget<UUserWidget>(GetWorld(), InventoryWidgetClass);
-	InventoryWidget = Cast<UUNGASUserWidget>(Widget);
-	
-	const FWidgetControllerParams WidgetControllerParams(PC, PS, ASC, AS);
-	UUNInventoryWidgetController* WidgetController = GetInventoryWidgetController(WidgetControllerParams);
-
-	InventoryWidget->SetWidgetController(WidgetController);
-	InventoryWidget->AddToViewport(2);
-	InventoryWidget->SetVisibility(ESlateVisibility::Collapsed);
-}
-
 
 
 void AUNHUD::InitProgressBar(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAttributeSet* AS)

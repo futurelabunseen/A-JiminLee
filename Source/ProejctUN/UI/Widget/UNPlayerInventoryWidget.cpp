@@ -65,10 +65,11 @@ void UUNPlayerInventoryWidget::RefreshInventory()
 
 bool UUNPlayerInventoryWidget::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
 {
+
 	const UUNItemDragDropOperation* ItemDragDrop = Cast<UUNItemDragDropOperation>(InOperation);
 	if (ItemDragDrop->SourceItem && InventoryReference)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Detected an item drop on nventoryPanel."));
+		UE_LOG(LogTemp, Warning, TEXT("Detected an item drop on inventoryPanel."));
 
 		// 드롭 중지
 		return true;

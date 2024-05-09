@@ -6,7 +6,6 @@
 #include "Props/UNInteractableObjectBase.h"
 #include "UNPickupObject.generated.h"
 
-class UBoxComponent;
 class UItemBase;
 class UDataTable;
 class AUNPlayerCharacter;
@@ -19,10 +18,6 @@ class PROEJCTUN_API AUNPickupObject : public AUNInteractableObjectBase
 {
 	GENERATED_BODY()
 
-protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	UBoxComponent* BoxCollision;
-	
 public:
 	AUNPickupObject();
 

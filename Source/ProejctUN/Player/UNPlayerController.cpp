@@ -45,10 +45,7 @@ void AUNPlayerController::OnPossess(APawn* InPawn)
 	UN_LOG(LogUNNetwork, Log, TEXT("%s"), TEXT("End"));
 }
 
-
-
 // Interact
-
 void AUNPlayerController::CheckCursorOverObject(AActor* CursorOverObject)
 {
 	BeginOverInteractable(CursorOverObject);
@@ -58,6 +55,7 @@ void AUNPlayerController::ClearCursorOverObject(AActor* CursorOverObject)
 {
 	EndOverInteractable();
 }
+
 
 void AUNPlayerController::BeginOverInteractable(AActor* NewInteractable)
 {

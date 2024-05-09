@@ -118,7 +118,15 @@ public:
 	FORCEINLINE void SetSlotsCapacity(const int32 NewSlotsCapacity) { InventorySlotsCapacity = NewSlotsCapacity; };
 	UFUNCTION(Category = "Inventory")
 	FORCEINLINE void SetWeightCapacity(const int32 NewWeightCapacity) { InventoryWeightCapacity = NewWeightCapacity; };
-	 
+	///////////
+	void EquipItem(UItemBase* ItemIn);
+	void UnEquipItem(UItemBase* ItemIn);
+
+	UPROPERTY(VisibleAnywhere, Category = "Inventory")
+	UItemBase* WeaponSlot;
+	UPROPERTY(VisibleAnywhere, Category = "Inventory")
+	UItemBase* ArmorSlot;
+
 protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "Inventory")

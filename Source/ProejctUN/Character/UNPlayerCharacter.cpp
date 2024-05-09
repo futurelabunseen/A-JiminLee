@@ -23,6 +23,7 @@
 #include "UI/UNInventoryComponent.h"
 #include "Abilities/GameplayAbilityTargetActor.h"
 #include "Props/UNPickupObject.h"
+#include "Item/ItemBase.h"
 
 #include "ProejctUN.h"
 
@@ -248,7 +249,6 @@ void AUNPlayerCharacter::OnRep_PlayerState()
 
 void AUNPlayerCharacter::InitAbilityActorInfo()
 {
-
 	PlayerController = Cast<APlayerController>(GetController());
 
 	// Player State
@@ -261,6 +261,13 @@ void AUNPlayerCharacter::InitAbilityActorInfo()
 		ASC->GenericGameplayEventCallbacks.FindOrAdd(UNTAG_EVENT_CHARACTER_WEAPONEQUIP).AddUObject(this, &AUNPlayerCharacter::EquipWeapon);
 		ASC->GenericGameplayEventCallbacks.FindOrAdd(UNTAG_EVENT_CHARACTER_WEAPONUNEQUIP).AddUObject(this, &AUNPlayerCharacter::UnEquipWeapon);
 		ASC->RegisterGameplayTagEvent(UNTAG_CHARACTER_STATE_ISSTUNING, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &AUNPlayerCharacter::OnStunTagChange);
+
+		//PlayerInventory->OnInventoryUpdated.AddUObject(this, &AUNPlayerCharacter::EquipItem);
+		if (UUNInventoryComponent* Inven = Cast<UUNInventoryComponent>(PlayerInventory))
+		{
+			Inven->OnInventoryUpdated.AddUObject(this, &AUNPlayerCharacter::UpdateWeapon);
+		}
+		
 	}
 	else
 	{
@@ -269,7 +276,7 @@ void AUNPlayerCharacter::InitAbilityActorInfo()
 
 	InitializeAttributes();
 	InitalizeGameplayAbilities();
-	EquipWeapon(nullptr);
+	//EquipWeapon(nullptr);
 
 	if (AUNPlayerController* PC = Cast<AUNPlayerController>(PlayerController))
 	{
@@ -471,13 +478,13 @@ void AUNPlayerCharacter::EquipWeapon(const FGameplayEventData* EventData)
 
 		if (HasAuthority()) //IsLocallyControlled()
 		{
-			FGameplayAbilitySpec NewSkillSpec(SkillAbilityClass);
-			NewSkillSpec.InputID = 1;
+			//FGameplayAbilitySpec NewSkillSpec(SkillAbilityClass);
+			//NewSkillSpec.InputID = 1;
 
-			if (!ASC->FindAbilitySpecFromClass(SkillAbilityClass))
-			{
-				ASC->GiveAbility(NewSkillSpec);
-			}
+			//if (!ASC->FindAbilitySpecFromClass(SkillAbilityClass))
+			//{
+			//	ASC->GiveAbility(NewSkillSpec);
+			//}
 
 			const float CurrentAttackRange = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute());
 			const float CurrentAttackRate = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute());
@@ -496,12 +503,12 @@ void AUNPlayerCharacter::UnEquipWeapon(const FGameplayEventData* EventData)
 	{
 		Weapon->SetSkeletalMesh(nullptr);
 
-		FGameplayAbilitySpec* SKillAbilitySpec = ASC->FindAbilitySpecFromClass(SkillAbilityClass);
+		//FGameplayAbilitySpec* SKillAbilitySpec = ASC->FindAbilitySpecFromClass(SkillAbilityClass);
 
-		if (SKillAbilitySpec)
-		{
-			ASC->ClearAbility(SKillAbilitySpec->Handle);
-		}
+		//if (SKillAbilitySpec)
+		//{
+		//	ASC->ClearAbility(SKillAbilitySpec->Handle);
+		//}
 
 		const float CurrentAttackRange = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute());
 		const float CurrentAttackRate = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute());
@@ -571,7 +578,7 @@ void AUNPlayerCharacter::DropItem(UItemBase* ItemToDrop, const int32 QuantityToD
 		SpawnParams.bNoFail = true;
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
-		const FVector SpawnLocation{ GetActorLocation() + (GetActorForwardVector() + 50.f) };
+		const FVector SpawnLocation{ GetActorLocation() + (GetActorForwardVector() + 50.f) + FVector(0.f, 0.f, -50.f) };
 		const FTransform SpawnTransform(GetActorRotation(), SpawnLocation);
 		
 		const int32 RemovedQuantity = PlayerInventory->RemoveAmountOfItem(ItemToDrop, QuantityToDrop);
@@ -583,5 +590,37 @@ void AUNPlayerCharacter::DropItem(UItemBase* ItemToDrop, const int32 QuantityToD
 	else
 	{
 		UE_LOG(LogTemp, Log, TEXT("Item Drop Failed. Item to drop was somehow null"));
+	}
+}
+
+// To Do .. : 멀티플레이 AT 동기화
+void AUNPlayerCharacter::UpdateWeapon()
+{
+	Weapon->SetSkeletalMesh(nullptr);
+
+	if (HasAuthority())
+	{
+		const float DefaultAttackRange = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetDefaultAttackRangeAttribute());
+		const float DefaultAttackRate = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetDefaultAttackRateAttribute());
+
+		ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute(), DefaultAttackRange);
+		ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute(), DefaultAttackRate);
+	}
+
+	if (PlayerInventory->WeaponSlot == nullptr)
+	{
+		return;
+	}
+
+	UItemBase* CurrentEquipItem = PlayerInventory->WeaponSlot;
+	Weapon->SetSkeletalMesh(CurrentEquipItem->AssetData.SkeletalMesh);
+
+	if (HasAuthority())
+	{
+		const float DefaultAttackRange = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetDefaultAttackRangeAttribute());
+		const float DefaultAttackRate = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetDefaultAttackRateAttribute());
+
+		ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute(), DefaultAttackRange + CurrentEquipItem->ItemStatistics.WeaponRange);
+		ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute(), DefaultAttackRate + CurrentEquipItem->ItemStatistics.DamageValue);
 	}
 }

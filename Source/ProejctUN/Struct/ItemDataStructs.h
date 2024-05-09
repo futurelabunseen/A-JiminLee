@@ -38,10 +38,13 @@ struct FItemStatistics
 	float DamageValue;
 
 	UPROPERTY(EditAnywhere)
-	float RestorationAmount;
+	float WeaponRange;
 
-	UPROPERTY(EditAnywhere)
-	float SellValue;
+	//UPROPERTY(EditAnywhere)
+	//float RestorationAmount;
+
+	//UPROPERTY(EditAnywhere)
+	//float SellValue;
 };
 
 USTRUCT()
@@ -87,6 +90,9 @@ struct FItemAssetData
 
 	UPROPERTY(EditAnywhere)
 	UStaticMesh* Mesh;
+
+	UPROPERTY(EditAnywhere)
+	USkeletalMesh* SkeletalMesh;
 };
 
 
@@ -100,7 +106,7 @@ struct FItemData : public FTableRowBase
 	
 	UPROPERTY(EditAnywhere, Category = "Item Data")
 	EItemType ItemType;
-
+	
 	UPROPERTY(EditAnywhere, Category = "Item Data")
 	EItemQuality ItemQuality;
 

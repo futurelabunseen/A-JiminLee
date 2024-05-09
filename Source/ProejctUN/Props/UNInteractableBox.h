@@ -17,9 +17,6 @@ class PROEJCTUN_API AUNInteractableBox : public AUNInteractableObjectBase
 {
 	GENERATED_BODY()
 	
-protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	UBoxComponent* BoxCollision;
 
 public:
 	AUNInteractableBox();

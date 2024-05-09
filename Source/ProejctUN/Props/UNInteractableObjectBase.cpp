@@ -3,20 +3,38 @@
 
 #include "Props/UNInteractableObjectBase.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/BoxComponent.h"
 #include "Player/UNPlayerController.h"
 
 AUNInteractableObjectBase::AUNInteractableObjectBase()
 {
+	BoxCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxCollision"));
+	RootComponent = BoxCollision;
+
+	SkeletalMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SkeletalMesh"));
+	SkeletalMesh->SetupAttachment(BoxCollision);
+	SkeletalMesh->SetCollisionProfileName(TEXT("IgnoreOnlyPawn"));
+
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
-	SetRootComponent(Mesh);
+	Mesh->SetupAttachment(BoxCollision);
+	Mesh->SetCollisionProfileName(TEXT("IgnoreOnlyPawn"));
 }
 
 void AUNInteractableObjectBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Mesh->OnBeginCursorOver.AddDynamic(this, &AUNInteractableObjectBase::SendBeginDataToController);
-	Mesh->OnEndCursorOver.AddDynamic(this, &AUNInteractableObjectBase::SendEndDataToController);
+	if (Mesh)
+	{
+		Mesh->OnBeginCursorOver.AddDynamic(this, &AUNInteractableObjectBase::SendBeginDataToController);
+		Mesh->OnEndCursorOver.AddDynamic(this, &AUNInteractableObjectBase::SendEndDataToController);
+	}
+
+	if (SkeletalMesh)
+	{
+		SkeletalMesh->OnBeginCursorOver.AddDynamic(this, &AUNInteractableObjectBase::SendBeginDataToController);
+		SkeletalMesh->OnEndCursorOver.AddDynamic(this, &AUNInteractableObjectBase::SendEndDataToController);
+	}
 }
 
 void AUNInteractableObjectBase::SendBeginDataToController(UPrimitiveComponent* OverlapActor)
@@ -41,6 +59,11 @@ void AUNInteractableObjectBase::BeginFocus()
 	{
 		Mesh->SetRenderCustomDepth(true);
 	}
+
+	if (SkeletalMesh)
+	{
+		SkeletalMesh->SetRenderCustomDepth(true);
+	}
 }
 
 void AUNInteractableObjectBase::EndFocus()
@@ -48,6 +71,11 @@ void AUNInteractableObjectBase::EndFocus()
 	if (Mesh)
 	{
 		Mesh->SetRenderCustomDepth(false);
+	}
+
+	if (SkeletalMesh)
+	{
+		SkeletalMesh->SetRenderCustomDepth(false);
 	}
 }
 

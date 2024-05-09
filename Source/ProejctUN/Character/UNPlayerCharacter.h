@@ -192,4 +192,7 @@ public:
 	void InventoryInteraction();
 	
 	void DropItem(UItemBase* ItemToDrop, const int32 QuantityToDrop);
+	
+	UFUNCTION()
+	void UpdateWeapon();
 };

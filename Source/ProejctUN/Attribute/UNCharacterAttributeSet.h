@@ -34,6 +34,8 @@ public:
 	ATTRIBUTE_ACCESSORS(UUNCharacterAttributeSet, Health);
 	ATTRIBUTE_ACCESSORS(UUNCharacterAttributeSet, MaxHealth);
 	ATTRIBUTE_ACCESSORS(UUNCharacterAttributeSet, Damage);
+	ATTRIBUTE_ACCESSORS(UUNCharacterAttributeSet, DefaultAttackRange);
+	ATTRIBUTE_ACCESSORS(UUNCharacterAttributeSet, DefaultAttackRate);
 
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -71,6 +73,12 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Attribute", ReplicatedUsing = OnRep_Damage, Meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData Damage;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Attribute", ReplicatedUsing = OnRep_DefaultAttackRange, Meta = (AllowPrivateAccess = true))
+	FGameplayAttributeData DefaultAttackRange;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Attribute", ReplicatedUsing = OnRep_DefaultAttackRate,Meta = (AllowPrivateAccess = true))
+	FGameplayAttributeData DefaultAttackRate;
+
 	UFUNCTION()
 	void OnRep_Health(const FGameplayAttributeData& OldHealth);
 
@@ -97,6 +105,12 @@ protected:
 
 	UFUNCTION()
 	void OnRep_MaxAttackRate(const FGameplayAttributeData& OldMaxAttackRate);
+
+	UFUNCTION()
+	void OnRep_DefaultAttackRange(const FGameplayAttributeData& OldDefaultAttackRange);
+
+	UFUNCTION()
+	void OnRep_DefaultAttackRate(const FGameplayAttributeData& OldDefaultAttackRate);
 
 	bool bOutOfHealth = false;
 

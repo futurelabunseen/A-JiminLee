@@ -6,6 +6,8 @@
 #include "UI/Widget/UNInventoryTooltip.h"
 #include "UI/Widget/UNDragItemVisual.h"
 #include "UI/UNItemDragDropOperation.h"
+#include "Character/UNPlayerCharacter.h"
+#include "UI/UNInventoryComponent.h"
 
 #include "Components/Border.h"
 #include "Components/Image.h"
@@ -15,6 +17,71 @@ void UUNInventoryItemSlotWidget::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
 
+	CreateToolTip();
+}
+
+void UUNInventoryItemSlotWidget::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	UpdateSlot();
+}
+
+FReply UUNInventoryItemSlotWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+{
+	FReply Reply = Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
+
+	if (InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
+	{
+		return Reply.Handled().DetectDrag(TakeWidget(), EKeys::LeftMouseButton);
+	}
+
+	else if (InMouseEvent.GetEffectingButton() == EKeys::RightMouseButton)
+	{
+		CheckItemTypeAndTryEquip();
+		return Reply.Handled();
+	}
+
+	return Reply.Unhandled();
+}
+
+void UUNInventoryItemSlotWidget::NativeOnMouseLeave(const FPointerEvent& InMouseEvent)
+{
+}
+
+void UUNInventoryItemSlotWidget::NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation)
+{
+	Super::NativeOnDragDetected(InGeometry, InMouseEvent, OutOperation);
+
+	if (DragItemVisualClass)
+	{
+		const TObjectPtr<UUNDragItemVisual> DragVisual = CreateWidget<UUNDragItemVisual>(this, DragItemVisualClass);
+		DragVisual->ItemIcon->SetBrushFromTexture(ItemReference->AssetData.Icon);
+		DragVisual->ItemBorder->SetBrushColor(ItemBorder->GetBrushColor());
+
+		ItemReference->NumericData.bIsStackable ? DragVisual->ItemQuantity->SetText(FText::AsNumber(ItemReference->Quantity)) : DragVisual->ItemQuantity->SetVisibility(ESlateVisibility::Collapsed);
+
+		UUNItemDragDropOperation* DragItemOperation = NewObject<UUNItemDragDropOperation>();
+		DragItemOperation->SourceItem = ItemReference;
+		DragItemOperation->SourceInventory = ItemReference->OwningInventory;
+
+		DragItemOperation->DefaultDragVisual = DragVisual;
+		DragItemOperation->Pivot = EDragPivot::TopLeft;
+
+		OutOperation = DragItemOperation;
+	}
+}
+
+bool UUNInventoryItemSlotWidget::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
+{
+	return false;
+}
+
+
+
+
+void UUNInventoryItemSlotWidget::CreateToolTip()
+{
 	if (ToolTipClass)
 	{
 		UUNInventoryTooltip* ToolTip = CreateWidget<UUNInventoryTooltip>(this, ToolTipClass);
@@ -23,10 +90,8 @@ void UUNInventoryItemSlotWidget::NativeOnInitialized()
 	}
 }
 
-void UUNInventoryItemSlotWidget::NativeConstruct()
+void UUNInventoryItemSlotWidget::UpdateSlot()
 {
-	Super::NativeConstruct();
-
 	if (ItemReference)
 	{
 		switch (ItemReference->ItemQuality)
@@ -62,48 +127,28 @@ void UUNInventoryItemSlotWidget::NativeConstruct()
 	}
 }
 
-FReply UUNInventoryItemSlotWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+void UUNInventoryItemSlotWidget::CheckItemTypeAndTryEquip()
 {
-	FReply Reply = Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
-
-	if (InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
+	if (!ItemReference)
 	{
-		return Reply.Handled().DetectDrag(TakeWidget(), EKeys::LeftMouseButton);
+		UE_LOG(LogTemp, Log, TEXT("ItemReference is null!"));
+		return;
 	}
-
-	// Right Mouse Click Event(Ex. ItemMenu)
-
-	return Reply.Unhandled();
-}
-
-void UUNInventoryItemSlotWidget::NativeOnMouseLeave(const FPointerEvent& InMouseEvent)
-{
-}
-
-void UUNInventoryItemSlotWidget::NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation)
-{
-	Super::NativeOnDragDetected(InGeometry, InMouseEvent, OutOperation);
-
-	if (DragItemVisualClass)
+		
+	if (AUNPlayerCharacter* PlayerCharacter = Cast<AUNPlayerCharacter>(GetOwningPlayerPawn()))
 	{
-		const TObjectPtr<UUNDragItemVisual> DragVisual = CreateWidget<UUNDragItemVisual>(this, DragItemVisualClass);
-		DragVisual->ItemIcon->SetBrushFromTexture(ItemReference->AssetData.Icon);
-		DragVisual->ItemBorder->SetBrushColor(ItemBorder->GetBrushColor());
-
-		ItemReference->NumericData.bIsStackable ? DragVisual->ItemQuantity->SetText(FText::AsNumber(ItemReference->Quantity)) : DragVisual->ItemQuantity->SetVisibility(ESlateVisibility::Collapsed);
-
-		UUNItemDragDropOperation* DragItemOperation = NewObject<UUNItemDragDropOperation>();
-		DragItemOperation->SourceItem = ItemReference;
-		DragItemOperation->SourceInventory = ItemReference->OwningInventory;
-
-		DragItemOperation->DefaultDragVisual = DragVisual;
-		DragItemOperation->Pivot = EDragPivot::TopLeft;
-
-		OutOperation = DragItemOperation;
+		if (UUNInventoryComponent* Inventory = PlayerCharacter->GetInventoryComponent())
+		{
+			if (ItemReference->bIsEquip)
+			{
+				Inventory->UnEquipItem(ItemReference);
+				//PlayerCharacter->UnEquipItem(ItemReference);
+			}
+			else
+			{
+				Inventory->EquipItem(ItemReference);
+				//PlayerCharacter->EquipItem(ItemReference);
+			}
+		}
 	}
-}
-
-bool UUNInventoryItemSlotWidget::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
-{
-	return false;
 }
