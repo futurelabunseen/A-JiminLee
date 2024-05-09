@@ -142,10 +142,12 @@ void UUNInventoryItemSlotWidget::CheckItemTypeAndTryEquip()
 			if (ItemReference->bIsEquip)
 			{
 				Inventory->UnEquipItem(ItemReference);
+				//PlayerCharacter->UnEquipItem(ItemReference);
 			}
 			else
 			{
 				Inventory->EquipItem(ItemReference);
+				//PlayerCharacter->EquipItem(ItemReference);
 			}
 		}
 	}

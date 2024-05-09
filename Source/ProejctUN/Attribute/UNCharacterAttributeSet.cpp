@@ -15,7 +15,9 @@ UUNCharacterAttributeSet::UUNCharacterAttributeSet() :
 	MaxAttackRadius(150.f),
 	MaxAttackRate(100.f),
 	MaxHealth(100.f),
-	Damage(0.f)
+	Damage(0.f),
+	DefaultAttackRange(100.f),
+	DefaultAttackRate(30.f)
 {
 	// 체력 설정
 	InitHealth(GetMaxHealth());
@@ -43,6 +45,8 @@ void UUNCharacterAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProper
 	DOREPLIFETIME_CONDITION_NOTIFY(UUNCharacterAttributeSet, MaxAttackRadius, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UUNCharacterAttributeSet, AttackRate, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UUNCharacterAttributeSet, MaxAttackRate, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UUNCharacterAttributeSet, DefaultAttackRange, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UUNCharacterAttributeSet, DefaultAttackRate, COND_None, REPNOTIFY_Always);
 }
 
 // GE 이전에 실행되며 bool값은 GE 실행 여부
@@ -147,4 +151,14 @@ void UUNCharacterAttributeSet::OnRep_AttackRate(const FGameplayAttributeData& Ol
 void UUNCharacterAttributeSet::OnRep_MaxAttackRate(const FGameplayAttributeData& OldMaxAttackRate)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UUNCharacterAttributeSet, MaxAttackRate, OldMaxAttackRate);
+}
+
+void UUNCharacterAttributeSet::OnRep_DefaultAttackRange(const FGameplayAttributeData& OldDefaultAttackRange)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UUNCharacterAttributeSet, DefaultAttackRange, OldDefaultAttackRange);
+}
+
+void UUNCharacterAttributeSet::OnRep_DefaultAttackRate(const FGameplayAttributeData& OldDefaultAttackRate)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UUNCharacterAttributeSet, DefaultAttackRate, OldDefaultAttackRate);
 }
