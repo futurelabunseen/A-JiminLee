@@ -151,6 +151,9 @@ void AUNPickupObject::PostEditChangeProperty(FPropertyChangedEvent& PropertyChan
 {
 	Super::PostEditChangeProperty(PropertyChangeEvent);
 
+	Mesh->SetStaticMesh(nullptr);
+	SkeletalMesh->SetSkeletalMesh(nullptr);
+
 	const FName ChangedPropertyName = PropertyChangeEvent.Property ? PropertyChangeEvent.Property->GetFName() : NAME_None;
 
 	if (ChangedPropertyName == GET_MEMBER_NAME_CHECKED(AUNPickupObject, DesiredItemID))
@@ -160,6 +163,7 @@ void AUNPickupObject::PostEditChangeProperty(FPropertyChangedEvent& PropertyChan
 			if (const FItemData* ItemData = ItemDataTable->FindRow<FItemData>(DesiredItemID, DesiredItemID.ToString()))
 			{
 				Mesh->SetStaticMesh(ItemData->AssetData.Mesh);
+				SkeletalMesh->SetSkeletalMesh(ItemData->AssetData.SkeletalMesh);
 			}
 		}
 	}
