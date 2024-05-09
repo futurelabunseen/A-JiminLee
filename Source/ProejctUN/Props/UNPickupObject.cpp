@@ -36,6 +36,7 @@ void AUNPickupObject::InitializePickup(const TSubclassOf<UItemBase> BaseClass, c
 		ItemReference->ID = ItemData->ID;
 		ItemReference->ItemType = ItemData->ItemType;
 		ItemReference->ItemQuality = ItemData->ItemQuality;
+		ItemReference->ItemStatistics = ItemData->ItemStatistics;
 		ItemReference->NumericData = ItemData->NumericData;
 		ItemReference->TextData = ItemData->TextData;
 		ItemReference->AssetData = ItemData->AssetData;
@@ -73,7 +74,7 @@ void AUNPickupObject::UpdateInteractableData()
 void AUNPickupObject::TakePickUp(AActor* Taker)
 {
 	if (AUNPlayerCharacter* Player = Cast<AUNPlayerCharacter>(Taker))
-	{
+	{	
 		if (!IsPendingKillPending())
 		{
 			if (ItemReference)
