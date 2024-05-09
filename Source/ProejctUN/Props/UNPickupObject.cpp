@@ -4,18 +4,12 @@
 #include "Props/UNPickupObject.h"
 #include "Character/UNPlayerCharacter.h"
 #include "UI/UNInventoryComponent.h"
-#include "Components/BoxComponent.h"
 #include "Item/ItemBase.h"
 
 AUNPickupObject::AUNPickupObject()
 {
 	//PickupMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PickupMesh"));
 	//SetRootComponent(PickupMesh);
-
-	BoxCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxCollision"));
-	RootComponent = BoxCollision;
-	Mesh->SetupAttachment(BoxCollision);
-	Mesh->SetCollisionProfileName(TEXT("IgnoreOnlyPawn"));
 }
 
 void AUNPickupObject::BeginPlay()
@@ -44,7 +38,14 @@ void AUNPickupObject::InitializePickup(const TSubclassOf<UItemBase> BaseClass, c
 		ItemReference->NumericData.bIsStackable = ItemData->NumericData.MaxStackSize > 1;
 		InQuantity <= 0 ? ItemReference->SetQuantity(1) : ItemReference->SetQuantity(InQuantity);
 
-		Mesh->SetStaticMesh(ItemData->AssetData.Mesh);
+		if (ItemData->AssetData.Mesh)
+		{
+			Mesh->SetStaticMesh(ItemData->AssetData.Mesh);
+		}
+		else
+		{
+			SkeletalMesh->SetSkeletalMesh(ItemData->AssetData.SkeletalMesh);
+		}
 
 		UpdateInteractableData();
 	}
@@ -57,7 +58,16 @@ void AUNPickupObject::InitializeDrop(UItemBase* ItemToDrop, const int32 InQuanti
 	InQuantity <= 0 ? ItemReference->SetQuantity(1) : ItemReference->SetQuantity(InQuantity);
 	ItemReference->NumericData.Weight = ItemToDrop->GetItemSingleWeight();
 	ItemReference->OwningInventory = nullptr;
-	Mesh->SetStaticMesh(ItemToDrop->AssetData.Mesh);
+
+	if (ItemToDrop->AssetData.Mesh)
+	{
+		Mesh->SetStaticMesh(ItemToDrop->AssetData.Mesh);
+	}
+
+	if (ItemToDrop->AssetData.SkeletalMesh)
+	{
+		SkeletalMesh->SetSkeletalMesh(ItemToDrop->AssetData.SkeletalMesh);
+	}
 
 	UpdateInteractableData();
 }

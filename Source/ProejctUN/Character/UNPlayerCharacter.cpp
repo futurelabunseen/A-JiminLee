@@ -578,7 +578,7 @@ void AUNPlayerCharacter::DropItem(UItemBase* ItemToDrop, const int32 QuantityToD
 		SpawnParams.bNoFail = true;
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
-		const FVector SpawnLocation{ GetActorLocation() + (GetActorForwardVector() + 50.f) };
+		const FVector SpawnLocation{ GetActorLocation() + (GetActorForwardVector() + 50.f) + FVector(0.f, 0.f, -50.f) };
 		const FTransform SpawnTransform(GetActorRotation(), SpawnLocation);
 		
 		const int32 RemovedQuantity = PlayerInventory->RemoveAmountOfItem(ItemToDrop, QuantityToDrop);
@@ -596,7 +596,6 @@ void AUNPlayerCharacter::DropItem(UItemBase* ItemToDrop, const int32 QuantityToD
 // To Do .. : 멀티플레이 AT 동기화
 void AUNPlayerCharacter::UpdateWeapon()
 {
-	UE_LOG(LogTemp, Log, TEXT("UpdateWeapon Begin"));
 	Weapon->SetSkeletalMesh(nullptr);
 
 	if (HasAuthority())
@@ -606,19 +605,14 @@ void AUNPlayerCharacter::UpdateWeapon()
 
 		ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute(), DefaultAttackRange);
 		ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute(), DefaultAttackRate);
-		UE_LOG(LogTemp, Log, TEXT("Weapon delete. AT clear"));
 	}
 
 	if (PlayerInventory->WeaponSlot == nullptr)
 	{
-		UE_LOG(LogTemp, Log, TEXT("WeaponSlot is null. return"));
 		return;
 	}
 
-	UE_LOG(LogTemp, Log, TEXT("Pass return"));
-
 	UItemBase* CurrentEquipItem = PlayerInventory->WeaponSlot;
-
 	Weapon->SetSkeletalMesh(CurrentEquipItem->AssetData.SkeletalMesh);
 
 	if (HasAuthority())
