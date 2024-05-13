@@ -31,11 +31,14 @@ public:
 	ATTRIBUTE_ACCESSORS(UUNCharacterAttributeSet, MaxAttackRadius);
 	ATTRIBUTE_ACCESSORS(UUNCharacterAttributeSet, AttackRate);
 	ATTRIBUTE_ACCESSORS(UUNCharacterAttributeSet, MaxAttackRate);
+	ATTRIBUTE_ACCESSORS(UUNCharacterAttributeSet, ArmorRate);
+	ATTRIBUTE_ACCESSORS(UUNCharacterAttributeSet, MaxArmorRate);
 	ATTRIBUTE_ACCESSORS(UUNCharacterAttributeSet, Health);
 	ATTRIBUTE_ACCESSORS(UUNCharacterAttributeSet, MaxHealth);
 	ATTRIBUTE_ACCESSORS(UUNCharacterAttributeSet, Damage);
 	ATTRIBUTE_ACCESSORS(UUNCharacterAttributeSet, DefaultAttackRange);
 	ATTRIBUTE_ACCESSORS(UUNCharacterAttributeSet, DefaultAttackRate);
+	ATTRIBUTE_ACCESSORS(UUNCharacterAttributeSet, DefaultArmorRate);
 
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -64,6 +67,12 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Attribute", ReplicatedUsing = OnRep_MaxAttackRate, Meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData MaxAttackRate;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Attribute", ReplicatedUsing = OnRep_AttackRate, Meta = (AllowPrivateAccess = true))
+	FGameplayAttributeData ArmorRate;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Attribute", ReplicatedUsing = OnRep_MaxAttackRate, Meta = (AllowPrivateAccess = true))
+	FGameplayAttributeData MaxArmorRate;
+
 	UPROPERTY(BlueprintReadOnly, Category = "Attribute", ReplicatedUsing = OnRep_Health, Meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData Health;
 
@@ -78,6 +87,10 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Attribute", ReplicatedUsing = OnRep_DefaultAttackRate,Meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData DefaultAttackRate;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Attribute", ReplicatedUsing = OnRep_DefaultAttackRate, Meta = (AllowPrivateAccess = true))
+	FGameplayAttributeData DefaultArmorRate;
+
 
 	UFUNCTION()
 	void OnRep_Health(const FGameplayAttributeData& OldHealth);
@@ -107,10 +120,19 @@ protected:
 	void OnRep_MaxAttackRate(const FGameplayAttributeData& OldMaxAttackRate);
 
 	UFUNCTION()
+	void OnRep_ArmorRate(const FGameplayAttributeData& OldArmorRate);
+
+	UFUNCTION()
+	void OnRep_MaxArmorRate(const FGameplayAttributeData& OldMaxArmorRate);
+
+	UFUNCTION()
 	void OnRep_DefaultAttackRange(const FGameplayAttributeData& OldDefaultAttackRange);
 
 	UFUNCTION()
 	void OnRep_DefaultAttackRate(const FGameplayAttributeData& OldDefaultAttackRate);
+
+	UFUNCTION()
+	void OnRep_DefaultArmorRate(const FGameplayAttributeData& OldDefaultArmorRate);
 
 	bool bOutOfHealth = false;
 

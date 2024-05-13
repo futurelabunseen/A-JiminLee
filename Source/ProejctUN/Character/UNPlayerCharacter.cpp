@@ -268,7 +268,8 @@ void AUNPlayerCharacter::InitAbilityActorInfo()
 		//PlayerInventory->OnInventoryUpdated.AddUObject(this, &AUNPlayerCharacter::EquipItem);
 		if (UUNInventoryComponent* Inven = Cast<UUNInventoryComponent>(PlayerInventory))
 		{
-			Inven->OnInventoryUpdated.AddUObject(this, &AUNPlayerCharacter::UpdateWeapon);
+			Inven->OnInventoryUpdated.AddUObject(this, &AUNPlayerCharacter::UpdateWeapon); 
+			Inven->OnInventoryUpdated.AddUObject(this, &AUNPlayerCharacter::UpdateArmor);
 		}
 		
 	}
@@ -630,31 +631,25 @@ void AUNPlayerCharacter::UpdateWeapon()
 
 void AUNPlayerCharacter::UpdateArmor()
 {
-	//Armor->SetSkeletalMesh(nullptr);
+	Armor->SetSkeletalMesh(nullptr);
 
-	//if (HasAuthority())
-	//{
-	//	const float DefaultAttackRange = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetDefaultAttackRangeAttribute());
-	//	const float DefaultAttackRate = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetDefaultAttackRateAttribute());
+	if (HasAuthority())
+	{
+		const float DefaultArmorRate = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetDefaultArmorRateAttribute());
+		ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetArmorRateAttribute(), DefaultArmorRate);
+	}
 
-	//	ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute(), DefaultAttackRange);
-	//	ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute(), DefaultAttackRate);
-	//}
+	if (PlayerInventory->ArmorSlot == nullptr)
+	{
+		return;
+	}
 
-	//if (PlayerInventory->ArmorSlot == nullptr)
-	//{
-	//	return;
-	//}
+	UItemBase* CurrentEquipItem = PlayerInventory->ArmorSlot;
+	Armor->SetSkeletalMesh(CurrentEquipItem->AssetData.SkeletalMesh);
 
-	//UItemBase* CurrentEquipItem = PlayerInventory->WeaponSlot;
-	//Weapon->SetSkeletalMesh(CurrentEquipItem->AssetData.SkeletalMesh);
-
-	//if (HasAuthority())
-	//{
-	//	const float DefaultAttackRange = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetDefaultAttackRangeAttribute());
-	//	const float DefaultAttackRate = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetDefaultAttackRateAttribute());
-
-	//	ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute(), DefaultAttackRange + CurrentEquipItem->ItemStatistics.WeaponRange);
-	//	ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute(), DefaultAttackRate + CurrentEquipItem->ItemStatistics.DamageValue);
-	//}
+	if (HasAuthority())
+	{
+		const float DefaultArmorRate = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetDefaultArmorRateAttribute());
+		ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetArmorRateAttribute(), DefaultArmorRate + CurrentEquipItem->ItemStatistics.ArmorRating);
+	}
 }
