@@ -111,8 +111,14 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Equipment, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class USkeletalMeshComponent> Weapon;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Equipment, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class USkeletalMeshComponent> Armor;
+
 	UPROPERTY(EditAnywhere, Category = Weapon)
 	TObjectPtr<class USkeletalMesh> WeaponMesh;
+
+	UPROPERTY(EditAnywhere, Category = Weapon)
+	TObjectPtr<class USkeletalMesh> ArmorMesh;
 
 protected:
 	UPROPERTY(EditAnywhere, Category = Weapon)
@@ -195,4 +201,7 @@ public:
 	
 	UFUNCTION()
 	void UpdateWeapon();
+
+	UFUNCTION()
+	void UpdateArmor();
 };
