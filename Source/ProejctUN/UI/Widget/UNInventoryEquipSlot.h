@@ -20,7 +20,12 @@ class UTexture2D;
 /**
  * 
  */
-
+UENUM()
+enum class ESlotData : uint8
+{
+	Weapon UMETA(DisplayName = "Weapon"),
+	Armor UMETA(DisplayName = "Armor")
+};
 
 UCLASS()
 class PROEJCTUN_API UUNInventoryEquipSlot : public UUNInventoryItemSlotWidget
@@ -39,6 +44,9 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	UTexture2D* DefaultIconImage;
+
+	UPROPERTY(EditAnywhere)
+	ESlotData SlotData;
 
 	UFUNCTION()
 	void UpdateSlotData();

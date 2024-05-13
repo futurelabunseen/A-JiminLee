@@ -16,9 +16,14 @@ void UUNInventoryTooltip::NativeConstruct()
 	switch (ItemBeingHovered->ItemType)
 	{
 	case EItemType::Armor:
+		ItemType->SetText(FText::FromString("Armor"));
+		DamageValue->SetVisibility(ESlateVisibility::Collapsed);
+		WeaponRange->SetVisibility(ESlateVisibility::Collapsed);
 		break;
 
 	case EItemType::Weapon:
+		ItemType->SetText(FText::FromString("Weapon"));	
+		ArmorRating->SetVisibility(ESlateVisibility::Collapsed);
 		break;
 
 	case EItemType::Shield:
@@ -30,6 +35,7 @@ void UUNInventoryTooltip::NativeConstruct()
 	case EItemType::Consumable:
 		ItemType->SetText(FText::FromString("Consumable"));
 		DamageValue->SetVisibility(ESlateVisibility::Collapsed);
+		WeaponRange->SetVisibility(ESlateVisibility::Collapsed);
 		ArmorRating->SetVisibility(ESlateVisibility::Collapsed);
 		//SellValue->SetVisibility(ESlateVisibility::Collapsed);
 		break;
@@ -40,6 +46,7 @@ void UUNInventoryTooltip::NativeConstruct()
 	case EItemType::Mundane:
 		ItemType->SetText(FText::FromString("Mundane"));
 		DamageValue->SetVisibility(ESlateVisibility::Collapsed);
+		WeaponRange->SetVisibility(ESlateVisibility::Collapsed);
 		ArmorRating->SetVisibility(ESlateVisibility::Collapsed);
 		UsageText->SetVisibility(ESlateVisibility::Collapsed);
 		//SellValue->SetVisibility(ESlateVisibility::Collapsed);
@@ -49,6 +56,7 @@ void UUNInventoryTooltip::NativeConstruct()
 
 	ItemName->SetText(ItemBeingHovered->TextData.Name);
 	DamageValue->SetText(FText::AsNumber(ItemBeingHovered->ItemStatistics.DamageValue));
+	WeaponRange->SetText(FText::AsNumber(ItemBeingHovered->ItemStatistics.WeaponRange));
 	ArmorRating->SetText(FText::AsNumber(ItemBeingHovered->ItemStatistics.ArmorRating));
 	UsageText->SetText(ItemBeingHovered->TextData.UsageText);
 	ItemDescription->SetText(ItemBeingHovered->TextData.Description);

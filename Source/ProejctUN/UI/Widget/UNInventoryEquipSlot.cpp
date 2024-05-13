@@ -83,7 +83,15 @@ void UUNInventoryEquipSlot::ClearSlotData()
 
 void UUNInventoryEquipSlot::UpdateSlotData()
 {
-	ItemReference = InventoryReference->WeaponSlot;
+	if (SlotData == ESlotData::Weapon)
+	{
+		ItemReference = InventoryReference->WeaponSlot;
+	}
+	else if (SlotData == ESlotData::Armor)
+	{
+		ItemReference = InventoryReference->ArmorSlot;
+	}
+
 	if (ItemReference)
 	{
 		UpdateSlot();
