@@ -578,7 +578,7 @@ void AUNPlayerCharacter::DropItem(UItemBase* ItemToDrop, const int32 QuantityToD
 		SpawnParams.bNoFail = true;
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
-		const FVector SpawnLocation{ GetActorLocation() + (GetActorForwardVector() + 50.f) + FVector(0.f, 0.f, -50.f) };
+		const FVector SpawnLocation{ GetActorLocation() + (GetActorForwardVector() + 50.f)};
 		const FTransform SpawnTransform(GetActorRotation(), SpawnLocation);
 		
 		const int32 RemovedQuantity = PlayerInventory->RemoveAmountOfItem(ItemToDrop, QuantityToDrop);
