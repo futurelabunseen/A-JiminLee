@@ -17,6 +17,7 @@ void UUNInventoryEquipSlot::NativeOnInitialized()
 {
 	//Super::NativeOnInitialized();
 	ItemQuantity->SetVisibility(ESlateVisibility::Collapsed);
+	ClearSlotData();
 
 	PlayerCharacter = Cast<AUNPlayerCharacter>(GetOwningPlayerPawn());
 	if (PlayerCharacter)
@@ -32,8 +33,6 @@ void UUNInventoryEquipSlot::NativeOnInitialized()
 void UUNInventoryEquipSlot::NativeConstruct()
 {
 	Super::NativeConstruct();
-
-
 }
 
 void UUNInventoryEquipSlot::NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation)
