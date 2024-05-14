@@ -204,4 +204,10 @@ public:
 
 	UFUNCTION()
 	void UpdateArmor();
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void MulticastEquipWeapon();
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void MulticastUnEquipWeapon();
 };
