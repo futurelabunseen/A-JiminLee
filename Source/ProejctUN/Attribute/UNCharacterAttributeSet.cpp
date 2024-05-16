@@ -14,10 +14,13 @@ UUNCharacterAttributeSet::UUNCharacterAttributeSet() :
 	AttackRate(30.f),
 	MaxAttackRadius(150.f),
 	MaxAttackRate(100.f),
+	ArmorRate(3.f),
+	MaxArmorRate(100.f),
 	MaxHealth(100.f),
 	Damage(0.f),
 	DefaultAttackRange(100.f),
-	DefaultAttackRate(30.f)
+	DefaultAttackRate(30.f),
+	DefaultArmorRate(3.f)
 {
 	// 체력 설정
 	InitHealth(GetMaxHealth());
@@ -45,8 +48,11 @@ void UUNCharacterAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProper
 	DOREPLIFETIME_CONDITION_NOTIFY(UUNCharacterAttributeSet, MaxAttackRadius, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UUNCharacterAttributeSet, AttackRate, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UUNCharacterAttributeSet, MaxAttackRate, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UUNCharacterAttributeSet, ArmorRate, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UUNCharacterAttributeSet, MaxArmorRate, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UUNCharacterAttributeSet, DefaultAttackRange, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UUNCharacterAttributeSet, DefaultAttackRate, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UUNCharacterAttributeSet, DefaultArmorRate, COND_None, REPNOTIFY_Always);
 }
 
 // GE 이전에 실행되며 bool값은 GE 실행 여부
@@ -93,7 +99,7 @@ void UUNCharacterAttributeSet::PostGameplayEffectExecute(const FGameplayEffectMo
 	else if (Data.EvaluatedData.Attribute == GetDamageAttribute())
 	{
 		UE_LOG(LogTemp, Log, TEXT("Damage : %f"), GetDamage());
-		SetHealth(FMath::Clamp(GetHealth() - GetDamage(), MinimumHealth, GetMaxHealth()));
+		SetHealth(FMath::Clamp(GetHealth() - GetDamage() + GetArmorRate(), MinimumHealth, GetMaxHealth()));
 		SetDamage(0.f);
 	}
 
@@ -153,6 +159,16 @@ void UUNCharacterAttributeSet::OnRep_MaxAttackRate(const FGameplayAttributeData&
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UUNCharacterAttributeSet, MaxAttackRate, OldMaxAttackRate);
 }
 
+void UUNCharacterAttributeSet::OnRep_ArmorRate(const FGameplayAttributeData& OldArmorRate)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UUNCharacterAttributeSet, ArmorRate, OldArmorRate);
+}
+
+void UUNCharacterAttributeSet::OnRep_MaxArmorRate(const FGameplayAttributeData& OldMaxArmorRate)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UUNCharacterAttributeSet, MaxArmorRate, OldMaxArmorRate);
+}
+
 void UUNCharacterAttributeSet::OnRep_DefaultAttackRange(const FGameplayAttributeData& OldDefaultAttackRange)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UUNCharacterAttributeSet, DefaultAttackRange, OldDefaultAttackRange);
@@ -161,4 +177,9 @@ void UUNCharacterAttributeSet::OnRep_DefaultAttackRange(const FGameplayAttribute
 void UUNCharacterAttributeSet::OnRep_DefaultAttackRate(const FGameplayAttributeData& OldDefaultAttackRate)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UUNCharacterAttributeSet, DefaultAttackRate, OldDefaultAttackRate);
+}
+
+void UUNCharacterAttributeSet::OnRep_DefaultArmorRate(const FGameplayAttributeData& OldDefaultArmorRate)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UUNCharacterAttributeSet, DefaultArmorRate, OldDefaultArmorRate);
 }

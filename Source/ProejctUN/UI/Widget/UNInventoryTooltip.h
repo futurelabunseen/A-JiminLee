@@ -30,6 +30,9 @@ public:
 	UTextBlock* DamageValue;
 
 	UPROPERTY(meta = (BindWidget))
+	UTextBlock* WeaponRange;
+
+	UPROPERTY(meta = (BindWidget))
 	UTextBlock* ArmorRating;
 
 	UPROPERTY(meta = (BindWidget))
