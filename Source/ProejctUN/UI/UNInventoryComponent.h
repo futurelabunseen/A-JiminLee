@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Struct/ItemDataStructs.h"
 #include "UNInventoryComponent.generated.h"
 
 DECLARE_MULTICAST_DELEGATE(FOnInventoryUpdated);
@@ -67,6 +68,47 @@ struct FItemAddResult
 
 };
 
+USTRUCT(BlueprintType)
+struct FRPCItemData
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(VisibleAnywhere, Category = "Item")
+	int32 Quantity;
+
+	UPROPERTY(VisibleAnywhere, Category = "Item")
+	FName ID;
+
+	UPROPERTY(VisibleAnywhere, Category = "Item")
+	EItemType ItemType;
+
+	UPROPERTY(VisibleAnywhere, Category = "Item")
+	EItemQuality ItemQuality;
+
+	UPROPERTY(VisibleAnywhere, Category = "Item")
+	FItemStatistics ItemStatistics;
+
+	UPROPERTY(VisibleAnywhere, Category = "Item")
+	FItemTextData TextData;
+
+	UPROPERTY(VisibleAnywhere, Category = "Item")
+	FItemNumericData NumericData;
+
+	UPROPERTY(VisibleAnywhere, Category = "Item")
+	FItemAssetData AssetData;
+
+	UPROPERTY()
+	bool bIsCopy;
+
+	UPROPERTY()
+	bool bIsPickup;
+
+	UPROPERTY()
+	bool bIsEquip;
+};
+
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class PROEJCTUN_API UUNInventoryComponent : public UActorComponent
 {
@@ -127,7 +169,24 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "Inventory")
 	UItemBase* ArmorSlot;
 
+	//UFUNCTION(Server, Reliable, WithValidation)
+	//void ServerRPCAddItem(const FRPCItemData& RPCItem);
+
+	UFUNCTION(Server, unreliable)
+	void ServerRPCAddItem(const FRPCItemData& RPCItem);
+
+	UFUNCTION(Server, Unreliable)
+	void ServerRPCRemoveItem(FName ItemId, int32 DesiresAmountToRemove);
+
+
+	UFUNCTION(Client, Unreliable)
+	void ClientRPCInvenUpdate();
+
+	UFUNCTION()
+	void OnRep_InventoryContents();
 protected:
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	UPROPERTY(VisibleAnywhere, Category = "Inventory")
 	float InventoryTotalWeight;
@@ -136,9 +195,12 @@ protected:
 	UPROPERTY(EditInstanceOnly, Category = "Inventory")
 	float InventoryWeightCapacity;
 
+	//UPROPERTY(ReplicatedUsing = OnRep_InventoryContents, VisibleAnywhere, Category = "Inventory")
+	//TArray<TObjectPtr<UItemBase>> InventoryContents;
+
 	UPROPERTY(VisibleAnywhere, Category = "Inventory")
 	TArray<TObjectPtr<UItemBase>> InventoryContents;
-	
+
 	virtual void BeginPlay() override;
 
 	FItemAddResult HandleNonStackableItems(UItemBase* InputItem);

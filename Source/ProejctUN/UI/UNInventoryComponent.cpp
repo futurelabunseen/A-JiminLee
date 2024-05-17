@@ -3,16 +3,26 @@
 
 #include "UI/UNInventoryComponent.h"
 #include "Item/ItemBase.h"
+#include "Game/UNWorldSubsystem.h"
+#include "Net/UnrealNetwork.h"
+#include "Character/UNPlayerCharacter.h"
 
 // Sets default values for this component's properties
 UUNInventoryComponent::UUNInventoryComponent()
 {
-
+	SetIsReplicatedByDefault(true);
 }
 
 void UUNInventoryComponent::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void UUNInventoryComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	
+	//DOREPLIFETIME_CONDITION_NOTIFY(UUNInventoryComponent, InventoryContents, COND_None, REPNOTIFY_Always);
 }
 
 UItemBase* UUNInventoryComponent::FindMatchingItem(UItemBase* ItemIn) const
@@ -83,6 +93,8 @@ int32 UUNInventoryComponent::RemoveAmountOfItem(UItemBase* ItemIn, int32 Desires
 	ItemIn->SetQuantity(ItemIn->Quantity - ActualAmountToRemove);
 
 	InventoryTotalWeight -= ActualAmountToRemove * ItemIn->GetItemSingleWeight();
+
+	ServerRPCRemoveItem(ItemIn->ID, DesiresAmountToRemove);
 
 	OnInventoryUpdated.Broadcast();
 	
@@ -275,10 +287,88 @@ void UUNInventoryComponent::AddNewItem(UItemBase* Item, const int32 AmountToAdd)
 	NewItem->OwningInventory = this;
 	NewItem->SetQuantity(AmountToAdd);
 
+	FRPCItemData ItemData;
+	ItemData.Quantity = NewItem->Quantity;
+	ItemData.ID = NewItem->ID;
+	ItemData.ItemType = NewItem->ItemType;
+	ItemData.ItemQuality = NewItem->ItemQuality;
+	ItemData.ItemStatistics = NewItem->ItemStatistics;
+	ItemData.TextData = NewItem->TextData;
+	ItemData.NumericData = NewItem->NumericData;
+	ItemData.AssetData = NewItem->AssetData;
+	ItemData.bIsCopy = NewItem->bIsCopy;
+	ItemData.bIsPickup = NewItem->bIsPickup;
+	ItemData.bIsEquip = NewItem->bIsEquip;
+
+	ServerRPCAddItem(ItemData);
+
 	InventoryContents.Add(NewItem);
 	InventoryTotalWeight += NewItem->GetItemStackWeight();
 	OnInventoryUpdated.Broadcast();
 }
+
+//bool UUNInventoryComponent::ServerRPCAddItem_Validate(const FRPCItemData& RPCItem)
+//{
+//	return true;
+//}
+
+void UUNInventoryComponent::ServerRPCAddItem_Implementation(const FRPCItemData& RPCItem)
+{
+	UE_LOG(LogTemp, Log, TEXT("%s"), RPCItem.ID);
+	
+	UItemBase* ItemReference = NewObject<UItemBase>(this, UItemBase::StaticClass());
+
+	ItemReference->ID = RPCItem.ID;
+	ItemReference->ItemType = RPCItem.ItemType;
+	ItemReference->ItemQuality = RPCItem.ItemQuality;
+	ItemReference->ItemStatistics = RPCItem.ItemStatistics;
+	ItemReference->NumericData = RPCItem.NumericData;
+	ItemReference->TextData = RPCItem.TextData;
+	ItemReference->AssetData = RPCItem.AssetData;
+	ItemReference->bIsCopy = RPCItem.bIsCopy;
+	ItemReference->bIsEquip = RPCItem.bIsEquip;
+	ItemReference->bIsPickup = RPCItem.bIsPickup;
+	ItemReference->OwningInventory = this;
+
+	InventoryContents.Add(ItemReference);
+	InventoryTotalWeight += ItemReference->GetItemStackWeight();
+	//ClientRPCInvenUpdate();
+}
+
+void UUNInventoryComponent::ServerRPCRemoveItem_Implementation(FName ItemId, int32 DesiresAmountToRemove)
+{
+	UE_LOG(LogTemp, Log, TEXT("%s"), ItemId);
+
+	for (const auto& InventoryContent : InventoryContents)
+	{
+		if (InventoryContent->ID == ItemId)
+		{
+			const int32 ActualAmountToRemove = FMath::Min(DesiresAmountToRemove, InventoryContent->Quantity);
+			InventoryContent->SetQuantity(InventoryContent->Quantity - ActualAmountToRemove);
+
+			InventoryTotalWeight -= ActualAmountToRemove * InventoryContent->GetItemSingleWeight();
+		}
+	}
+}
+
+void UUNInventoryComponent::ClientRPCInvenUpdate_Implementation()
+{
+	//AUNPlayerCharacter* Player = Cast<AUNPlayerCharacter>(GetOwner());
+	//if (Player->IsLocallyControlled())
+	//{
+	//	OnInventoryUpdated.Broadcast();
+	//}
+}
+
+
+
+void UUNInventoryComponent::OnRep_InventoryContents()
+{
+	//GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, "2");
+	//UE_LOG(LogTemp, Log, TEXT("Hi"));
+	//ClientRPCInvenUpdate();
+}
+
 
 ////////////
 

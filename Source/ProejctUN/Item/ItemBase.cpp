@@ -55,3 +55,8 @@ void UItemBase::SetQuantity(const int32 NewQuantity)
 void UItemBase::Use(AUNPlayerCharacter* Character)
 {
 }
+
+bool UItemBase::IsEqual(const FName& OtherID) const
+{
+	return this->ID == OtherID;
+}

@@ -17,8 +17,9 @@ class PROEJCTUN_API UItemBase : public UObject
 {
 	GENERATED_BODY()
 	
-	
+
 public:
+	UItemBase();
 
 	UPROPERTY()
 	UUNInventoryComponent* OwningInventory;
@@ -47,11 +48,16 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "Item")
 	FItemAssetData AssetData;
 	
+	UPROPERTY()
 	bool bIsCopy;
-	bool bIsPickup;
-	bool bIsEquip; //
-	UItemBase();
 
+	UPROPERTY()
+	bool bIsPickup;
+
+	UPROPERTY()
+	bool bIsEquip;
+
+	UFUNCTION()
 	void ResetItemFlags();
 
 	UFUNCTION(Category = "Item")
@@ -73,8 +79,11 @@ public:
 	virtual void Use(AUNPlayerCharacter* Character);
 
 protected:
-	bool operator==(const FName& OtherID) const
-	{
-		return this->ID == OtherID;
-	}
+	//bool operator==(const FName& OtherID) const
+	//{
+	//	return this->ID == OtherID;
+	//}
+
+	UFUNCTION()
+	bool IsEqual(const FName& OtherID) const;
 };
