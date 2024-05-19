@@ -287,20 +287,20 @@ void UUNInventoryComponent::AddNewItem(UItemBase* Item, const int32 AmountToAdd)
 	NewItem->OwningInventory = this;
 	NewItem->SetQuantity(AmountToAdd);
 
-	FRPCItemData ItemData;
-	ItemData.Quantity = NewItem->Quantity;
-	ItemData.ID = NewItem->ID;
-	ItemData.ItemType = NewItem->ItemType;
-	ItemData.ItemQuality = NewItem->ItemQuality;
-	ItemData.ItemStatistics = NewItem->ItemStatistics;
-	ItemData.TextData = NewItem->TextData;
-	ItemData.NumericData = NewItem->NumericData;
-	ItemData.AssetData = NewItem->AssetData;
-	ItemData.bIsCopy = NewItem->bIsCopy;
-	ItemData.bIsPickup = NewItem->bIsPickup;
-	ItemData.bIsEquip = NewItem->bIsEquip;
+	//FRPCItemData ItemData;
+	//ItemData.Quantity = NewItem->Quantity;
+	//ItemData.ID = NewItem->ID;
+	//ItemData.ItemType = NewItem->ItemType;
+	//ItemData.ItemQuality = NewItem->ItemQuality;
+	//ItemData.ItemStatistics = NewItem->ItemStatistics;
+	//ItemData.TextData = NewItem->TextData;
+	//ItemData.NumericData = NewItem->NumericData;
+	//ItemData.AssetData = NewItem->AssetData;
+	//ItemData.bIsCopy = NewItem->bIsCopy;
+	//ItemData.bIsPickup = NewItem->bIsPickup;
+	//ItemData.bIsEquip = NewItem->bIsEquip;
 
-	ServerRPCAddItem(ItemData);
+	//ServerRPCAddItem(ItemData);
 
 	InventoryContents.Add(NewItem);
 	InventoryTotalWeight += NewItem->GetItemStackWeight();
