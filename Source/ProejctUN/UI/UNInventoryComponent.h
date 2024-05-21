@@ -173,7 +173,7 @@ public:
 	//void ServerRPCAddItem(const FRPCItemData& RPCItem);
 
 	UFUNCTION(Server, unreliable)
-	void ServerRPCAddItem(const FRPCItemData& RPCItem);
+	void ServerRPCAddItem(UItemBase* Item);
 
 	UFUNCTION(Server, Unreliable)
 	void ServerRPCRemoveItem(FName ItemId, int32 DesiresAmountToRemove);
@@ -184,8 +184,8 @@ public:
 
 	UFUNCTION()
 	void OnRep_InventoryContents();
-protected:
 
+protected:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	UPROPERTY(VisibleAnywhere, Category = "Inventory")

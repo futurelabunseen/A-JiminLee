@@ -147,24 +147,24 @@ void AUNPickupObject::NotifyActorEndOverlap(AActor* Other)
 }
 
 
-void AUNPickupObject::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangeEvent)
-{
-	Super::PostEditChangeProperty(PropertyChangeEvent);
-
-	Mesh->SetStaticMesh(nullptr);
-	SkeletalMesh->SetSkeletalMesh(nullptr);
-
-	const FName ChangedPropertyName = PropertyChangeEvent.Property ? PropertyChangeEvent.Property->GetFName() : NAME_None;
-
-	if (ChangedPropertyName == GET_MEMBER_NAME_CHECKED(AUNPickupObject, DesiredItemID))
-	{
-		if (ItemDataTable)
-		{
-			if (const FItemData* ItemData = ItemDataTable->FindRow<FItemData>(DesiredItemID, DesiredItemID.ToString()))
-			{
-				Mesh->SetStaticMesh(ItemData->AssetData.Mesh);
-				SkeletalMesh->SetSkeletalMesh(ItemData->AssetData.SkeletalMesh);
-			}
-		}
-	}
-}
+//void AUNPickupObject::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangeEvent)
+//{
+//	Super::PostEditChangeProperty(PropertyChangeEvent);
+//
+//	Mesh->SetStaticMesh(nullptr);
+//	SkeletalMesh->SetSkeletalMesh(nullptr);
+//
+//	const FName ChangedPropertyName = PropertyChangeEvent.Property ? PropertyChangeEvent.Property->GetFName() : NAME_None;
+//
+//	if (ChangedPropertyName == GET_MEMBER_NAME_CHECKED(AUNPickupObject, DesiredItemID))
+//	{
+//		if (ItemDataTable)
+//		{
+//			if (const FItemData* ItemData = ItemDataTable->FindRow<FItemData>(DesiredItemID, DesiredItemID.ToString()))
+//			{
+//				Mesh->SetStaticMesh(ItemData->AssetData.Mesh);
+//				SkeletalMesh->SetSkeletalMesh(ItemData->AssetData.SkeletalMesh);
+//			}
+//		}
+//	}
+//}

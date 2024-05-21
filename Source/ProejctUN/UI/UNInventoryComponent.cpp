@@ -300,7 +300,7 @@ void UUNInventoryComponent::AddNewItem(UItemBase* Item, const int32 AmountToAdd)
 	//ItemData.bIsPickup = NewItem->bIsPickup;
 	//ItemData.bIsEquip = NewItem->bIsEquip;
 
-	//ServerRPCAddItem(ItemData);
+	ServerRPCAddItem(NewItem);
 
 	InventoryContents.Add(NewItem);
 	InventoryTotalWeight += NewItem->GetItemStackWeight();
@@ -312,26 +312,31 @@ void UUNInventoryComponent::AddNewItem(UItemBase* Item, const int32 AmountToAdd)
 //	return true;
 //}
 
-void UUNInventoryComponent::ServerRPCAddItem_Implementation(const FRPCItemData& RPCItem)
+void UUNInventoryComponent::ServerRPCAddItem_Implementation(UItemBase* Item)
 {
-	UE_LOG(LogTemp, Log, TEXT("%s"), RPCItem.ID);
+	UE_LOG(LogTemp, Log, TEXT("%s"), Item->ID);
 	
-	UItemBase* ItemReference = NewObject<UItemBase>(this, UItemBase::StaticClass());
+	//UItemBase* ItemReference = NewObject<UItemBase>(this, UItemBase::StaticClass());
 
-	ItemReference->ID = RPCItem.ID;
-	ItemReference->ItemType = RPCItem.ItemType;
-	ItemReference->ItemQuality = RPCItem.ItemQuality;
-	ItemReference->ItemStatistics = RPCItem.ItemStatistics;
-	ItemReference->NumericData = RPCItem.NumericData;
-	ItemReference->TextData = RPCItem.TextData;
-	ItemReference->AssetData = RPCItem.AssetData;
-	ItemReference->bIsCopy = RPCItem.bIsCopy;
-	ItemReference->bIsEquip = RPCItem.bIsEquip;
-	ItemReference->bIsPickup = RPCItem.bIsPickup;
-	ItemReference->OwningInventory = this;
+	//ItemReference->ID = RPCItem.ID;
+	//ItemReference->ItemType = RPCItem.ItemType;
+	//ItemReference->ItemQuality = RPCItem.ItemQuality;
+	//ItemReference->ItemStatistics = RPCItem.ItemStatistics;
+	//ItemReference->NumericData = RPCItem.NumericData;
+	//ItemReference->TextData = RPCItem.TextData;
+	//ItemReference->AssetData = RPCItem.AssetData;
+	//ItemReference->bIsCopy = RPCItem.bIsCopy;
+	//ItemReference->bIsEquip = RPCItem.bIsEquip;
+	//ItemReference->bIsPickup = RPCItem.bIsPickup;
+	//ItemReference->OwningInventory = this;
 
-	InventoryContents.Add(ItemReference);
-	InventoryTotalWeight += ItemReference->GetItemStackWeight();
+	//InventoryContents.Add(ItemReference);
+	//InventoryTotalWeight += ItemReference->GetItemStackWeight();
+	//
+	
+	
+	
+	
 	//ClientRPCInvenUpdate();
 }
 

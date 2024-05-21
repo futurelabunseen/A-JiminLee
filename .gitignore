@@ -75,3 +75,6 @@ DerivedDataCache/*
 
 # Asset
 Content/OutsideAsset/*
+
+# Package
+Package/*
