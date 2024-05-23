@@ -314,7 +314,7 @@ void UUNInventoryComponent::AddNewItem(UItemBase* Item, const int32 AmountToAdd)
 
 void UUNInventoryComponent::ServerRPCAddItem_Implementation(UItemBase* Item)
 {
-	UE_LOG(LogTemp, Log, TEXT("%s"), Item->ID);
+	//UE_LOG(LogTemp, Log, TEXT("%s"), Item->ID);
 	
 	//UItemBase* ItemReference = NewObject<UItemBase>(this, UItemBase::StaticClass());
 
@@ -342,18 +342,18 @@ void UUNInventoryComponent::ServerRPCAddItem_Implementation(UItemBase* Item)
 
 void UUNInventoryComponent::ServerRPCRemoveItem_Implementation(FName ItemId, int32 DesiresAmountToRemove)
 {
-	UE_LOG(LogTemp, Log, TEXT("%s"), ItemId);
+	//UE_LOG(LogTemp, Log, TEXT("%s"), ItemId);
 
-	for (const auto& InventoryContent : InventoryContents)
-	{
-		if (InventoryContent->ID == ItemId)
-		{
-			const int32 ActualAmountToRemove = FMath::Min(DesiresAmountToRemove, InventoryContent->Quantity);
-			InventoryContent->SetQuantity(InventoryContent->Quantity - ActualAmountToRemove);
+	//for (const auto& InventoryContent : InventoryContents)
+	//{
+	//	if (InventoryContent->ID == ItemId)
+	//	{
+	//		const int32 ActualAmountToRemove = FMath::Min(DesiresAmountToRemove, InventoryContent->Quantity);
+	//		InventoryContent->SetQuantity(InventoryContent->Quantity - ActualAmountToRemove);
 
-			InventoryTotalWeight -= ActualAmountToRemove * InventoryContent->GetItemSingleWeight();
-		}
-	}
+	//		InventoryTotalWeight -= ActualAmountToRemove * InventoryContent->GetItemSingleWeight();
+	//	}
+	//}
 }
 
 void UUNInventoryComponent::ClientRPCInvenUpdate_Implementation()
