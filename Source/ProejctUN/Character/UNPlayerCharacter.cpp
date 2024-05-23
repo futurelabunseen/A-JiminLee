@@ -314,13 +314,11 @@ void AUNPlayerCharacter::SetCharacterControl()
 // ==================== 이동 관련 ==================== Start
 void AUNPlayerCharacter::OnInputStarted()
 {
-	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
 	PlayerController->StopMovement();
 }
 
 void AUNPlayerCharacter::OnSetDestinationTriggered()
 {
-	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
 	FollowTime += GetWorld()->GetDeltaSeconds();
 
 	FHitResult Hit;
@@ -338,7 +336,6 @@ void AUNPlayerCharacter::OnSetDestinationTriggered()
 
 void AUNPlayerCharacter::OnSetDestinationReleased()
 {
-	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
 	if (bisCanceled)
 	{
 		bisCanceled = false;
