@@ -129,6 +129,12 @@ void AUNPickupObject::Interact(AActor* Player)
 	InteractingActor = Player;
 }
 
+void AUNPickupObject::EndInteract()
+{
+	bIsSelected = false;
+	InteractingActor = nullptr;
+}
+
 void AUNPickupObject::NotifyActorBeginOverlap(AActor* Other)
 {
 	if (bIsSelected && Other == InteractingActor)
@@ -141,8 +147,7 @@ void AUNPickupObject::NotifyActorEndOverlap(AActor* Other)
 {
 	if (Other == InteractingActor)
 	{
-		bIsSelected = false;
-		InteractingActor = nullptr;
+		EndInteract();
 	}
 }
 

@@ -94,7 +94,7 @@ int32 UUNInventoryComponent::RemoveAmountOfItem(UItemBase* ItemIn, int32 Desires
 
 	InventoryTotalWeight -= ActualAmountToRemove * ItemIn->GetItemSingleWeight();
 
-	ServerRPCRemoveItem(ItemIn->ID, DesiresAmountToRemove);
+	//ServerRPCRemoveItem(ItemIn->ID, DesiresAmountToRemove);
 
 	OnInventoryUpdated.Broadcast();
 	

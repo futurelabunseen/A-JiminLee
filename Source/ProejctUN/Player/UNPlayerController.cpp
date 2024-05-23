@@ -113,6 +113,7 @@ void AUNPlayerController::BeginInteract()
 		if (IsValid(TargetInteractable.GetObject()))
 		{
 			TargetInteractable->BeginInteract();
+			CurrentInteractingObject = TargetInteractable;
 
 			if (FMath::IsNearlyZero(TargetInteractable->InteractableData.InteractionDuration, 0.1f))
 			{
@@ -123,6 +124,14 @@ void AUNPlayerController::BeginInteract()
 				GetWorldTimerManager().SetTimer(TimerHandle_Interaction, this, 
 					&AUNPlayerController::Interact, TargetInteractable->InteractableData.InteractionDuration, false);
 			}
+		}
+	}
+	else
+	{
+		if (CurrentInteractingObject && CurrentInteractingObject != TargetInteractable)
+		{
+			CurrentInteractingObject->EndInteract();
+			CurrentInteractingObject = nullptr;
 		}
 	}
 }

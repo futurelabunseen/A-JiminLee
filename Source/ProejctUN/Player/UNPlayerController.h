@@ -52,6 +52,11 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Controller | Interaction")
 	TScriptInterface<IUNInteractionInterface> TargetInteractable;
 
+
+	UPROPERTY(VisibleAnywhere, Category = "Controller | Interaction")
+	TScriptInterface<IUNInteractionInterface> CurrentInteractingObject;
+
+
 	FTimerHandle TimerHandle_Interaction;
 
 	FInteractionData InteractionData;

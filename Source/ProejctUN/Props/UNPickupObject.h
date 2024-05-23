@@ -23,6 +23,7 @@ public:
 
 	virtual void BeginPlay() override;
 	virtual void Interact(AActor* Player) override;
+	virtual void EndInteract() override;
 
 	virtual void NotifyActorBeginOverlap(class AActor* Other) override;
 	virtual void NotifyActorEndOverlap(class AActor* Other) override;
