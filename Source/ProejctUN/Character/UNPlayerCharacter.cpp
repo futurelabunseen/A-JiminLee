@@ -670,6 +670,7 @@ void AUNPlayerCharacter::ServerRPCUpdateWeapon_Implementation()
 
 	if (PlayerInventory->CurrentWeaponItemID == NAME_None)
 	{
+		MulticastRPCUpdateWeapon(nullptr);
 		return;
 	}
 

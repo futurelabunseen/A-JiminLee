@@ -208,6 +208,12 @@ public:
 	UFUNCTION(Server, Unreliable)
 	void ServerRPCUpdateWeapon();
 
+	//UFUNCTION(Server, Unreliable)
+	//void ServerRPCUpdateArmor();
+
 	UFUNCTION(NetMulticast, Unreliable)
 	void MulticastRPCUpdateWeapon(USkeletalMesh* ItemID);
+
+	//UFUNCTION(NetMulticast, Unreliable)
+	//void MulticastRPCUpdateArmor(USkeletalMesh* ItemID);
 };
