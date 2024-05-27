@@ -55,6 +55,7 @@ public:
 	UPROPERTY()
 	AActor* InteractingActor;
 
+	FTimerHandle TimerHandle;
 //
 //#if WITH_EDITOR
 //	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangeEvent) override;

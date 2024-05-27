@@ -605,29 +605,7 @@ void AUNPlayerCharacter::UpdateWeapon()
 
 void AUNPlayerCharacter::UpdateArmor()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, "1");
 	ServerRPCUpdateArmor();
-	//Armor->SetSkeletalMesh(nullptr);
-
-	//if (HasAuthority())
-	//{
-	//	const float DefaultArmorRate = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetDefaultArmorRateAttribute());
-	//	ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetArmorRateAttribute(), DefaultArmorRate);
-	//}
-
-	//if (PlayerInventory->ArmorSlot == nullptr)
-	//{
-	//	return;
-	//}
-
-	//UItemBase* CurrentEquipItem = PlayerInventory->ArmorSlot;
-	//Armor->SetSkeletalMesh(CurrentEquipItem->AssetData.SkeletalMesh);
-
-	//if (HasAuthority())
-	//{
-	//	const float DefaultArmorRate = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetDefaultArmorRateAttribute());
-	//	ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetArmorRateAttribute(), DefaultArmorRate + CurrentEquipItem->ItemStatistics.ArmorRating);
-	//}
 }
 
 void AUNPlayerCharacter::ServerRPCUpdateWeapon_Implementation()
@@ -656,9 +634,6 @@ void AUNPlayerCharacter::ServerRPCUpdateWeapon_Implementation()
 
 		MulticastRPCUpdateWeapon(CurrentEquipItem->AssetData.SkeletalMesh);
 	}
-	
-	//UItemBase* CurrentEquipItem = PlayerInventory->WeaponSlot;
-	//Weapon->SetSkeletalMesh(CurrentEquipItem->AssetData.SkeletalMesh);
 }
 
 void AUNPlayerCharacter::ServerRPCUpdateArmor_Implementation()
@@ -687,7 +662,6 @@ void AUNPlayerCharacter::ServerRPCUpdateArmor_Implementation()
 
 		MulticastRPCUpdateArmor(CurrentEquipItem->AssetData.SkeletalMesh);
 	}
-
 }
 
 void AUNPlayerCharacter::MulticastRPCUpdateWeapon_Implementation(USkeletalMesh* ItemID)
@@ -699,30 +673,3 @@ void AUNPlayerCharacter::MulticastRPCUpdateArmor_Implementation(USkeletalMesh* I
 {
 	Armor->SetSkeletalMesh(ItemID);
 }
-
-//void AUNPlayerCharacter::MulticastEquipWeapon_Implementation()
-//{
-//	Weapon->SetSkeletalMesh(nullptr);
-//
-//	const float DefaultAttackRange = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetDefaultAttackRangeAttribute());
-//	const float DefaultAttackRate = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetDefaultAttackRateAttribute());
-//
-//	ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute(), DefaultAttackRange);
-//	ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute(), DefaultAttackRate);
-//
-//	if (PlayerInventory->WeaponSlot == nullptr)
-//	{
-//		return;
-//	}
-//
-//	UItemBase* CurrentEquipItem = PlayerInventory->WeaponSlot;
-//	Weapon->SetSkeletalMesh(CurrentEquipItem->AssetData.SkeletalMesh);
-//
-//	ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute(), DefaultAttackRange + CurrentEquipItem->ItemStatistics.WeaponRange);
-//	ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute(), DefaultAttackRate + CurrentEquipItem->ItemStatistics.DamageValue);
-//}
-//
-//void AUNPlayerCharacter::MulticastUnEquipWeapon_Implementation()
-//{
-//
-//}

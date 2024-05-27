@@ -4,7 +4,11 @@
 #include "Props/UNPickupObject.h"
 #include "Character/UNPlayerCharacter.h"
 #include "UI/UNInventoryComponent.h"
+#include "Components/BoxComponent.h"
 #include "Item/ItemBase.h"
+
+#include "Engine/World.h"
+#include "TimerManager.h"
 
 AUNPickupObject::AUNPickupObject()
 {
@@ -17,6 +21,15 @@ void AUNPickupObject::BeginPlay()
 	Super::BeginPlay();
 
 	InitializePickup(UItemBase::StaticClass(), ItemQuantity);
+
+	if (GetWorld())
+	{
+		// 3초 후에 실행될 람다식을 설정합니다.
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, [this]()
+			{
+				SkeletalMesh->SetSimulatePhysics(false);
+			}, 5.0f, false);
+	}
 }
 
 void AUNPickupObject::InitializePickup(const TSubclassOf<UItemBase> BaseClass, const int32 InQuantity)
@@ -41,10 +54,16 @@ void AUNPickupObject::InitializePickup(const TSubclassOf<UItemBase> BaseClass, c
 		if (ItemData->AssetData.Mesh)
 		{
 			Mesh->SetStaticMesh(ItemData->AssetData.Mesh);
+			Mesh->SetSimulatePhysics(true);
+			Mesh->SetCollisionProfileName("UNPickUpObject");
+			BoxCollision->SetCollisionProfileName("OverlapOnlyPawn");
 		}
 		else
 		{
 			SkeletalMesh->SetSkeletalMesh(ItemData->AssetData.SkeletalMesh);
+			SkeletalMesh->SetSimulatePhysics(true);
+			SkeletalMesh->SetCollisionProfileName("UNPickUpObject");
+			BoxCollision->SetCollisionProfileName("OverlapOnlyPawn");
 		}
 
 		UpdateInteractableData();
