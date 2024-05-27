@@ -221,4 +221,33 @@ protected:
 
 	//UPROPERTY(EditAnywhere, Category = "Variable")
 	//bool AsUMGInventory;
+
+public:
+	UPROPERTY(Replicated, VisibleAnywhere, Category = "Inventory")
+	TArray<FName> InventoryItemIDArray;
+
+	UPROPERTY(Replicated, VisibleAnywhere, Category = "Inventory")
+	FName CurrentWeaponItemID;
+
+	UPROPERTY(Replicated, VisibleAnywhere, Category = "Inventory")
+	FName CurrentArmorItemID;
+
+	UFUNCTION(Server, Unreliable)
+	void AddInventoryItemID(FName ItemID);
+
+	UFUNCTION(Server, Unreliable)
+	void RemoveInventoryItemID(FName ItemID);
+
+	UFUNCTION(Server, Unreliable)
+	void AddWeaponItemID(FName ItemID);
+
+	UFUNCTION(Server, Unreliable)
+	void RemoveWeaponItemID();
+
+	UFUNCTION(Server, Unreliable)	
+	void AddArmorItemID(FName ItemID);
+
+	UFUNCTION(Server, Unreliable)
+	void RemoveArmorItemID();
+
 };

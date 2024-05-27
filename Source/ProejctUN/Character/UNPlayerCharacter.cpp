@@ -24,6 +24,7 @@
 #include "Abilities/GameplayAbilityTargetActor.h"
 #include "Props/UNPickupObject.h"
 #include "Item/ItemBase.h"
+#include "Game/UNWorldSubsystem.h"
 
 #include "ProejctUN.h"
 
@@ -600,7 +601,9 @@ void AUNPlayerCharacter::DropItem(UItemBase* ItemToDrop, const int32 QuantityToD
 // To Do .. : 멀티플레이 AT 동기화
 void AUNPlayerCharacter::UpdateWeapon()
 {
-	MulticastEquipWeapon();
+	ServerRPCUpdateWeapon();
+
+
 	//Weapon->SetSkeletalMesh(nullptr);
 
 	//if (HasAuthority())
@@ -655,7 +658,7 @@ void AUNPlayerCharacter::UpdateArmor()
 	}
 }
 
-void AUNPlayerCharacter::MulticastEquipWeapon_Implementation()
+void AUNPlayerCharacter::ServerRPCUpdateWeapon_Implementation()
 {
 	Weapon->SetSkeletalMesh(nullptr);
 
@@ -665,19 +668,54 @@ void AUNPlayerCharacter::MulticastEquipWeapon_Implementation()
 	ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute(), DefaultAttackRange);
 	ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute(), DefaultAttackRate);
 
-	if (PlayerInventory->WeaponSlot == nullptr)
+	if (PlayerInventory->CurrentWeaponItemID == NAME_None)
 	{
 		return;
 	}
 
-	UItemBase* CurrentEquipItem = PlayerInventory->WeaponSlot;
-	Weapon->SetSkeletalMesh(CurrentEquipItem->AssetData.SkeletalMesh);
+	if (UUNWorldSubsystem* WorldSubSystem = GetWorld()->GetSubsystem<UUNWorldSubsystem>())
+	{
+		UItemBase* CurrentEquipItem = WorldSubSystem->GetItemReference(PlayerInventory->CurrentWeaponItemID);
+		Weapon->SetSkeletalMesh(CurrentEquipItem->AssetData.SkeletalMesh);
 
-	ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute(), DefaultAttackRange + CurrentEquipItem->ItemStatistics.WeaponRange);
-	ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute(), DefaultAttackRate + CurrentEquipItem->ItemStatistics.DamageValue);
+		ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute(), DefaultAttackRange + CurrentEquipItem->ItemStatistics.WeaponRange);
+		ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute(), DefaultAttackRate + CurrentEquipItem->ItemStatistics.DamageValue);
+
+		MulticastRPCUpdateWeapon(CurrentEquipItem->AssetData.SkeletalMesh);
+	}
+	
+	//UItemBase* CurrentEquipItem = PlayerInventory->WeaponSlot;
+	//Weapon->SetSkeletalMesh(CurrentEquipItem->AssetData.SkeletalMesh);
 }
 
-void AUNPlayerCharacter::MulticastUnEquipWeapon_Implementation()
+void AUNPlayerCharacter::MulticastRPCUpdateWeapon_Implementation(USkeletalMesh* ItemID)
 {
-
+	Weapon->SetSkeletalMesh(ItemID);
 }
+
+//void AUNPlayerCharacter::MulticastEquipWeapon_Implementation()
+//{
+//	Weapon->SetSkeletalMesh(nullptr);
+//
+//	const float DefaultAttackRange = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetDefaultAttackRangeAttribute());
+//	const float DefaultAttackRate = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetDefaultAttackRateAttribute());
+//
+//	ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute(), DefaultAttackRange);
+//	ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute(), DefaultAttackRate);
+//
+//	if (PlayerInventory->WeaponSlot == nullptr)
+//	{
+//		return;
+//	}
+//
+//	UItemBase* CurrentEquipItem = PlayerInventory->WeaponSlot;
+//	Weapon->SetSkeletalMesh(CurrentEquipItem->AssetData.SkeletalMesh);
+//
+//	ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute(), DefaultAttackRange + CurrentEquipItem->ItemStatistics.WeaponRange);
+//	ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute(), DefaultAttackRate + CurrentEquipItem->ItemStatistics.DamageValue);
+//}
+//
+//void AUNPlayerCharacter::MulticastUnEquipWeapon_Implementation()
+//{
+//
+//}

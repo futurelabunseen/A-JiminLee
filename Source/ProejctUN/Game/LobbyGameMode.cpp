@@ -14,7 +14,14 @@ void ALobbyGameMode::PostLogin(APlayerController* NewPlayer)
 		UWorld* World = GetWorld();
 		if (World)
 		{
-			bUseSeamlessTravel = true;
+			//FTimerHandle timerhandle;
+			//World->GetTimerManager().SetTimer(timerhandle, [&]() {
+			//	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, "1");
+
+			//	bUseSeamlessTravel = true;
+			//	World->ServerTravel(FString("/Game/Maps/TestingMap?listen"));
+			//	}, 5.f, false);
+
 			World->ServerTravel(FString("/Game/Maps/TestingMap?listen"));
 		}
 	}

@@ -21,8 +21,10 @@ void UUNInventoryComponent::BeginPlay()
 void UUNInventoryComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	
-	//DOREPLIFETIME_CONDITION_NOTIFY(UUNInventoryComponent, InventoryContents, COND_None, REPNOTIFY_Always);
+
+	//DOREPLIFETIME(UUNInventoryComponent, InventoryItemIDArray);
+	DOREPLIFETIME(UUNInventoryComponent, CurrentWeaponItemID);
+	DOREPLIFETIME(UUNInventoryComponent, CurrentArmorItemID);
 }
 
 UItemBase* UUNInventoryComponent::FindMatchingItem(UItemBase* ItemIn) const
@@ -300,12 +302,44 @@ void UUNInventoryComponent::AddNewItem(UItemBase* Item, const int32 AmountToAdd)
 	//ItemData.bIsPickup = NewItem->bIsPickup;
 	//ItemData.bIsEquip = NewItem->bIsEquip;
 
-	ServerRPCAddItem(NewItem);
+	//AddInventoryItemID(NewItem->ID);
+	//ServerRPCAddItem(NewItem);
 
 	InventoryContents.Add(NewItem);
 	InventoryTotalWeight += NewItem->GetItemStackWeight();
 	OnInventoryUpdated.Broadcast();
 }
+
+void UUNInventoryComponent::AddInventoryItemID_Implementation(FName ItemID)
+{
+	//InventoryItemIDArray.Add(ItemID);
+}
+
+void UUNInventoryComponent::RemoveInventoryItemID_Implementation(FName ItemID)
+{
+
+}
+
+void UUNInventoryComponent::AddWeaponItemID_Implementation(FName ItemID)
+{
+	CurrentWeaponItemID = ItemID;
+}
+
+void UUNInventoryComponent::RemoveWeaponItemID_Implementation()
+{
+	CurrentWeaponItemID = NAME_None;
+}
+
+void UUNInventoryComponent::AddArmorItemID_Implementation(FName ItemID)
+{
+	CurrentArmorItemID = ItemID;
+}
+
+void UUNInventoryComponent::RemoveArmorItemID_Implementation()
+{
+	CurrentArmorItemID = NAME_None;
+}
+
 
 //bool UUNInventoryComponent::ServerRPCAddItem_Validate(const FRPCItemData& RPCItem)
 //{
@@ -389,6 +423,7 @@ void UUNInventoryComponent::EquipItem(UItemBase* ItemIn)
 		}
 		ItemIn->bIsEquip = true;
 		WeaponSlot = ItemIn;
+		AddWeaponItemID(ItemIn->ID);
 		RemoveAmountOfItem(ItemIn, 1);
 		break;
 	case EItemType::Armor:
@@ -399,6 +434,7 @@ void UUNInventoryComponent::EquipItem(UItemBase* ItemIn)
 		}
 		ItemIn->bIsEquip = true;
 		ArmorSlot = ItemIn;
+		AddArmorItemID(ItemIn->ID);
 		RemoveAmountOfItem(ItemIn, 1);
 		break;
 	default:
@@ -413,11 +449,13 @@ void UUNInventoryComponent::UnEquipItem(UItemBase* ItemIn)
 	case EItemType::Weapon:
 		ItemIn->bIsEquip = false;
 		WeaponSlot = nullptr;
+		RemoveWeaponItemID();
 		HandleAddItem(ItemIn);
 		break;
 	case EItemType::Armor:
 		ItemIn->bIsEquip = false;
 		ArmorSlot = nullptr;
+		RemoveArmorItemID();
 		HandleAddItem(ItemIn);
 		break;
 	default:

@@ -63,16 +63,16 @@ void AUNGameMode::PostLogin(APlayerController* NewPlayer)
 		}
 	}
 
-	int32 NumberOfPlayers = GameState.Get()->PlayerArray.Num();
-	if (NumberOfPlayers == 2)
-	{
-		UWorld* World = GetWorld();
-		if (World)
-		{
-			bUseSeamlessTravel = true;
-			World->ServerTravel(FString("/Game/Maps/TestingMap?listen"));
-		}
-	}
+	//int32 NumberOfPlayers = GameState.Get()->PlayerArray.Num();
+	//if (NumberOfPlayers == 2)
+	//{
+	//	UWorld* World = GetWorld();
+	//	if (World)
+	//	{
+	//		bUseSeamlessTravel = true;
+	//		World->ServerTravel(FString("/Game/Maps/TestingMap?listen"));
+	//	}
+	//}
 
 	UN_LOG(LogUNNetwork, Log, TEXT("%s"), TEXT("End"));
 }

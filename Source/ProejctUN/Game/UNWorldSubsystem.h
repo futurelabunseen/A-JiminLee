@@ -7,7 +7,7 @@
 #include "UNWorldSubsystem.generated.h"
 
 class UDataTable;
-//class FItemData;
+class UItemBase;
 /**
  * 
  */
@@ -21,6 +21,11 @@ public:
 
 	UFUNCTION()
 	UDataTable* GetItemDataTable() { return ItemDataTable; }
+
+	
+	UFUNCTION()
+	UItemBase* GetItemReference(FName ItemId);
+
 
 	//UFUNCTION()
 	//FItemData* GetItemReference(FName ItemId);

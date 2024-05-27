@@ -3,6 +3,7 @@
 
 #include "Game/UNWorldSubsystem.h"
 #include "Struct/ItemDataStructs.h"
+#include "Item/ItemBase.h"
 
 UUNWorldSubsystem::UUNWorldSubsystem()
 {
@@ -13,8 +14,19 @@ UUNWorldSubsystem::UUNWorldSubsystem()
 	}
 }
 
-//FItemData* UUNWorldSubsystem::GetItemReference(FName ItemId)
-//{
-//	FItemData* ItemData = ItemDataTable->FindRow<FItemData>(ItemId, ItemId.ToString());
-//	return ItemData;
-//}
+UItemBase* UUNWorldSubsystem::GetItemReference(FName ItemId)
+{
+	FItemData* ItemData = ItemDataTable->FindRow<FItemData>(ItemId, ItemId.ToString());
+
+	UItemBase* ItemReference = NewObject<UItemBase>(this, UItemBase::StaticClass());
+
+	ItemReference->ID = ItemData->ID;
+	ItemReference->ItemType = ItemData->ItemType;
+	ItemReference->ItemQuality = ItemData->ItemQuality;
+	ItemReference->ItemStatistics = ItemData->ItemStatistics;
+	ItemReference->NumericData = ItemData->NumericData;
+	ItemReference->TextData = ItemData->TextData;
+	ItemReference->AssetData = ItemData->AssetData;
+
+	return ItemReference;
+}
