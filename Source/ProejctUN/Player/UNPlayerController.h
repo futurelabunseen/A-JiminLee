@@ -78,6 +78,16 @@ protected:
 
 	UPROPERTY()
 	int CountDownValue;
+
+	UPROPERTY()
+	int GameTimeValue;
+
+	UFUNCTION()
+	void CountDownFunction(int Value);
+
+	UFUNCTION()
+	void FarmingFunction(int Value);
+
 public:
 	void BeginOverInteractable(AActor* NewInteractable);
 	void EndOverInteractable();
@@ -86,4 +96,11 @@ public:
 	void Interact();
 
 	FTimerHandle CountDownTimerHandle;
+	FTimerHandle GameTimeTimerHandle;
+
+	UFUNCTION(Server, Unreliable)
+	void ServerRPCRequestCurrentTime();
+
+	UFUNCTION(Client, Unreliable)
+	void ClientRPCRequestCurrentTime(FName ServerMatchState, int ServerTime);
 };

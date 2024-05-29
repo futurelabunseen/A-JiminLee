@@ -333,6 +333,7 @@ void AUNPlayerCharacter::OnSetDestinationTriggered()
 
 	FVector WorldDirection = (CachedDestination - GetActorLocation()).GetSafeNormal();
 	AddMovementInput(WorldDirection, 1.0, false);
+	UE_LOG(LogTemp, Log, TEXT("1"));
 }
 
 void AUNPlayerCharacter::OnSetDestinationReleased()
@@ -668,4 +669,15 @@ void AUNPlayerCharacter::MulticastRPCUpdateWeapon_Implementation(USkeletalMesh* 
 void AUNPlayerCharacter::MulticastRPCUpdateArmor_Implementation(USkeletalMesh* ItemID)
 {
 	Armor->SetSkeletalMesh(ItemID);
+}
+
+
+void AUNPlayerCharacter::StopMovement()
+{
+	GetCharacterMovement()->SetMovementMode(MOVE_None);
+}
+
+void AUNPlayerCharacter::ActivateMovement()
+{
+	GetCharacterMovement()->SetMovementMode(MOVE_Walking);
 }

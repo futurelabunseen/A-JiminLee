@@ -17,6 +17,7 @@
 void AUNHUD::BeginPlay()
 {
 	Super::BeginPlay();
+	//DefaultInitOverlay();
 	InitBoxInventory();
 	InitInteractionWidget();
 }
@@ -49,6 +50,8 @@ void AUNHUD::InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySystem
 	//WidgetController->BroadcastInitialValues();
 	OverlayWidget->AddToViewport();
 }
+
+
 
 UUNInventoryWidgetController* AUNHUD::GetInventoryWidgetController(const FWidgetControllerParams& WCParams)
 {
@@ -205,7 +208,10 @@ void AUNHUD::CloseBoxInventory()
 
 void AUNHUD::SetCountDownTextVisibility(bool option)
 {
-	OverlayWidget->SetCountDownTextVisibility(option);
+	if (OverlayWidget)
+	{
+		OverlayWidget->SetCountDownTextVisibility(option);
+	}
 }
 
 void AUNHUD::SetCountDownText(FString Text)
@@ -218,12 +224,24 @@ void AUNHUD::SetCountDownText(FString Text)
 
 void AUNHUD::SetGameTimeTextVisibility(bool option)
 {
-	OverlayWidget->SetGameTimeTextVisibility(option);
+	if (OverlayWidget)
+	{
+		OverlayWidget->SetGameTimeTextVisibility(option);
+	}
 }
 
 void AUNHUD::SetGameTimeText(FString Text)
 {
-	OverlayWidget->SetGameTimeText(Text);
+	if (OverlayWidget)
+	{
+		OverlayWidget->SetGameTimeText(Text);
+	}
+}
+
+void AUNHUD::DefaultInitOverlay()
+{
+	OverlayWidget = CreateWidget<UUNOverlayWidget>(GetWorld(), OverlayWidgetClass);
+	OverlayWidget->AddToViewport();
 }
 
 

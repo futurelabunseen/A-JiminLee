@@ -150,4 +150,7 @@ public:
 
 	UFUNCTION()
 	void SetGameTimeText(FString Text);
+
+	UFUNCTION()
+	void DefaultInitOverlay();
 };

@@ -16,7 +16,8 @@
 namespace MatchState
 {
 	const FName CountDown = FName("CountDown");
-	const FName StandAlone = FName("StandAlone");
+	const FName Farming = FName("Farming");
+	const FName Battle = FName("Battle");
 }
 
 AUNGameMode::AUNGameMode()
@@ -73,8 +74,8 @@ void AUNGameMode::PostLogin(APlayerController* NewPlayer)
 	UN_LOG(LogUNNetwork, Log, TEXT("%s"), TEXT("Begin"));
 	Super::PostLogin(NewPlayer);
 	
-	//FInputModeUIOnly InputMode;
-	//NewPlayer->SetInputMode(InputMode);
+	FInputModeUIOnly InputMode;
+	NewPlayer->SetInputMode(InputMode);
 
 	UNetDriver* NetDriver = GetNetDriver();
 	if (NetDriver)
@@ -98,8 +99,13 @@ void AUNGameMode::PostLogin(APlayerController* NewPlayer)
 		UWorld* World = GetWorld();
 		if (World)
 		{
-			SetMatchState(MatchState::CountDown);
-			StartMatch();
+			FTimerHandle CountDownTimerHandle;
+			GetWorld()->GetTimerManager().SetTimer(CountDownTimerHandle, [&]()
+				{
+					SetMatchState(MatchState::CountDown);
+				}, 1.f, false);
+			
+			//StartMatch();
 		}
 	}
 

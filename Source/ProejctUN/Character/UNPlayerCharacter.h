@@ -216,4 +216,10 @@ public:
 
 	UFUNCTION(NetMulticast, Unreliable)
 	void MulticastRPCUpdateArmor(USkeletalMesh* ItemID);
+
+	UFUNCTION()
+	void StopMovement();
+
+	UFUNCTION()
+	void ActivateMovement();
 };

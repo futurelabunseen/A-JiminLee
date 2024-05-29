@@ -13,7 +13,8 @@
 namespace MatchState
 {
 	extern PROEJCTUN_API const FName CountDown;
-	extern PROEJCTUN_API const FName StandAlone;
+	extern PROEJCTUN_API const FName Farming;
+	extern PROEJCTUN_API const FName Battle;
 }
 
 UCLASS()
