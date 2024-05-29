@@ -6,6 +6,8 @@
 #include "Abilities/GameplayAbility.h"
 #include "UNGA_AttackHitCheck.generated.h"
 
+class UGameplayEffect;
+class AUNTA_Trace;
 /**
  * 
  */
@@ -25,13 +27,13 @@ protected:
 	void OnTraceResultCallback(const FGameplayAbilityTargetDataHandle& TargetDataHandle);
 
 	UPROPERTY(EditAnywhere, Category = GAS)
-	TSubclassOf<class UGameplayEffect> AttackDamageEffect;
+	TSubclassOf<UGameplayEffect> AttackDamageEffect;
 
 	UPROPERTY(EditAnywhere, Category = GAS)
-	TSubclassOf<class UGameplayEffect> StunEffect;
+	TSubclassOf<UGameplayEffect> StunEffect;
 
 	UPROPERTY(EditAnywhere, Category = GAS)
-	TSubclassOf<class AUNTA_Trace> TargetActorClass;
+	TSubclassOf<AUNTA_Trace> TargetActorClass;
 
 	float CurrentLevel;
 };

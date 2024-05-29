@@ -56,9 +56,9 @@ FGameplayAbilityTargetDataHandle AUNTA_TraceLocation::MakeTargetData() const
 			UNavigationSystemV1* Nav = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
 			if (Nav)
 			{
-				// Hit위치에서 가장 가까운 네비게이션 Location 반환
+				// Hit위치에서 가장 가까운 네비게이션 Location 반환 (FVector 50.f으로 캐릭터가 땅에 박히는 것 방지)
 				bool bProjected = Nav->ProjectPointToNavigation(OutHitResult.Location, NavLocation);
-				OutHitResult.Location = NavLocation.Location;
+				OutHitResult.Location = NavLocation.Location + FVector(0.f, 0.f, 50.f);
 			}
 		}
 	}

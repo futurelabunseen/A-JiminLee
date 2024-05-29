@@ -4,6 +4,9 @@
 #include "UNPlayerController.h"
 #include "UNGASPlayerState.h"
 #include "UI/UNHUD.h"
+#include "Net/UnrealNetwork.h"
+#include "Game/UNGameMode.h"
+#include "Character/UNPlayerCharacter.h"
 
 #include "ProejctUN.h"
 
@@ -14,6 +17,23 @@ AUNPlayerController::AUNPlayerController()
 	DefaultMouseCursor = EMouseCursor::Default;
 
 	bEnableTouchEvents = false;
+	bReplicates = true;
+}
+
+void AUNPlayerController::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+}
+
+void AUNPlayerController::BeginPlay()
+{
+	Super::BeginPlay();
+
+	//if (IsLocalController())
+	//{
+	//	FTimerHandle CheckingTimeTimerHandle;
+	//	GetWorld()->GetTimerManager().SetTimer(CheckingTimeTimerHandle,this, &AUNPlayerController::ServerRPCRequestCurrentTime, 3.f, true, 1.f);
+	//}
 }
 
 // NetInitÈÄ ½ÇÇà
@@ -45,6 +65,13 @@ void AUNPlayerController::OnPossess(APawn* InPawn)
 	UN_LOG(LogUNNetwork, Log, TEXT("%s"), TEXT("End"));
 }
 
+void AUNPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AUNPlayerController, MatchState);
+}
+
 // Interact
 void AUNPlayerController::CheckCursorOverObject(AActor* CursorOverObject)
 {
@@ -56,6 +83,154 @@ void AUNPlayerController::ClearCursorOverObject(AActor* CursorOverObject)
 	EndOverInteractable();
 }
 
+void AUNPlayerController::OnMatchStateSet(FName State)
+{
+	MatchState = State;
+
+	if (MatchState == MatchState::InProgress)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Magenta, "InProgress!");
+	}
+	else if (MatchState == MatchState::CountDown)
+	{
+		CountDownFunction(5);
+	}
+	else if (MatchState == MatchState::Farming)
+	{
+		FarmingFunction(20);
+	}
+	else if (MatchState == MatchState::Battle)
+	{
+		BattleFunction(100);
+	}
+}
+
+void AUNPlayerController::OnRep_MatchState()
+{
+	if (MatchState == MatchState::InProgress)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Magenta, "InProgress!");
+	}
+	else if (MatchState == MatchState::CountDown)
+	{
+		CountDownFunction(5);
+	}
+	else if (MatchState == MatchState::Farming)
+	{
+		FarmingFunction(20);
+	}
+	else if (MatchState == MatchState::Battle)
+	{
+		BattleFunction(100);
+	}
+}
+
+void AUNPlayerController::CountDownFunction(int Value)
+{
+	StopMovement();
+	AUNPlayerCharacter* PlayerCharacter = Cast<AUNPlayerCharacter>(GetCharacter());
+	if (PlayerCharacter)
+	{
+		PlayerCharacter->StopMovement();
+	}
+	FInputModeUIOnly InputMode;
+	SetInputMode(InputMode);
+
+	HUD = Cast<AUNHUD>(GetHUD());
+	if (HUD)
+	{
+		HUD->SetGameTimeTextVisibility(false);
+		HUD->SetCountDownTextVisibility(true);
+	}
+
+	CountDownValue = Value;
+	GetWorld()->GetTimerManager().SetTimer(CountDownTimerHandle, [&]() {
+		if(HUD)
+		{
+			HUD->SetCountDownText(FString::FromInt(CountDownValue));
+		}
+		CountDownValue -= 1;
+		if (CountDownValue < 0)
+		{
+			if (bisFarmingDone)
+			{
+				OnMatchStateSet(MatchState::Battle);
+			}
+			else
+			{
+				OnMatchStateSet(MatchState::Farming);
+			}
+			GetWorld()->GetTimerManager().ClearTimer(CountDownTimerHandle);
+		}
+		}, 1.f, true, 0.f);
+}
+
+void AUNPlayerController::FarmingFunction(int Value)
+{
+	AUNPlayerCharacter* PlayerCharacter = Cast<AUNPlayerCharacter>(GetCharacter());
+	if (PlayerCharacter)
+	{
+		PlayerCharacter->ActivateMovement();
+	}
+	FInputModeGameOnly InputMode;
+	InputMode.SetConsumeCaptureMouseDown(false);
+	SetInputMode(InputMode);
+	HUD = Cast<AUNHUD>(GetHUD());
+	if (HUD)
+	{
+		HUD->SetCountDownTextVisibility(false);
+		HUD->SetGameTimeTextVisibility(true);
+	}
+
+	GameTimeValue = Value;
+	GetWorld()->GetTimerManager().SetTimer(GameTimeTimerHandle, [&]() {
+		if(HUD)
+		{
+			HUD->SetGameTimeText(FString::FromInt(GameTimeValue));
+		}
+		GameTimeValue -= 1;
+		if (GameTimeValue < 0)
+		{
+			bisFarmingDone = true;
+			OnMatchStateSet(MatchState::CountDown);
+
+			GetWorld()->GetTimerManager().ClearTimer(GameTimeTimerHandle);
+		}
+		}, 1.f, true, 0.f);
+}
+
+void AUNPlayerController::BattleFunction(int Value)
+{
+	AUNPlayerCharacter* PlayerCharacter = Cast<AUNPlayerCharacter>(GetCharacter());
+	if (PlayerCharacter)
+	{
+		PlayerCharacter->ActivateMovement();
+	}
+	FInputModeGameOnly InputMode;
+	InputMode.SetConsumeCaptureMouseDown(false);
+	SetInputMode(InputMode);
+	HUD = Cast<AUNHUD>(GetHUD());
+	if (HUD)
+	{
+		HUD->SetCountDownTextVisibility(false);
+		HUD->SetGameTimeTextVisibility(true);
+	}
+	GameTimeValue = Value;
+	GetWorld()->GetTimerManager().SetTimer(GameTimeTimerHandle, [&]() {
+		if (HUD)
+		{
+			HUD->SetGameTimeText(FString::FromInt(GameTimeValue));
+		}
+		GameTimeValue -= 1;
+		if (GameTimeValue < 0)
+		{
+			bisFarmingDone = true;
+			OnMatchStateSet(MatchState::CountDown);
+
+			GetWorld()->GetTimerManager().ClearTimer(GameTimeTimerHandle);
+		}
+		}, 1.f, true, 0.f);
+}
 
 void AUNPlayerController::BeginOverInteractable(AActor* NewInteractable)
 {
@@ -113,6 +288,7 @@ void AUNPlayerController::BeginInteract()
 		if (IsValid(TargetInteractable.GetObject()))
 		{
 			TargetInteractable->BeginInteract();
+			CurrentInteractingObject = TargetInteractable;
 
 			if (FMath::IsNearlyZero(TargetInteractable->InteractableData.InteractionDuration, 0.1f))
 			{
@@ -123,6 +299,14 @@ void AUNPlayerController::BeginInteract()
 				GetWorldTimerManager().SetTimer(TimerHandle_Interaction, this, 
 					&AUNPlayerController::Interact, TargetInteractable->InteractableData.InteractionDuration, false);
 			}
+		}
+	}
+	else
+	{
+		if (CurrentInteractingObject && CurrentInteractingObject != TargetInteractable)
+		{
+			CurrentInteractingObject->EndInteract();
+			CurrentInteractingObject = nullptr;
 		}
 	}
 }
@@ -144,5 +328,45 @@ void AUNPlayerController::Interact()
 	if (IsValid(TargetInteractable.GetObject()))
 	{
 		TargetInteractable->Interact(GetPawn());
+	}
+}
+
+void AUNPlayerController::ServerRPCRequestCurrentTime_Implementation()
+{
+	if (MatchState == MatchState::InProgress)
+	{
+		//ClientRPCRequestCurrentTime(MatchState, GameTimeValue);
+	}
+	else if (MatchState == MatchState::CountDown)
+	{
+		ClientRPCRequestCurrentTime(MatchState, CountDownValue);
+	}
+	else if (MatchState == MatchState::Farming)
+	{
+		ClientRPCRequestCurrentTime(MatchState, GameTimeValue);
+	}
+	else if (MatchState == MatchState::Battle)
+	{
+		ClientRPCRequestCurrentTime(MatchState, GameTimeValue);
+	}
+}
+
+void AUNPlayerController::ClientRPCRequestCurrentTime_Implementation(FName ServerMatchState, int ServerTime)
+{
+	if (ServerMatchState == MatchState::InProgress)
+	{
+
+	}
+	else if (ServerMatchState == MatchState::CountDown)
+	{
+		CountDownValue = ServerTime;
+	}
+	else if (MatchState == MatchState::Farming)
+	{
+		GameTimeValue = ServerTime;
+	}
+	else if (MatchState == MatchState::Battle)
+	{
+		GameTimeValue = ServerTime;
 	}
 }

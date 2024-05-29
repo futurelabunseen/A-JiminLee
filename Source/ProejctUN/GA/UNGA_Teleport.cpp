@@ -7,6 +7,9 @@
 #include "TA/UNTA_TraceLocation.h"
 #include "AT/UNAT_TraceLocation.h"
 #include "Character/UNPlayerCharacter.h"
+#include "Tag/UNGameplayTag.h"
+#include "AbilitySystemComponent.h"
+#include "ASC/UNAbilitySystemComponent.h"
 
 UUNGA_Teleport::UUNGA_Teleport()
 {
@@ -53,6 +56,27 @@ void UUNGA_Teleport::OnTraceResultCallback(const FGameplayAbilityTargetDataHandl
 	{
 		FHitResult HitResult = UAbilitySystemBlueprintLibrary::GetHitResultFromTargetData(TargetDataHandle, 0);
 		FVector TargetLocation = HitResult.Location;
+		
+		if (UAbilitySystemBlueprintLibrary::TargetDataHasActor(TargetDataHandle, 0))
+		{
+			UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo_Checked();
+
+			FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingGameplayEffectSpec(TeleportEffect, CurrentEventData.EventMagnitude);
+			if (SourceASC && EffectSpecHandle.IsValid())
+			{
+				//EffectSpecHandle.Data->SetSetByCallerMagnitude(UNTAG_DATA_DAMAGE, -SourceAttribute->GetAttackRate());
+				ApplyGameplayEffectSpecToTarget(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, EffectSpecHandle, TargetDataHandle);
+
+				FGameplayEffectContextHandle CueContextHandle = UAbilitySystemBlueprintLibrary::GetEffectContext(EffectSpecHandle);
+				CueContextHandle.AddInstigator(SourceASC->GetAvatarActor(), SourceASC->GetAvatarActor());
+				CueContextHandle.AddHitResult(HitResult);
+				
+				FGameplayCueParameters CueParam;
+				CueParam.EffectContext = CueContextHandle;
+				SourceASC->ExecuteGameplayCue(UNTAG_GAMEPLAYCUE_CHARACTER_TELEPORTEFFECT, CueParam);
+			}
+		}
+
 
 		PlayerCharacter->GetController()->StopMovement();
 		TeleportToLocation(TargetLocation);

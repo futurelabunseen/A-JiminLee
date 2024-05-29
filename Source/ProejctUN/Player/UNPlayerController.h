@@ -7,6 +7,8 @@
 #include "GameFramework/PlayerController.h"
 #include "UNPlayerController.generated.h"
 
+class AUNHUD;
+
 USTRUCT()
 struct FInteractionData
 {
@@ -35,8 +37,11 @@ public:
 	AUNPlayerController();
 
 protected:
+	virtual void PostInitializeComponents() override;
+	virtual void BeginPlay() override;
 	virtual void PostNetInit() override;
 	virtual void OnPossess(APawn* InPawn) override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	// Interaction
 public:
 	UFUNCTION()
@@ -45,6 +50,7 @@ public:
 	UFUNCTION()
 	void ClearCursorOverObject(AActor* CursorOverObject);
 
+	void OnMatchStateSet(FName State);
 protected:
 
 	FORCEINLINE bool IsInteracting() const { return GetWorldTimerManager().IsTimerActive(TimerHandle_Interaction); }
@@ -52,9 +58,38 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Controller | Interaction")
 	TScriptInterface<IUNInteractionInterface> TargetInteractable;
 
+
+	UPROPERTY(VisibleAnywhere, Category = "Controller | Interaction")
+	TScriptInterface<IUNInteractionInterface> CurrentInteractingObject;
+
+
 	FTimerHandle TimerHandle_Interaction;
 
 	FInteractionData InteractionData;
+
+	UPROPERTY(ReplicatedUsing = OnRep_MatchState, VisibleAnywhere)
+	FName MatchState;
+
+	UFUNCTION()
+	void OnRep_MatchState();
+
+	UPROPERTY()
+	AUNHUD* HUD;
+
+	UPROPERTY()
+	int CountDownValue;
+
+	UPROPERTY()
+	int GameTimeValue;
+
+	UFUNCTION()
+	void CountDownFunction(int Value);
+
+	UFUNCTION()
+	void FarmingFunction(int Value);
+
+	UFUNCTION()
+	void BattleFunction(int Value);
 
 public:
 	void BeginOverInteractable(AActor* NewInteractable);
@@ -62,4 +97,15 @@ public:
 	void BeginInteract();
 	void EndInteract();
 	void Interact();
+
+	FTimerHandle CountDownTimerHandle;
+	FTimerHandle GameTimeTimerHandle;
+
+	UFUNCTION(Server, Unreliable)
+	void ServerRPCRequestCurrentTime();
+
+	UFUNCTION(Client, Unreliable)
+	void ClientRPCRequestCurrentTime(FName ServerMatchState, int ServerTime);
+
+	int8 bisFarmingDone;
 };

@@ -205,9 +205,27 @@ public:
 	UFUNCTION()
 	void UpdateArmor();
 
-	UFUNCTION(NetMulticast, Unreliable)
-	void MulticastEquipWeapon();
+	UFUNCTION(Server, Unreliable)
+	void ServerRPCUpdateWeapon();
+
+	UFUNCTION(Server, Unreliable)
+	void ServerRPCUpdateArmor();
 
 	UFUNCTION(NetMulticast, Unreliable)
-	void MulticastUnEquipWeapon();
+	void MulticastRPCUpdateWeapon(USkeletalMesh* ItemID);
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void MulticastRPCUpdateArmor(USkeletalMesh* ItemID);
+
+	UFUNCTION()
+	void StopMovement();
+
+	UFUNCTION()
+	void ActivateMovement();
+
+	UFUNCTION(Server, Unreliable)
+	void ServerRPCSpawnItem(FName ID, FTransform SpawnLocation, const int32 Quantity);
+
+	UFUNCTION(Server, Unreliable)
+	void ServerRPCDestoryActor(AUNPickupObject* Obj);
 };

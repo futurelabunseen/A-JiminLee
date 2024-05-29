@@ -12,6 +12,7 @@ class UUNOverlayWidgetController;
 class UUNInventoryWidgetController;
 class UUNProgressBarWidgetController;
 class UUNBoxInventoryWidgetController;
+class UUNOverlayWidget;
 class UUNGASUserWidget;
 struct FWidgetControllerParams;
 
@@ -81,7 +82,7 @@ private:
 
 
 	UPROPERTY()
-	TObjectPtr<UUNGASUserWidget> OverlayWidget;
+	TObjectPtr<UUNOverlayWidget> OverlayWidget;
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UUserWidget> OverlayWidgetClass;
@@ -137,4 +138,19 @@ public:
 
 	UFUNCTION()
 	void CloseBoxInventory();
+
+	UFUNCTION()
+	void SetCountDownTextVisibility(bool option);
+
+	UFUNCTION()
+	void SetCountDownText(FString Text);
+
+	UFUNCTION()
+	void SetGameTimeTextVisibility(bool option);
+
+	UFUNCTION()
+	void SetGameTimeText(FString Text);
+
+	UFUNCTION()
+	void DefaultInitOverlay();
 };

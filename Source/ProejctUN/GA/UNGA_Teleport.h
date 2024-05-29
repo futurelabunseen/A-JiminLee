@@ -47,6 +47,10 @@ protected:
 	UPROPERTY()
 	TObjectPtr<class AUNPlayerCharacter> PlayerCharacter;
 
+	UPROPERTY(EditAnywhere, Category = GAS)
+	TSubclassOf<class UGameplayEffect> TeleportEffect;
+
+
 public:
 
 	UFUNCTION(Server, Unreliable)

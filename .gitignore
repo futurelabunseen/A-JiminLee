@@ -75,3 +75,7 @@ DerivedDataCache/*
 
 # Asset
 Content/OutsideAsset/*
+Content/FantasyBundle/*
+
+# Package
+Package/*

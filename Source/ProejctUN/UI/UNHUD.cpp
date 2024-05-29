@@ -9,6 +9,7 @@
 #include "UI/WC/UNBoxInventoryWidgetController.h"
 #include "UI/Widget/UNInteractionWidget.h"
 #include "UI/Widget/UNPlayerInventoryWidget.h"
+#include "UI/Widget/UNOverlayWidget.h"
 
 
 #include "EngineUtils.h"
@@ -16,6 +17,7 @@
 void AUNHUD::BeginPlay()
 {
 	Super::BeginPlay();
+	//DefaultInitOverlay();
 	InitBoxInventory();
 	InitInteractionWidget();
 }
@@ -38,16 +40,18 @@ void AUNHUD::InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySystem
 	checkf(OverlayWidgetClass, TEXT("Overlay Widget Class uninitialized, please fill out BP_UNHUD"));
 	checkf(OverlayWidgetControllerClass, TEXT("Overlay Widget Controller Class uninitialized, please fill out BP_UNHUD"));
 
-	UUserWidget* Widget = CreateWidget<UUserWidget>(GetWorld(), OverlayWidgetClass);
-	OverlayWidget = Cast<UUNGASUserWidget>(Widget);
+	OverlayWidget = CreateWidget<UUNOverlayWidget>(GetWorld(), OverlayWidgetClass);
+	//OverlayWidget = Cast<UUNGASUserWidget>(Widget);
 
 	const FWidgetControllerParams WidgetControllerParams(PC, PS, ASC, AS);
 	UUNOverlayWidgetController* WidgetController = GetOverlayWidgetController(WidgetControllerParams);
 
 	OverlayWidget->SetWidgetController(WidgetController);
 	//WidgetController->BroadcastInitialValues();
-	Widget->AddToViewport();
+	OverlayWidget->AddToViewport();
 }
+
+
 
 UUNInventoryWidgetController* AUNHUD::GetInventoryWidgetController(const FWidgetControllerParams& WCParams)
 {
@@ -201,3 +205,43 @@ void AUNHUD::CloseBoxInventory()
 {
 	BoxInventoryWidget->SetVisibility(ESlateVisibility::Collapsed);
 }
+
+void AUNHUD::SetCountDownTextVisibility(bool option)
+{
+	if (OverlayWidget)
+	{
+		OverlayWidget->SetCountDownTextVisibility(option);
+	}
+}
+
+void AUNHUD::SetCountDownText(FString Text)
+{
+	if (OverlayWidget)
+	{
+		OverlayWidget->SetCountDownText(Text);
+	}
+}
+
+void AUNHUD::SetGameTimeTextVisibility(bool option)
+{
+	if (OverlayWidget)
+	{
+		OverlayWidget->SetGameTimeTextVisibility(option);
+	}
+}
+
+void AUNHUD::SetGameTimeText(FString Text)
+{
+	if (OverlayWidget)
+	{
+		OverlayWidget->SetGameTimeText(Text);
+	}
+}
+
+void AUNHUD::DefaultInitOverlay()
+{
+	OverlayWidget = CreateWidget<UUNOverlayWidget>(GetWorld(), OverlayWidgetClass);
+	OverlayWidget->AddToViewport();
+}
+
+
