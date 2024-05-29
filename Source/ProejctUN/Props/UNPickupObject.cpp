@@ -21,7 +21,10 @@ AUNPickupObject::AUNPickupObject()
 		ItemDataTable = DataTableRef.Object;
 	}
 
-	BoxCollision->SetBoxExtent(FVector(100.f, 100.f, 100.f));
+	BoxCollision->SetBoxExtent(FVector(100.f, 100.f, 1.f));
+	BoxCollision->OnComponentBeginOverlap.AddDynamic(this, &AUNPickupObject::OnBoxCollisionBeginOverlap);
+	BoxCollision->OnComponentEndOverlap.AddDynamic(this, &AUNPickupObject::OnBoxCollisionEndOverlap);
+	bReplicates = true;
 }
 
 void AUNPickupObject::BeginPlay()
@@ -157,6 +160,24 @@ void AUNPickupObject::TakePickUp(AActor* Taker)
 	}
 }
 
+void AUNPickupObject::OnBoxCollisionBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Magenta, "BeginBoxOverlap");
+	if (bIsSelected && OtherActor == InteractingActor)
+	{
+		TakePickUp(OtherActor);
+	}
+}
+
+void AUNPickupObject::OnBoxCollisionEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Magenta, "EndBoxOverlap");
+	if (OtherActor == InteractingActor)
+	{
+		EndInteract();
+	}
+}
+
 void AUNPickupObject::Interact(AActor* Player)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Magenta, "Interact");
@@ -172,18 +193,19 @@ void AUNPickupObject::EndInteract()
 
 void AUNPickupObject::NotifyActorBeginOverlap(AActor* Other)
 {
-	if (bIsSelected && Other == InteractingActor)
-	{
-		TakePickUp(Other);
-	}
+	//GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Magenta, "BeginOverlap");
+	//if (bIsSelected && Other == InteractingActor)
+	//{
+	//	TakePickUp(Other);
+	//}
 }
 
 void AUNPickupObject::NotifyActorEndOverlap(AActor* Other)
 {
-	if (Other == InteractingActor)
-	{
-		EndInteract();
-	}
+	//if (Other == InteractingActor)
+	//{
+	//	EndInteract();
+	//}
 }
 
 

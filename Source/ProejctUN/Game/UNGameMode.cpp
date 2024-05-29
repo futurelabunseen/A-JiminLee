@@ -24,8 +24,8 @@ namespace MatchState
 AUNGameMode::AUNGameMode() :
 	MinSpawnCount(10),
 	MaxSpawnCount(20),
-	MinSpawnLocation(-500.f, -500.f, -80.f),
-	MaxSpawnLocation(500.f, 500.f, -80.f)
+	MinSpawnLocation(-500.f, -500.f, 10.f),
+	MaxSpawnLocation(500.f, 500.f, 10.f)
 {
 	static ConstructorHelpers::FClassFinder<APawn> DefaultPawnClassRef(TEXT("/Script/CoreUObject.Class'/Script/ProejctUN.UNCharacter'"));
 	if (DefaultPawnClassRef.Class)
@@ -149,7 +149,7 @@ void AUNGameMode::SpawnProps()
 			FVector SpawnLoc = FVector(RandomX, RandomY, RandomZ);
 			FActorSpawnParameters SpawnParams;
 			AUNPickupObject* SpawnedActor = World->SpawnActor<AUNPickupObject>(AUNPickupObject::StaticClass(), SpawnLoc, FQuat::Identity.Rotator(), SpawnParams);
-			//SpawnedItems.Add(SpawnedActor);
+			SpawnedItems.Add(SpawnedActor);
 		}
 	}
 }
