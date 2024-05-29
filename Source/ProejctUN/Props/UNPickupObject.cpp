@@ -14,6 +14,14 @@ AUNPickupObject::AUNPickupObject()
 {
 	//PickupMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PickupMesh"));
 	//SetRootComponent(PickupMesh);
+
+	static ConstructorHelpers::FObjectFinder<UDataTable> DataTableRef(TEXT("/Script/Engine.DataTable'/Game/Data/TestItems2.TestItems2'"));
+	if (nullptr != DataTableRef.Object)
+	{
+		ItemDataTable = DataTableRef.Object;
+	}
+
+	BoxCollision->SetBoxExtent(FVector(100.f, 100.f, 100.f));
 }
 
 void AUNPickupObject::BeginPlay()
@@ -24,7 +32,6 @@ void AUNPickupObject::BeginPlay()
 
 	if (GetWorld())
 	{
-		// 3초 후에 실행될 람다식을 설정합니다.
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle, [this]()
 			{
 				SkeletalMesh->SetSimulatePhysics(false);
@@ -34,6 +41,16 @@ void AUNPickupObject::BeginPlay()
 
 void AUNPickupObject::InitializePickup(const TSubclassOf<UItemBase> BaseClass, const int32 InQuantity)
 {
+	if (DesiredItemID.IsNone())
+	{
+		const int32 NumRows = ItemDataTable->GetTableData().Num();
+		const int32 RandomRowIndex = FMath::RandRange(0, NumRows - 2);
+
+		const TArray<FName>& RowNames = ItemDataTable->GetRowNames();
+		DesiredItemID = RowNames[RandomRowIndex];
+		ItemQuantity = 1;
+	}
+
 	if (ItemDataTable && !DesiredItemID.IsNone())
 	{
 		const FItemData* ItemData = ItemDataTable->FindRow<FItemData>(DesiredItemID, DesiredItemID.ToString());
@@ -140,10 +157,9 @@ void AUNPickupObject::TakePickUp(AActor* Taker)
 	}
 }
 
-
-// 버그 있을 듯. 체크 꼭 하기!
 void AUNPickupObject::Interact(AActor* Player)
 {
+	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Magenta, "Interact");
 	bIsSelected = true;
 	InteractingActor = Player;
 }

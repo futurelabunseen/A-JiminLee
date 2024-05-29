@@ -10,6 +10,8 @@
  * 
  */
 
+class AUNPickupObject;
+
 namespace MatchState
 {
 	extern PROEJCTUN_API const FName CountDown;
@@ -48,4 +50,25 @@ private:
 
 	//UFUNCTION()
 	//void CanMove();
+
+
+public:
+	UPROPERTY(EditAnywhere)
+	int MinSpawnCount;
+
+	UPROPERTY(EditAnywhere)
+	int MaxSpawnCount;
+
+	UPROPERTY(EditAnywhere)
+	FVector MinSpawnLocation;
+
+	UPROPERTY(EditAnywhere)
+	FVector MaxSpawnLocation;
+
+	UFUNCTION()
+	void SpawnProps();
+
+	UPROPERTY(VisibleAnywhere)
+	TArray<TObjectPtr<AUNPickupObject> > SpawnedItems;
+
 };

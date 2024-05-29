@@ -17,6 +17,7 @@ AUNPlayerController::AUNPlayerController()
 	DefaultMouseCursor = EMouseCursor::Default;
 
 	bEnableTouchEvents = false;
+	bReplicates = true;
 }
 
 void AUNPlayerController::PostInitializeComponents()
@@ -96,7 +97,7 @@ void AUNPlayerController::OnMatchStateSet(FName State)
 	}
 	else if (MatchState == MatchState::Farming)
 	{
-		FarmingFunction(10);
+		FarmingFunction(100);
 	}
 }
 
@@ -112,7 +113,7 @@ void AUNPlayerController::OnRep_MatchState()
 	}
 	else if (MatchState == MatchState::Farming)
 	{
-		FarmingFunction(10);
+		FarmingFunction(100);
 	}
 }
 

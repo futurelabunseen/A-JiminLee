@@ -333,7 +333,6 @@ void AUNPlayerCharacter::OnSetDestinationTriggered()
 
 	FVector WorldDirection = (CachedDestination - GetActorLocation()).GetSafeNormal();
 	AddMovementInput(WorldDirection, 1.0, false);
-	UE_LOG(LogTemp, Log, TEXT("1"));
 }
 
 void AUNPlayerCharacter::OnSetDestinationReleased()
