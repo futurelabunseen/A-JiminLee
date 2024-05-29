@@ -7,6 +7,18 @@
 #include "Player/UNGASPlayerState.h"
 #include "Player/UNPlayerController.h"
 
+#include "CoreMinimal.h"
+#include "GameFramework/PlayerController.h"
+#include "GameFramework/WorldSettings.h"
+#include "Engine/World.h"
+#include "Kismet/GameplayStatics.h"
+
+namespace MatchState
+{
+	const FName CountDown = FName("CountDown");
+	const FName StandAlone = FName("StandAlone");
+}
+
 AUNGameMode::AUNGameMode()
 {
 	static ConstructorHelpers::FClassFinder<APawn> DefaultPawnClassRef(TEXT("/Script/CoreUObject.Class'/Script/ProejctUN.UNCharacter'"));
@@ -24,6 +36,20 @@ AUNGameMode::AUNGameMode()
 	GameStateClass = AUNGameState::StaticClass();
 	PlayerStateClass = AUNGASPlayerState::StaticClass();
 }
+
+void AUNGameMode::BeginPlay()
+{	
+	Super::BeginPlay();
+
+	LevelStartingTime = GetWorld()->GetTimeSeconds();
+}
+
+//void AUNGameMode::Tick(float DeltaTime)
+//{
+//	Super::Tick(DeltaTime);
+//
+//}
+
 
 // ==================== 로그인 관련 ==================== Start
 
@@ -46,6 +72,9 @@ void AUNGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	UN_LOG(LogUNNetwork, Log, TEXT("%s"), TEXT("Begin"));
 	Super::PostLogin(NewPlayer);
+	
+	//FInputModeUIOnly InputMode;
+	//NewPlayer->SetInputMode(InputMode);
 
 	UNetDriver* NetDriver = GetNetDriver();
 	if (NetDriver)
@@ -63,18 +92,32 @@ void AUNGameMode::PostLogin(APlayerController* NewPlayer)
 		}
 	}
 
-	//int32 NumberOfPlayers = GameState.Get()->PlayerArray.Num();
-	//if (NumberOfPlayers == 2)
-	//{
-	//	UWorld* World = GetWorld();
-	//	if (World)
-	//	{
-	//		bUseSeamlessTravel = true;
-	//		World->ServerTravel(FString("/Game/Maps/TestingMap?listen"));
-	//	}
-	//}
+	int32 NumberOfPlayers = GameState.Get()->PlayerArray.Num();
+	if (NumberOfPlayers == 2)
+	{
+		UWorld* World = GetWorld();
+		if (World)
+		{
+			SetMatchState(MatchState::CountDown);
+			StartMatch();
+		}
+	}
 
 	UN_LOG(LogUNNetwork, Log, TEXT("%s"), TEXT("End"));
+}
+
+void AUNGameMode::OnMatchStateSet()
+{
+	Super::OnMatchStateSet();
+
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; It++)
+	{
+		AUNPlayerController* PlayerController = Cast<AUNPlayerController>(*It);
+		if (PlayerController)
+		{
+			PlayerController->OnMatchStateSet(MatchState);
+		}
+	}
 }
 
 // ==================== 로그인 관련 ==================== End

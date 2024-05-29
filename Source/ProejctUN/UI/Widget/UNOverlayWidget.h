@@ -7,6 +7,7 @@
 #include "UNOverlayWidget.generated.h"
 
 class UImage;
+class UTextBlock;
 /**
  * 
  */
@@ -15,6 +16,31 @@ class PROEJCTUN_API UUNOverlayWidget : public UUNGASUserWidget
 {
 	GENERATED_BODY()
 	
-	UPROPERTY(meta = (BindWidget))
+public:
+	UUNOverlayWidget();
+
+	UFUNCTION()
+	void SetCountDownText(FString NewText);
+
+	UFUNCTION()
+	void SetGameTimeText(FString NewText);
+
+	UFUNCTION()
+	void SetCountDownTextVisibility(bool option);
+
+	UFUNCTION()
+	void SetGameTimeTextVisibility(bool option);
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget), Category = "Icon")
 	UImage* QSkill;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget), Category = "Icon")
+	UImage* ESkill;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget), Category = "Icon")
+	UTextBlock* CountDownText;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget), Category = "Icon")
+	UTextBlock* GameTimeText;
+
 };

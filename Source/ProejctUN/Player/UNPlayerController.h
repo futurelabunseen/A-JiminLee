@@ -7,6 +7,8 @@
 #include "GameFramework/PlayerController.h"
 #include "UNPlayerController.generated.h"
 
+class AUNHUD;
+
 USTRUCT()
 struct FInteractionData
 {
@@ -35,8 +37,11 @@ public:
 	AUNPlayerController();
 
 protected:
+	virtual void PostInitializeComponents() override;
+	virtual void BeginPlay() override;
 	virtual void PostNetInit() override;
 	virtual void OnPossess(APawn* InPawn) override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	// Interaction
 public:
 	UFUNCTION()
@@ -45,6 +50,7 @@ public:
 	UFUNCTION()
 	void ClearCursorOverObject(AActor* CursorOverObject);
 
+	void OnMatchStateSet(FName State);
 protected:
 
 	FORCEINLINE bool IsInteracting() const { return GetWorldTimerManager().IsTimerActive(TimerHandle_Interaction); }
@@ -61,10 +67,23 @@ protected:
 
 	FInteractionData InteractionData;
 
+	UPROPERTY(ReplicatedUsing = OnRep_MatchState, VisibleAnywhere)
+	FName MatchState;
+
+	UFUNCTION()
+	void OnRep_MatchState();
+
+	UPROPERTY()
+	AUNHUD* HUD;
+
+	UPROPERTY()
+	int CountDownValue;
 public:
 	void BeginOverInteractable(AActor* NewInteractable);
 	void EndOverInteractable();
 	void BeginInteract();
 	void EndInteract();
 	void Interact();
+
+	FTimerHandle CountDownTimerHandle;
 };

@@ -4,6 +4,8 @@
 #include "UNPlayerController.h"
 #include "UNGASPlayerState.h"
 #include "UI/UNHUD.h"
+#include "Net/UnrealNetwork.h"
+#include "Game/UNGameMode.h"
 
 #include "ProejctUN.h"
 
@@ -14,6 +16,16 @@ AUNPlayerController::AUNPlayerController()
 	DefaultMouseCursor = EMouseCursor::Default;
 
 	bEnableTouchEvents = false;
+}
+
+void AUNPlayerController::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+}
+
+void AUNPlayerController::BeginPlay()
+{
+	Super::BeginPlay();
 }
 
 // NetInitÈÄ ½ÇÇà
@@ -45,6 +57,13 @@ void AUNPlayerController::OnPossess(APawn* InPawn)
 	UN_LOG(LogUNNetwork, Log, TEXT("%s"), TEXT("End"));
 }
 
+void AUNPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AUNPlayerController, MatchState);
+}
+
 // Interact
 void AUNPlayerController::CheckCursorOverObject(AActor* CursorOverObject)
 {
@@ -56,6 +75,94 @@ void AUNPlayerController::ClearCursorOverObject(AActor* CursorOverObject)
 	EndOverInteractable();
 }
 
+void AUNPlayerController::OnMatchStateSet(FName State)
+{
+	MatchState = State;
+
+	if (MatchState == MatchState::InProgress)
+	{
+		FInputModeGameOnly InputMode;
+		InputMode.SetConsumeCaptureMouseDown(false);
+		SetInputMode(InputMode);
+		HUD = Cast<AUNHUD>(GetHUD());
+		if (HUD)
+		{
+			HUD->SetCountDownTextVisibility(false);
+		}
+		
+		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Magenta, "InputModeChangeToGameAndUI");
+	}
+	else if (MatchState == MatchState::CountDown)
+	{
+		FInputModeUIOnly InputMode;
+		SetInputMode(InputMode);
+
+		HUD = Cast<AUNHUD>(GetHUD());
+		if (HUD)
+		{
+			HUD->SetCountDownTextVisibility(true);
+		}
+		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Magenta, "InputModeChangeToUIOnly");
+
+
+		CountDownValue = 5;
+		GetWorld()->GetTimerManager().SetTimer(CountDownTimerHandle, [&]() {
+			if (HUD)
+			{
+				HUD->SetCountDownText(FString::SanitizeFloat(CountDownValue));
+			}
+			CountDownValue -= 1;
+			UE_LOG(LogTemp, Log, TEXT("%d, %s"), CountDownTimerHandle, *FString::SanitizeFloat(CountDownValue));
+
+			if (CountDownValue < 0)
+			{
+				OnMatchStateSet(MatchState::InProgress);
+				GetWorld()->GetTimerManager().ClearTimer(CountDownTimerHandle);
+			}
+			}, 1.f, true, 0.f);
+	}
+}
+
+void AUNPlayerController::OnRep_MatchState()
+{
+	if (MatchState == MatchState::InProgress)
+	{
+		FInputModeGameOnly InputMode;
+		InputMode.SetConsumeCaptureMouseDown(false);
+		SetInputMode(InputMode);
+		HUD = Cast<AUNHUD>(GetHUD());
+		if (HUD)
+		{
+			HUD->SetCountDownTextVisibility(false);
+		}
+		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Magenta, "InputModeChangeToGameAndUI");
+	}
+	else if (MatchState == MatchState::CountDown)
+	{
+		FInputModeUIOnly InputMode;
+		SetInputMode(InputMode);
+
+		HUD = Cast<AUNHUD>(GetHUD());
+		if (HUD)
+		{
+			HUD->SetCountDownTextVisibility(true);
+		}
+		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Magenta, "InputModeChangeToUIOnly");
+
+		CountDownValue = 5;
+		GetWorld()->GetTimerManager().SetTimer(CountDownTimerHandle, [&]() {
+			HUD->SetCountDownText(FString::SanitizeFloat(CountDownValue));
+			CountDownValue -= 1;
+			UE_LOG(LogTemp, Log, TEXT("%d, %s"), CountDownTimerHandle, *FString::SanitizeFloat(CountDownValue));
+
+			if (CountDownValue < 0)
+			{
+				OnMatchStateSet(MatchState::InProgress);
+				GetWorld()->GetTimerManager().ClearTimer(CountDownTimerHandle);
+			}
+			}, 1.f, true, 0.f);
+	}
+}
 
 void AUNPlayerController::BeginOverInteractable(AActor* NewInteractable)
 {

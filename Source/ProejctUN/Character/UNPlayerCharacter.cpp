@@ -638,7 +638,6 @@ void AUNPlayerCharacter::ServerRPCUpdateWeapon_Implementation()
 
 void AUNPlayerCharacter::ServerRPCUpdateArmor_Implementation()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, "2");
 	Armor->SetSkeletalMesh(nullptr);
 
 	const float DefaultArmorRate = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetDefaultArmorRateAttribute());
@@ -646,12 +645,9 @@ void AUNPlayerCharacter::ServerRPCUpdateArmor_Implementation()
 
 	if (PlayerInventory->CurrentArmorItemID == NAME_None)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, "2.5");
 		MulticastRPCUpdateArmor(nullptr);
 		return;
 	}
-
-	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, "3");
 
 	if (UUNWorldSubsystem* WorldSubSystem = GetWorld()->GetSubsystem<UUNWorldSubsystem>())
 	{
