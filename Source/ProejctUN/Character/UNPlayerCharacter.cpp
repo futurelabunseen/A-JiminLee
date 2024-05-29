@@ -588,9 +588,10 @@ void AUNPlayerCharacter::DropItem(UItemBase* ItemToDrop, const int32 QuantityToD
 		
 		const int32 RemovedQuantity = PlayerInventory->RemoveAmountOfItem(ItemToDrop, QuantityToDrop);
 
-		AUNPickupObject* PickUpObject = GetWorld()->SpawnActor<AUNPickupObject>(AUNPickupObject::StaticClass(), SpawnTransform, SpawnParams);
+		ServerRPCSpawnItem(ItemToDrop->ID, SpawnTransform, QuantityToDrop);
+		//AUNPickupObject* PickUpObject = GetWorld()->SpawnActor<AUNPickupObject>(AUNPickupObject::StaticClass(), SpawnTransform, SpawnParams);
 
-		PickUpObject->InitializeDrop(ItemToDrop, RemovedQuantity);
+		//PickUpObject->InitializeDrop(ItemToDrop, RemovedQuantity);
 	}
 	else
 	{
@@ -679,4 +680,21 @@ void AUNPlayerCharacter::StopMovement()
 void AUNPlayerCharacter::ActivateMovement()
 {
 	GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+}
+
+void AUNPlayerCharacter::ServerRPCDestoryActor_Implementation(AUNPickupObject* Obj)
+{
+	Obj->Destroy(true);
+}
+
+void AUNPlayerCharacter::ServerRPCSpawnItem_Implementation(FName ID, FTransform SpawnLocaiton, const int32 Quantity)
+{
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = this;
+	SpawnParams.bNoFail = true;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+	AUNPickupObject* PickUpObject = GetWorld()->SpawnActor<AUNPickupObject>(AUNPickupObject::StaticClass(), SpawnLocaiton, SpawnParams);
+
+	PickUpObject->InitializeDropItem(ID, Quantity);
 }

@@ -146,6 +146,7 @@ void AUNGameMode::SpawnProps()
 			float RandomX = FMath::RandRange(MinSpawnLocation.X, MaxSpawnLocation.X);
 			float RandomY = FMath::RandRange(MinSpawnLocation.Y, MaxSpawnLocation.Y);
 			float RandomZ = FMath::RandRange(MinSpawnLocation.Z, MaxSpawnLocation.Z);
+			
 			FVector SpawnLoc = FVector(RandomX, RandomY, RandomZ);
 			FActorSpawnParameters SpawnParams;
 			AUNPickupObject* SpawnedActor = World->SpawnActor<AUNPickupObject>(AUNPickupObject::StaticClass(), SpawnLoc, FQuat::Identity.Rotator(), SpawnParams);

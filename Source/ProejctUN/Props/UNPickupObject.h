@@ -22,7 +22,7 @@ public:
 	AUNPickupObject();
 
 	virtual void BeginPlay() override;
-	virtual void Interact(AActor* Player) override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;	virtual void Interact(AActor* Player) override;
 	virtual void EndInteract() override;
 
 	virtual void NotifyActorBeginOverlap(class AActor* Other) override;
@@ -38,7 +38,7 @@ public:
 	UPROPERTY(EditInstanceOnly, Category = "Pickup | Item Initialization")
 	UDataTable* ItemDataTable;
 
-	UPROPERTY(EditInstanceOnly, Category = "Pickup | Item Initialization")
+	UPROPERTY(ReplicatedUsing = OnRep_DesiredItemID ,EditInstanceOnly, Category = "Pickup | Item Initialization")
 	FName DesiredItemID;
 
 	UPROPERTY(VisibleAnywhere, Category = "Pickup | Item Reference")
@@ -62,6 +62,15 @@ public:
 
 	UFUNCTION()
 	void OnBoxCollisionEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	UFUNCTION()
+	void OnRep_DesiredItemID();
+
+	UFUNCTION()
+	void InitializeDropItem(FName ID, int32 Quantity);
+
+	UFUNCTION(Server, Unreliable)
+	void ServerRPCDestoryActor();
 
 //
 //#if WITH_EDITOR

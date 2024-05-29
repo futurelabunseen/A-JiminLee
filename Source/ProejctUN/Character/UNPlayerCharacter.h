@@ -222,4 +222,10 @@ public:
 
 	UFUNCTION()
 	void ActivateMovement();
+
+	UFUNCTION(Server, Unreliable)
+	void ServerRPCSpawnItem(FName ID, FTransform SpawnLocation, const int32 Quantity);
+
+	UFUNCTION(Server, Unreliable)
+	void ServerRPCDestoryActor(AUNPickupObject* Obj);
 };

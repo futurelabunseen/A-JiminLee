@@ -6,6 +6,7 @@
 #include "UI/UNInventoryComponent.h"
 #include "Components/BoxComponent.h"
 #include "Item/ItemBase.h"
+#include "Net/UnrealNetwork.h"
 
 #include "Engine/World.h"
 #include "TimerManager.h"
@@ -30,7 +31,7 @@ AUNPickupObject::AUNPickupObject()
 void AUNPickupObject::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
 	InitializePickup(UItemBase::StaticClass(), ItemQuantity);
 
 	if (GetWorld())
@@ -42,16 +43,25 @@ void AUNPickupObject::BeginPlay()
 	}
 }
 
+void AUNPickupObject::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AUNPickupObject, DesiredItemID);
+}
+
 void AUNPickupObject::InitializePickup(const TSubclassOf<UItemBase> BaseClass, const int32 InQuantity)
 {
 	if (DesiredItemID.IsNone())
 	{
+		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Magenta, "1");
 		const int32 NumRows = ItemDataTable->GetTableData().Num();
 		const int32 RandomRowIndex = FMath::RandRange(0, NumRows - 2);
 
 		const TArray<FName>& RowNames = ItemDataTable->GetRowNames();
 		DesiredItemID = RowNames[RandomRowIndex];
 		ItemQuantity = 1;
+		//ClientRPCSetRandomValue(DesiredItemID);
 	}
 
 	if (ItemDataTable && !DesiredItemID.IsNone())
@@ -88,6 +98,23 @@ void AUNPickupObject::InitializePickup(const TSubclassOf<UItemBase> BaseClass, c
 
 		UpdateInteractableData();
 	}
+}
+
+void AUNPickupObject::OnRep_DesiredItemID()
+{
+	InitializePickup(UItemBase::StaticClass(), 1);
+}
+
+void AUNPickupObject::InitializeDropItem(FName ID, int32 Quantity)
+{
+	DesiredItemID = ID;
+	ItemQuantity = Quantity;
+	InitializePickup(UItemBase::StaticClass(), Quantity);
+}
+
+void AUNPickupObject::ServerRPCDestoryActor_Implementation()
+{
+	this->Destroy(true);
 }
 
 void AUNPickupObject::InitializeDrop(UItemBase* ItemToDrop, const int32 InQuantity)
@@ -141,6 +168,8 @@ void AUNPickupObject::TakePickUp(AActor* Taker)
 						// PlayerCharacter->UpdateInteractionWidget();
 						break;
 					case EItemAddResult::IAR_AllItemAddeed:
+						Player->ServerRPCDestoryActor(this);
+						//ServerRPCDestoryActor();
 						Destroy();
 						break;
 					}
