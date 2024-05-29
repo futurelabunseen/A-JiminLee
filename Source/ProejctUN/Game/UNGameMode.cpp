@@ -22,10 +22,10 @@ namespace MatchState
 }
 
 AUNGameMode::AUNGameMode() :
-	MinSpawnCount(10),
-	MaxSpawnCount(20),
-	MinSpawnLocation(-500.f, -500.f, 10.f),
-	MaxSpawnLocation(500.f, 500.f, 10.f)
+	MinSpawnCount(50),
+	MaxSpawnCount(100),
+	MinSpawnLocation(-1000.f, -1000.f, 10.f), //MinSpawnLocation(-48000.f, 13500.f, -22600.f)
+	MaxSpawnLocation(1000.f, 1000.f, 10.f) //MaxSpawnLocation(-44000.f, 16000.f, -22600.f)
 {
 	static ConstructorHelpers::FClassFinder<APawn> DefaultPawnClassRef(TEXT("/Script/CoreUObject.Class'/Script/ProejctUN.UNCharacter'"));
 	if (DefaultPawnClassRef.Class)
