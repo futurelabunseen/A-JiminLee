@@ -22,7 +22,7 @@ void ALobbyGameMode::PostLogin(APlayerController* NewPlayer)
 			//	World->ServerTravel(FString("/Game/Maps/TestingMap?listen"));
 			//	}, 5.f, false);
 
-			World->ServerTravel(FString("/Game/Maps/TestingMap?listen"));
+			World->ServerTravel(FString("/Game/FantasyBundle/Maps/CustomCastle?listen"));
 		}
 	}
 }

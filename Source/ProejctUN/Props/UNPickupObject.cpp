@@ -11,6 +11,9 @@
 #include "Engine/World.h"
 #include "TimerManager.h"
 
+#include "Engine/DataTable.h"
+#include "Math/UnrealMathUtility.h"
+
 AUNPickupObject::AUNPickupObject()
 {
 	//PickupMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PickupMesh"));
@@ -54,8 +57,9 @@ void AUNPickupObject::InitializePickup(const TSubclassOf<UItemBase> BaseClass, c
 {
 	if (DesiredItemID.IsNone())
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Magenta, "1");
-		const int32 NumRows = ItemDataTable->GetTableData().Num();
+		TArray<FName> ItemNames = ItemDataTable->GetRowNames();
+		const int32 NumRows = ItemNames.Num();
+		//const int32 NumRows = ItemDataTable->GetTableData().Num();
 		const int32 RandomRowIndex = FMath::RandRange(0, NumRows - 2);
 
 		const TArray<FName>& RowNames = ItemDataTable->GetRowNames();

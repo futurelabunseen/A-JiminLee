@@ -97,7 +97,11 @@ void AUNPlayerController::OnMatchStateSet(FName State)
 	}
 	else if (MatchState == MatchState::Farming)
 	{
-		FarmingFunction(100);
+		FarmingFunction(20);
+	}
+	else if (MatchState == MatchState::Battle)
+	{
+		BattleFunction(100);
 	}
 }
 
@@ -113,7 +117,11 @@ void AUNPlayerController::OnRep_MatchState()
 	}
 	else if (MatchState == MatchState::Farming)
 	{
-		FarmingFunction(100);
+		FarmingFunction(20);
+	}
+	else if (MatchState == MatchState::Battle)
+	{
+		BattleFunction(100);
 	}
 }
 
@@ -131,6 +139,7 @@ void AUNPlayerController::CountDownFunction(int Value)
 	HUD = Cast<AUNHUD>(GetHUD());
 	if (HUD)
 	{
+		HUD->SetGameTimeTextVisibility(false);
 		HUD->SetCountDownTextVisibility(true);
 	}
 
@@ -143,7 +152,14 @@ void AUNPlayerController::CountDownFunction(int Value)
 		CountDownValue -= 1;
 		if (CountDownValue < 0)
 		{
-			OnMatchStateSet(MatchState::Farming);
+			if (bisFarmingDone)
+			{
+				OnMatchStateSet(MatchState::Battle);
+			}
+			else
+			{
+				OnMatchStateSet(MatchState::Farming);
+			}
 			GetWorld()->GetTimerManager().ClearTimer(CountDownTimerHandle);
 		}
 		}, 1.f, true, 0.f);
@@ -163,6 +179,7 @@ void AUNPlayerController::FarmingFunction(int Value)
 	if (HUD)
 	{
 		HUD->SetCountDownTextVisibility(false);
+		HUD->SetGameTimeTextVisibility(true);
 	}
 
 	GameTimeValue = Value;
@@ -174,6 +191,40 @@ void AUNPlayerController::FarmingFunction(int Value)
 		GameTimeValue -= 1;
 		if (GameTimeValue < 0)
 		{
+			bisFarmingDone = true;
+			OnMatchStateSet(MatchState::CountDown);
+
+			GetWorld()->GetTimerManager().ClearTimer(GameTimeTimerHandle);
+		}
+		}, 1.f, true, 0.f);
+}
+
+void AUNPlayerController::BattleFunction(int Value)
+{
+	AUNPlayerCharacter* PlayerCharacter = Cast<AUNPlayerCharacter>(GetCharacter());
+	if (PlayerCharacter)
+	{
+		PlayerCharacter->ActivateMovement();
+	}
+	FInputModeGameOnly InputMode;
+	InputMode.SetConsumeCaptureMouseDown(false);
+	SetInputMode(InputMode);
+	HUD = Cast<AUNHUD>(GetHUD());
+	if (HUD)
+	{
+		HUD->SetCountDownTextVisibility(false);
+		HUD->SetGameTimeTextVisibility(true);
+	}
+	GameTimeValue = Value;
+	GetWorld()->GetTimerManager().SetTimer(GameTimeTimerHandle, [&]() {
+		if (HUD)
+		{
+			HUD->SetGameTimeText(FString::FromInt(GameTimeValue));
+		}
+		GameTimeValue -= 1;
+		if (GameTimeValue < 0)
+		{
+			bisFarmingDone = true;
 			OnMatchStateSet(MatchState::CountDown);
 
 			GetWorld()->GetTimerManager().ClearTimer(GameTimeTimerHandle);
@@ -294,6 +345,10 @@ void AUNPlayerController::ServerRPCRequestCurrentTime_Implementation()
 	{
 		ClientRPCRequestCurrentTime(MatchState, GameTimeValue);
 	}
+	else if (MatchState == MatchState::Battle)
+	{
+		ClientRPCRequestCurrentTime(MatchState, GameTimeValue);
+	}
 }
 
 void AUNPlayerController::ClientRPCRequestCurrentTime_Implementation(FName ServerMatchState, int ServerTime)
@@ -307,6 +362,10 @@ void AUNPlayerController::ClientRPCRequestCurrentTime_Implementation(FName Serve
 		CountDownValue = ServerTime;
 	}
 	else if (MatchState == MatchState::Farming)
+	{
+		GameTimeValue = ServerTime;
+	}
+	else if (MatchState == MatchState::Battle)
 	{
 		GameTimeValue = ServerTime;
 	}

@@ -88,6 +88,9 @@ protected:
 	UFUNCTION()
 	void FarmingFunction(int Value);
 
+	UFUNCTION()
+	void BattleFunction(int Value);
+
 public:
 	void BeginOverInteractable(AActor* NewInteractable);
 	void EndOverInteractable();
@@ -103,4 +106,6 @@ public:
 
 	UFUNCTION(Client, Unreliable)
 	void ClientRPCRequestCurrentTime(FName ServerMatchState, int ServerTime);
+
+	int8 bisFarmingDone;
 };
