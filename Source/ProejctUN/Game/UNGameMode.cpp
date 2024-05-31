@@ -52,6 +52,13 @@ void AUNGameMode::BeginPlay()
 	LevelStartingTime = GetWorld()->GetTimeSeconds();
 
 	SpawnProps();
+
+	FTimerHandle CountDownTimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(CountDownTimerHandle, [&]()
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, "GameStart");
+			SetMatchState(MatchState::CountDown);
+		}, 1.f, false);
 }
 
 //void AUNGameMode::Tick(float DeltaTime)
@@ -108,12 +115,6 @@ void AUNGameMode::PostLogin(APlayerController* NewPlayer)
 		UWorld* World = GetWorld();
 		if (World)
 		{
-			FTimerHandle CountDownTimerHandle;
-			GetWorld()->GetTimerManager().SetTimer(CountDownTimerHandle, [&]()
-				{
-					SetMatchState(MatchState::CountDown);
-				}, 1.f, false);
-			
 			//StartMatch();
 		}
 	}
