@@ -73,6 +73,12 @@ AUNPlayerCharacter::AUNPlayerCharacter()
 		TeleportAction = InputActionTeleportRef.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<UInputAction> InvinsibleActionInvinsibleRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Action/IA_Invinsible.IA_Invinsible'"));
+	if (nullptr != InvinsibleActionInvinsibleRef.Object)
+	{
+		InvinsibleAction = InvinsibleActionInvinsibleRef.Object;
+	}
+
 	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionConfirmRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Action/IA_Confirm.IA_Confirm'"));
 	if (nullptr != InputActionConfirmRef.Object)
 	{
@@ -179,6 +185,7 @@ void AUNPlayerCharacter::SetupPlayerGASInputComponent()
 		//EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::GASInputPressed, 0);
 		EnhancedInputComponent->BindAction(SkillAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::GASInputPressed, 1);
 		EnhancedInputComponent->BindAction(TeleportAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::GASInputPressed, 2);
+		EnhancedInputComponent->BindAction(InvinsibleAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::GASInputPressed, 3);
 		EnhancedInputComponent->BindAction(ConfirmAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::SendConfirmToTargetActor);
 		EnhancedInputComponent->BindAction(CancelAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::SendCancelToTargetActor);
 
