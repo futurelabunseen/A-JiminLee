@@ -35,6 +35,9 @@ public:
 	UImage* QSkill;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget), Category = "Icon")
+	UImage* WSkill;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget), Category = "Icon")
 	UImage* ESkill;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget), Category = "Icon")

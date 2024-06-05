@@ -21,11 +21,8 @@ void UUNGA_Invinsible::ActivateAbility(const FGameplayAbilitySpecHandle Handle, 
 	UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo_Checked();
 	FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingGameplayEffectSpec(InvinsibleEffect, CurrentEventData.EventMagnitude);
 
-	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Magenta, "1");
-
 	if (SourceASC && EffectSpecHandle.IsValid())
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Magenta, "2");
 		ApplyGameplayEffectSpecToOwner(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, EffectSpecHandle);
 
 		FGameplayEffectContextHandle CueContextHandle = UAbilitySystemBlueprintLibrary::GetEffectContext(EffectSpecHandle);
