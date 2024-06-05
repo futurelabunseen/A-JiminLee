@@ -62,6 +62,7 @@ FGameplayAbilityTargetDataHandle AUNTA_Trace::MakeTargetData() const
 	bool HitDetected = GetWorld()->SweepSingleByChannel(OutHitResult, Start, End, FQuat::Identity, CCHANNEL_UNACTION, FCollisionShape::MakeSphere(AttackRadius), Params);
 
 	FGameplayAbilityTargetDataHandle DataHandle;
+	DataHandle.UniqueId = 0;
 	if (HitDetected)
 	{
 		//지금은 TakeDamage대신 GE를 사용 중. 불필요하다고 판단 시 주석 제거 예정

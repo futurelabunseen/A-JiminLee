@@ -16,23 +16,34 @@ UUNGC_SkillFloorEffect::UUNGC_SkillFloorEffect()
 
 bool UUNGC_SkillFloorEffect::OnExecute_Implementation(AActor* Target, const FGameplayCueParameters& Parameters) const
 {
-	const FHitResult* HitResult = Parameters.EffectContext.GetHitResult();
-	if (HitResult)
+	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Magenta, "1");
+	if (AActor* Instigator = Parameters.EffectContext.GetInstigator())
 	{
-		UGameplayStatics::SpawnEmitterAtLocation(Target, ParticleSystem, HitResult->ImpactPoint, FRotator::ZeroRotator, true);
+		UGameplayStatics::SpawnEmitterAtLocation(Target, ParticleSystem, Instigator->GetActorLocation(), FRotator::ZeroRotator, true);
 	}
 
 	else
 	{
-		for (const auto& TargetActor : Parameters.EffectContext.Get()->GetActors())
-		{
-			if (TargetActor.Get())
-			{
-				UGameplayStatics::SpawnEmitterAtLocation(Target, ParticleSystem, Parameters.EffectContext.Get()->GetInstigator()->GetActorLocation(), FRotator::ZeroRotator, true);
-				//UGameplayStatics::SpawnEmitterAtLocation(Target, ParticleSystem, TargetActor.Get()->GetActorLocation(), FRotator::ZeroRotator, true);
-			}
-		}
+		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Magenta, "2");
+		UGameplayStatics::SpawnEmitterAtLocation(Target, ParticleSystem, Parameters.Instigator->GetActorLocation(), FRotator::ZeroRotator, true);
 	}
+	//const FHitResult* HitResult = Parameters.EffectContext.GetHitResult();
+	//if (HitResult)
+	//{
+	//	UGameplayStatics::SpawnEmitterAtLocation(Target, ParticleSystem, HitResult->ImpactPoint, FRotator::ZeroRotator, true);
+	//}
+
+	//else
+	//{
+	//	for (const auto& TargetActor : Parameters.EffectContext.Get()->GetActors())
+	//	{
+	//		if (TargetActor.Get())
+	//		{
+	//			UGameplayStatics::SpawnEmitterAtLocation(Target, ParticleSystem, Parameters.EffectContext.Get()->GetInstigator()->GetActorLocation(), FRotator::ZeroRotator, true);
+	//			//UGameplayStatics::SpawnEmitterAtLocation(Target, ParticleSystem, TargetActor.Get()->GetActorLocation(), FRotator::ZeroRotator, true);
+	//		}
+	//	}
+	//}
 
 	return false;
 }

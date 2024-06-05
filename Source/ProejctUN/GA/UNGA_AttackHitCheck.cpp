@@ -30,72 +30,83 @@ void UUNGA_AttackHitCheck::ActivateAbility(const FGameplayAbilitySpecHandle Hand
 void UUNGA_AttackHitCheck::OnTraceResultCallback(const FGameplayAbilityTargetDataHandle& TargetDataHandle)
 {
 	// 단일 공격 시
-	if (UAbilitySystemBlueprintLibrary::TargetDataHasHitResult(TargetDataHandle, 0))
+	if (TargetDataHandle.UniqueId == 0)
 	{
-		FHitResult HitResult = UAbilitySystemBlueprintLibrary::GetHitResultFromTargetData(TargetDataHandle, 0);
-		//UE_LOG(LogTemp, Log, TEXT("Target %s Detected!"), *(HitResult.GetActor()->GetName()));
-
-		UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo_Checked();
-		UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(HitResult.GetActor());
-
-		if (!SourceASC || !TargetASC)
+		if (UAbilitySystemBlueprintLibrary::TargetDataHasHitResult(TargetDataHandle, 0))
 		{
-			UE_LOG(LogTemp, Log, TEXT("Not Have ASC!"));
+			FHitResult HitResult = UAbilitySystemBlueprintLibrary::GetHitResultFromTargetData(TargetDataHandle, 0);
+			//UE_LOG(LogTemp, Log, TEXT("Target %s Detected!"), *(HitResult.GetActor()->GetName()));
 
-			bool bReplicatedEndAbility = true;
-			bool bWasCancelled = true;
-			EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, bReplicatedEndAbility, bWasCancelled);
-			return;
-		}
+			UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo_Checked();
+			UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(HitResult.GetActor());
 
-		// 피격 캐릭터의 Attribute를 가져오는 코드. 필요 시 주석 제거 후 사용 예정.
+			if (!SourceASC || !TargetASC)
+			{
+				UE_LOG(LogTemp, Log, TEXT("Not Have ASC!"));
 
-		//const UUNCharacterAttributeSet* SourceAttribute = SourceASC->GetSet<UUNCharacterAttributeSet>();
-		//UUNCharacterAttributeSet* TargetAttribute = const_cast<UUNCharacterAttributeSet*>(TargetASC->GetSet<UUNCharacterAttributeSet>());
-		//if (!SourceAttribute|| !TargetAttribute)
-		//{
-		//	UE_LOG(LogTemp, Log, TEXT("Not Have ATT!"));
-		//	return;
-		//}
-		//const float AttackDamage = SourceAttribute->GetAttackRate();
-		//TargetAttribute->SetHealth(TargetAttribute->GetHealth() - AttackDamage);
+				bool bReplicatedEndAbility = true;
+				bool bWasCancelled = true;
+				EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, bReplicatedEndAbility, bWasCancelled);
+				return;
+			}
 
-		// GE를 통해서 데미지 전달
-		FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingGameplayEffectSpec(AttackDamageEffect, CurrentLevel);
-		if (EffectSpecHandle.IsValid())
-		{
-			//EffectSpecHandle.Data->SetSetByCallerMagnitude(UNTAG_DATA_DAMAGE, -SourceAttribute->GetAttackRate());
-			ApplyGameplayEffectSpecToTarget(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, EffectSpecHandle, TargetDataHandle);
+			// 피격 캐릭터의 Attribute를 가져오는 코드. 필요 시 주석 제거 후 사용 예정.
 
-			FGameplayEffectContextHandle CueContextHandle = UAbilitySystemBlueprintLibrary::GetEffectContext(EffectSpecHandle);
-			CueContextHandle.AddHitResult(HitResult);
-			FGameplayCueParameters CueParam;
-			CueParam.EffectContext = CueContextHandle;
+			//const UUNCharacterAttributeSet* SourceAttribute = SourceASC->GetSet<UUNCharacterAttributeSet>();
+			//UUNCharacterAttributeSet* TargetAttribute = const_cast<UUNCharacterAttributeSet*>(TargetASC->GetSet<UUNCharacterAttributeSet>());
+			//if (!SourceAttribute|| !TargetAttribute)
+			//{
+			//	UE_LOG(LogTemp, Log, TEXT("Not Have ATT!"));
+			//	return;
+			//}
+			//const float AttackDamage = SourceAttribute->GetAttackRate();
+			//TargetAttribute->SetHealth(TargetAttribute->GetHealth() - AttackDamage);
 
-			TargetASC->ExecuteGameplayCue(UNTAG_GameplayCue_CHARACTER_AttackHit, CueParam);
+			// GE를 통해서 데미지 전달
+			FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingGameplayEffectSpec(AttackDamageEffect, CurrentLevel);
+			if (EffectSpecHandle.IsValid())
+			{
+				//EffectSpecHandle.Data->SetSetByCallerMagnitude(UNTAG_DATA_DAMAGE, -SourceAttribute->GetAttackRate());
+				ApplyGameplayEffectSpecToTarget(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, EffectSpecHandle, TargetDataHandle);
+
+				FGameplayEffectContextHandle CueContextHandle = UAbilitySystemBlueprintLibrary::GetEffectContext(EffectSpecHandle);
+				CueContextHandle.AddHitResult(HitResult);
+				FGameplayCueParameters CueParam;
+				CueParam.EffectContext = CueContextHandle;
+
+				TargetASC->ExecuteGameplayCue(UNTAG_GameplayCue_CHARACTER_AttackHit, CueParam);
+			}
 		}
 	}
-
 	// 광역 스턴 공격 시
-	else if (UAbilitySystemBlueprintLibrary::TargetDataHasActor(TargetDataHandle, 0))
+	else if (TargetDataHandle.UniqueId == 1)
 	{
 		UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo_Checked();
 
-		// GE를 통해서 스턴과 데미지 전달
-		FGameplayEffectSpecHandle StunEffectSpecHandle = MakeOutgoingGameplayEffectSpec(StunEffect, CurrentLevel);
-		FGameplayEffectSpecHandle AttackEffectSpecHandle = MakeOutgoingGameplayEffectSpec(AttackDamageEffect, CurrentLevel);
-		if (AttackEffectSpecHandle.IsValid() && StunEffectSpecHandle.IsValid())
+		if (UAbilitySystemBlueprintLibrary::TargetDataHasActor(TargetDataHandle, 0))
 		{
-			ApplyGameplayEffectSpecToTarget(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, StunEffectSpecHandle, TargetDataHandle);
-			ApplyGameplayEffectSpecToTarget(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, AttackEffectSpecHandle, TargetDataHandle);
+			// GE를 통해서 스턴과 데미지 전달
+			FGameplayEffectSpecHandle StunEffectSpecHandle = MakeOutgoingGameplayEffectSpec(StunEffect, CurrentLevel);
+			FGameplayEffectSpecHandle AttackEffectSpecHandle = MakeOutgoingGameplayEffectSpec(AttackDamageEffect, CurrentLevel);
+			if (AttackEffectSpecHandle.IsValid() && StunEffectSpecHandle.IsValid())
+			{
+				ApplyGameplayEffectSpecToTarget(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, StunEffectSpecHandle, TargetDataHandle);
+				ApplyGameplayEffectSpecToTarget(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, AttackEffectSpecHandle, TargetDataHandle);
 
-			FGameplayEffectContextHandle CueContextHandle = UAbilitySystemBlueprintLibrary::GetEffectContext(AttackEffectSpecHandle);
-			CueContextHandle.AddInstigator(SourceASC->GetAvatarActor(), SourceASC->GetAvatarActor());
-			CueContextHandle.AddActors(TargetDataHandle.Data[0].Get()->GetActors(), false);
+				FGameplayEffectContextHandle CueContextHandle = UAbilitySystemBlueprintLibrary::GetEffectContext(AttackEffectSpecHandle);
+				CueContextHandle.AddInstigator(SourceASC->GetAvatarActor(), SourceASC->GetAvatarActor());
+				CueContextHandle.AddActors(TargetDataHandle.Data[0].Get()->GetActors(), false);
+				FGameplayCueParameters CueParam;
+				CueParam.EffectContext = CueContextHandle;
+
+				//SourceASC->ExecuteGameplayCue(UNTAG_GameplayCue_CHARACTER_AttackHit, CueParam);
+				SourceASC->ExecuteGameplayCue(UNTAG_GAMEPLAYCUE_CHARACTER_FLOORSKILLEFFECT, CueParam);
+			}
+		}
+		else
+		{
 			FGameplayCueParameters CueParam;
-			CueParam.EffectContext = CueContextHandle;
-
-			//SourceASC->ExecuteGameplayCue(UNTAG_GameplayCue_CHARACTER_AttackHit, CueParam);
+			CueParam.Instigator = SourceASC->GetAvatarActor();
 			SourceASC->ExecuteGameplayCue(UNTAG_GAMEPLAYCUE_CHARACTER_FLOORSKILLEFFECT, CueParam);
 		}
 	}

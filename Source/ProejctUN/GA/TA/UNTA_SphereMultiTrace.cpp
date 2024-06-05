@@ -51,10 +51,11 @@ FGameplayAbilityTargetDataHandle AUNTA_SphereMultiTrace::MakeTargetData() const
 			//UE_LOG(LogTemp, Log, TEXT("%s"), *HitActor->GetName());
 		}
 	}
-
 	FGameplayAbilityTargetData_ActorArray* ActorsData = new FGameplayAbilityTargetData_ActorArray();
 	ActorsData->SetActors(HitActors);
 
+	FGameplayAbilityTargetDataHandle TargetDataHandle(ActorsData);
+	TargetDataHandle.UniqueId = 1;
 
 // 범위 디버그
 
@@ -67,5 +68,6 @@ FGameplayAbilityTargetDataHandle AUNTA_SphereMultiTrace::MakeTargetData() const
 	}
 #endif
 
-	return FGameplayAbilityTargetDataHandle(ActorsData);
+	return TargetDataHandle;
+	//return FGameplayAbilityTargetDataHandle(ActorsData);
 }
