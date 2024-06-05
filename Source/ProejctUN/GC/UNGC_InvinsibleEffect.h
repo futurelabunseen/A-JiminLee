@@ -9,6 +9,9 @@
 /**
  * 
  */
+
+class UNiagaraSystem;
+
 UCLASS()
 class PROEJCTUN_API UUNGC_InvinsibleEffect : public UGameplayCueNotify_Static
 {
@@ -22,5 +25,8 @@ public:
 protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GameplayCue)
-	TObjectPtr<class UNiagaraSystem> Niagara;
+	TObjectPtr<UNiagaraSystem> Niagara;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GameplayCue)
+	TObjectPtr<UNiagaraSystem> FloorNiagara;
 };

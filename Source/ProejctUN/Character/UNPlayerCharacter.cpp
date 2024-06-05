@@ -12,6 +12,8 @@
 #include "EnhancedInputSubsystems.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/DecalComponent.h"
+#include "NiagaraComponent.h"
+#include "NiagaraSystem.h"
 
 #include "Props/UNInteractableObjectBase.h"
 #include "ASC/UNAbilitySystemComponent.h"
@@ -145,6 +147,11 @@ AUNPlayerCharacter::AUNPlayerCharacter()
 	PlayerInventory = CreateDefaultSubobject<UUNInventoryComponent>(TEXT("Inventory"));
 	PlayerInventory->SetSlotsCapacity(20);
 	PlayerInventory->SetWeightCapacity(50.f);
+
+	Niagara = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Niagara"));
+	Niagara->SetupAttachment(RootComponent);
+	Niagara->SetAutoActivate(false);
+	Niagara->SetWorldScale3D(FVector(3.f, 3.f, 3.f));
 }
 
 UAbilitySystemComponent* AUNPlayerCharacter::GetAbilitySystemComponent() const
@@ -704,4 +711,13 @@ void AUNPlayerCharacter::ServerRPCSpawnItem_Implementation(FName ID, FTransform 
 	AUNPickupObject* PickUpObject = GetWorld()->SpawnActor<AUNPickupObject>(AUNPickupObject::StaticClass(), SpawnLocaiton, SpawnParams);
 
 	PickUpObject->InitializeDropItem(ID, Quantity);
+}
+
+void AUNPlayerCharacter::UpdateNiagara(UNiagaraSystem* NiagaraSystem)
+{
+	if (Niagara)
+	{
+		Niagara->SetAsset(NiagaraSystem);
+		Niagara->Activate(true);
+	}
 }

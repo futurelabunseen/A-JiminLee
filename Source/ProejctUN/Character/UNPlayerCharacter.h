@@ -70,6 +70,10 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UDecalComponent* Decal;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	class UNiagaraComponent* Niagara;
+
+
 	UPROPERTY(EditAnywhere)
 	APlayerController* PlayerController;
 
@@ -231,4 +235,10 @@ public:
 
 	UFUNCTION(Server, Unreliable)
 	void ServerRPCDestoryActor(AUNPickupObject* Obj);
+
+// Niagara
+public:
+	UFUNCTION()
+	void UpdateNiagara(UNiagaraSystem* NiagaraSystem);
+	
 };
