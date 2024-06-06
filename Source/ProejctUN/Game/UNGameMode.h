@@ -11,6 +11,7 @@
  */
 
 class AUNPickupObject;
+class AUNPlayerCharacter;
 
 namespace MatchState
 {
@@ -31,6 +32,7 @@ public:
 	virtual void BeginPlay() override;
 	virtual void PreLogin(const FString& Options, const FString& Address, const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage) override;
 	virtual APlayerController* Login(UPlayer* NewPlayer, ENetRole InRemoteRole, const FString& Portal, const FString& Options, const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage) override;
+	virtual void Logout(AController* Exiting) override;
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 	virtual void OnMatchStateSet() override;
 
@@ -68,7 +70,12 @@ public:
 	UFUNCTION()
 	void SpawnProps();
 
+	UFUNCTION()
+	void OnCharacterDeath(AUNCharacter* Character);
+
 	UPROPERTY(VisibleAnywhere)
 	TArray<TObjectPtr<AUNPickupObject> > SpawnedItems;
+
+	TArray<AUNCharacter*> PlayerArray;
 
 };

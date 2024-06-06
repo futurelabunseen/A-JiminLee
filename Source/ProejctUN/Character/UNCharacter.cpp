@@ -12,6 +12,7 @@
 #include "UI/UNGASWidgetComponent.h"
 #include "UI/Widget/UNGASUserWidget.h"
 #include "EngineUtils.h"
+#include "Game/UNGameMode.h"
 #include "ProejctUN.h"
 
 AUNCharacter::AUNCharacter()
@@ -93,6 +94,8 @@ void AUNCharacter::PostInitializeComponents()
 void AUNCharacter::OnOutOfHealth()
 {
 	MulticastRPCPlayAnimation(this);
+
+	OnDeath.Broadcast(this);
 
 	//일단 멀티캐스트로 구현
 	

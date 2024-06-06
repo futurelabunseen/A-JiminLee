@@ -16,7 +16,6 @@ UUNGC_SkillFloorEffect::UUNGC_SkillFloorEffect()
 
 bool UUNGC_SkillFloorEffect::OnExecute_Implementation(AActor* Target, const FGameplayCueParameters& Parameters) const
 {
-	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Magenta, "1");
 	if (AActor* Instigator = Parameters.EffectContext.GetInstigator())
 	{
 		UGameplayStatics::SpawnEmitterAtLocation(Target, ParticleSystem, Instigator->GetActorLocation(), FRotator::ZeroRotator, true);
@@ -24,7 +23,6 @@ bool UUNGC_SkillFloorEffect::OnExecute_Implementation(AActor* Target, const FGam
 
 	else
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Magenta, "2");
 		UGameplayStatics::SpawnEmitterAtLocation(Target, ParticleSystem, Parameters.Instigator->GetActorLocation(), FRotator::ZeroRotator, true);
 	}
 	//const FHitResult* HitResult = Parameters.EffectContext.GetHitResult();

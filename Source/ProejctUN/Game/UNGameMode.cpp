@@ -7,6 +7,7 @@
 #include "Player/UNGASPlayerState.h"
 #include "Player/UNPlayerController.h"
 #include "Props/UNPickupObject.h"
+#include "Character/UNPlayerCharacter.h"
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
@@ -56,9 +57,19 @@ void AUNGameMode::BeginPlay()
 	FTimerHandle CountDownTimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(CountDownTimerHandle, [&]()
 		{
+			TArray<AActor*> Players;
+			UGameplayStatics::GetAllActorsOfClass(GetWorld(), AUNPlayerCharacter::StaticClass(), Players);
+
+			for (const auto& Player : Players)
+			{
+				AUNPlayerCharacter* Character = Cast<AUNPlayerCharacter>(Player);
+				Character->OnDeath.AddDynamic(this, &AUNGameMode::OnCharacterDeath);
+				PlayerArray.Add(Character);
+			}
+
 			GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, "GameStart");
 			SetMatchState(MatchState::CountDown);
-		}, 1.f, false);
+		}, 3.f, false);
 }
 
 //void AUNGameMode::Tick(float DeltaTime)
@@ -83,6 +94,12 @@ APlayerController* AUNGameMode::Login(UPlayer* NewPlayer, ENetRole InRemoteRole,
 	APlayerController* NewPlayerController = Super::Login(NewPlayer, InRemoteRole, Portal, Options, UniqueId, ErrorMessage);
 	UN_LOG(LogUNNetwork, Log, TEXT("%s"), TEXT("End"));
 	return NewPlayerController;
+}
+
+void AUNGameMode::Logout(AController* Exiting)
+{
+	//APlayerController* PlayerController = Cast<APlayerController>(Exiting);
+	Super::Logout(Exiting);
 }
 
 void AUNGameMode::PostLogin(APlayerController* NewPlayer)
@@ -155,5 +172,24 @@ void AUNGameMode::SpawnProps()
 			AUNPickupObject* SpawnedActor = World->SpawnActor<AUNPickupObject>(AUNPickupObject::StaticClass(), SpawnLoc, FQuat::Identity.Rotator(), SpawnParams);
 			SpawnedItems.Add(SpawnedActor);
 		}
+	}
+}
+
+void AUNGameMode::OnCharacterDeath(AUNCharacter* Character)
+{
+	for (int i = 0; i < PlayerArray.Num(); i++)
+	{
+		if (PlayerArray[i] == Character)
+		{
+			PlayerArray.RemoveAt(i);
+		}
+	}
+
+	int32 RemainingCharacterCount = PlayerArray.Num();
+
+	if (RemainingCharacterCount == 1)
+	{
+		// To Do .. : 끝내는 로직
+		GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Magenta, "End");
 	}
 }
