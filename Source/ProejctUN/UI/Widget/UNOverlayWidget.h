@@ -41,6 +41,9 @@ public:
 	UImage* ESkill;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget), Category = "Icon")
+	UImage* RSkill;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget), Category = "Icon")
 	UTextBlock* CountDownText;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget), Category = "Icon")

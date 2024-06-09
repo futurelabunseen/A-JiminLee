@@ -33,4 +33,3 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GameplayCue)
 	TObjectPtr<USoundBase> Sound;
 };
-
