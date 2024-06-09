@@ -87,6 +87,12 @@ AUNPlayerCharacter::AUNPlayerCharacter()
 		UltimateAction = InputActionUltimateRef.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionSCancelRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Action/IA_SCancel.IA_SCancel'"));
+	if (nullptr != InputActionSCancelRef.Object)
+	{
+		SCancelAction = InputActionSCancelRef.Object;
+	}
+
 	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionConfirmRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Action/IA_Confirm.IA_Confirm'"));
 	if (nullptr != InputActionConfirmRef.Object)
 	{
@@ -206,6 +212,7 @@ void AUNPlayerCharacter::SetupPlayerGASInputComponent()
 		EnhancedInputComponent->BindAction(TeleportAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::GASInputPressed, 2);
 		EnhancedInputComponent->BindAction(InvinsibleAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::GASInputPressed, 3);
 		EnhancedInputComponent->BindAction(UltimateAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::GASInputPressed, 4);
+		EnhancedInputComponent->BindAction(SCancelAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::SCancelActionFunction);
 		EnhancedInputComponent->BindAction(ConfirmAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::SendConfirmToTargetActor);
 		EnhancedInputComponent->BindAction(CancelAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::SendCancelToTargetActor);
 
@@ -742,5 +749,22 @@ void AUNPlayerCharacter::UpdateHeadNiagara(UNiagaraSystem* NiagaraSystem)
 	{
 		HeadNiagara->SetAsset(NiagaraSystem);
 		HeadNiagara->Activate(true);
+	}
+}
+
+void AUNPlayerCharacter::SCancelActionFunction()
+{
+	ServerRPCSCancelActionFunction();
+}
+
+void AUNPlayerCharacter::ServerRPCSCancelActionFunction_Implementation()
+{
+	if (ASC->GetCurrentActiveAbility() != nullptr)
+	{
+		FGameplayAbilitySpecHandle Handle = ASC->GetCurrentActiveAbility()->GetCurrentAbilitySpecHandle();
+		FGameplayAbilitySpec* Spec = ASC->FindAbilitySpecFromHandle(Handle);
+
+		ASC->CancelAbilityHandle(Handle);
+		//ASC->GetCurrentActiveAbility()->Cancel;
 	}
 }

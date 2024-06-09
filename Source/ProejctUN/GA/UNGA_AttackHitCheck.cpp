@@ -20,6 +20,11 @@ void UUNGA_AttackHitCheck::ActivateAbility(const FGameplayAbilitySpecHandle Hand
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
+	if (UUNAbilitySystemComponent* ASC = Cast<UUNAbilitySystemComponent>(GetAbilitySystemComponentFromActorInfo_Checked()))
+	{
+		ASC->SetCurrentActiveAbility(nullptr);
+	}
+
 	CurrentLevel = CurrentEventData.EventMagnitude;
 
 	// 필요한 델리게이트를 지정하고 AT를 실행

@@ -62,6 +62,9 @@ public:
 	UInputAction* UltimateAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* SCancelAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* ConfirmAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -249,4 +252,10 @@ public:
 
 	UFUNCTION()
 	void UpdateHeadNiagara(UNiagaraSystem* NiagaraSystem);
+
+	UFUNCTION()
+	void SCancelActionFunction();
+
+	UFUNCTION(Server, Unreliable)
+	void ServerRPCSCancelActionFunction();
 };
