@@ -104,6 +104,14 @@ void UUNGA_AttackHitCheck::OnTraceResultCallback(const FGameplayAbilityTargetDat
 
 				//SourceASC->ExecuteGameplayCue(UNTAG_GameplayCue_CHARACTER_AttackHit, CueParam);
 				SourceASC->ExecuteGameplayCue(UNTAG_GAMEPLAYCUE_CHARACTER_FLOORSKILLEFFECT, CueParam);
+
+				FGameplayEffectContextHandle StunCueContextHandle = UAbilitySystemBlueprintLibrary::GetEffectContext(StunEffectSpecHandle);
+				StunCueContextHandle.AddInstigator(SourceASC->GetAvatarActor(), SourceASC->GetAvatarActor());
+				StunCueContextHandle.AddActors(TargetDataHandle.Data[0].Get()->GetActors(), false);
+				FGameplayCueParameters StunCueParam;
+				StunCueParam.EffectContext = StunCueContextHandle;
+
+				SourceASC->ExecuteGameplayCue(UNTAG_GAMEPLAYCUE_CHARACTER_STUNEFFECT, StunCueParam);
 			}
 		}
 		else

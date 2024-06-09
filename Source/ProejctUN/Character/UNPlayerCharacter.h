@@ -73,6 +73,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UNiagaraComponent* Niagara;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	class UNiagaraComponent* HeadNiagara;
+
 
 	UPROPERTY(EditAnywhere)
 	APlayerController* PlayerController;
@@ -240,5 +243,7 @@ public:
 public:
 	UFUNCTION()
 	void UpdateNiagara(UNiagaraSystem* NiagaraSystem);
-	
+
+	UFUNCTION()
+	void UpdateHeadNiagara(UNiagaraSystem* NiagaraSystem);
 };

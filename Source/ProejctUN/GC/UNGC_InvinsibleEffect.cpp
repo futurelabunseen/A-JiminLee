@@ -29,7 +29,7 @@ bool UUNGC_InvinsibleEffect::OnExecute_Implementation(AActor* Target, const FGam
 	if (PlayerCharacter)
 	{
 		PlayerCharacter->UpdateNiagara(Niagara);
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, FloorNiagara , PlayerCharacter->GetActorLocation(), FRotator::ZeroRotator, FVector(5.f, 5.f, 5.f));
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, FloorNiagara , PlayerCharacter->GetActorLocation() + FVector(0.f, 0.f, 50.f), FRotator::ZeroRotator);
 	}
 	
 

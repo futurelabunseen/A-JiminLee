@@ -152,6 +152,12 @@ AUNPlayerCharacter::AUNPlayerCharacter()
 	Niagara->SetupAttachment(RootComponent);
 	Niagara->SetAutoActivate(false);
 	Niagara->SetWorldScale3D(FVector(3.f, 3.f, 3.f));
+
+	HeadNiagara = CreateDefaultSubobject<UNiagaraComponent>(TEXT("HeadNiagara"));
+	HeadNiagara->SetupAttachment(RootComponent);
+	HeadNiagara->SetAutoActivate(false);
+	HeadNiagara->SetRelativeLocation(FVector(0.f, 0.f, 120.f));
+	HeadNiagara->SetWorldScale3D(FVector(0.5f, 0.5f, 0.5f));
 }
 
 UAbilitySystemComponent* AUNPlayerCharacter::GetAbilitySystemComponent() const
@@ -720,5 +726,14 @@ void AUNPlayerCharacter::UpdateNiagara(UNiagaraSystem* NiagaraSystem)
 	{
 		Niagara->SetAsset(NiagaraSystem);
 		Niagara->Activate(true);
+	}
+}
+
+void AUNPlayerCharacter::UpdateHeadNiagara(UNiagaraSystem* NiagaraSystem)
+{
+	if (ASC->HasMatchingGameplayTag(UNTAG_CHARACTER_STATE_ISSTUNING))
+	{
+		HeadNiagara->SetAsset(NiagaraSystem);
+		HeadNiagara->Activate(true);
 	}
 }
