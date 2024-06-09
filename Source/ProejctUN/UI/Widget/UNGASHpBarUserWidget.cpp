@@ -60,7 +60,7 @@ void UUNGASHpBarUserWidget::OnInvinsibleTagChange(const FGameplayTag CallbackTag
 	if (NewCount > 0)
 	{
 		PbHpBar->SetFillColorAndOpacity(InvinsibleColor);
-		PbHpBar->SetPercent(1.f);
+		//PbHpBar->SetPercent(1.f);
 	}
 	else
 	{
@@ -83,6 +83,4 @@ void UUNGASHpBarUserWidget::UpdateHpBar()
 	}
 
 	AUNPlayerCharacter* PlayerCharacter = Cast<AUNPlayerCharacter>(ASC->GetOwnerActor());
-	UE_LOG(LogTemp, Log, TEXT("Test : %s"), *ASC->GetOwnerActor()->GetName());
-	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, TEXT("HpBarUpdate"));
 }
