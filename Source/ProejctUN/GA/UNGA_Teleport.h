@@ -39,7 +39,7 @@ protected:
 	void EndDecal();
 
 	UFUNCTION(Server, reliable)
-	void TeleportToLocation(FVector NewLocation);
+	void TeleportToLocation(FVector NewLocation, FGameplayCueParameters Params);
 
 	UPROPERTY(EditAnywhere, Category = GAS)
 	TSubclassOf<class AUNTA_TraceLocation> TargetActorClass;

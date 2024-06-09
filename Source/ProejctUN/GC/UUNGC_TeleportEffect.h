@@ -9,6 +9,9 @@
 /**
  * 
  */
+
+class UNiagaraSystem;
+
 UCLASS()
 class PROEJCTUN_API UUUNGC_TeleportEffect : public UGameplayCueNotify_Static
 {
@@ -21,7 +24,10 @@ public:
 
 protected:
 
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GameplayCue)
+	//TObjectPtr<class UParticleSystem> ParticleSystem;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GameplayCue)
-	TObjectPtr<class UParticleSystem> ParticleSystem;
+	TObjectPtr<UNiagaraSystem> Niagara;
 };
 

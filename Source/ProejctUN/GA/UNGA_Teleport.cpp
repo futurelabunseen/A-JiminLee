@@ -73,13 +73,13 @@ void UUNGA_Teleport::OnTraceResultCallback(const FGameplayAbilityTargetDataHandl
 				
 				FGameplayCueParameters CueParam;
 				CueParam.EffectContext = CueContextHandle;
+				//CueParam.Location = SourceASC->GetAvatarActor()->GetActorLocation();
 				SourceASC->ExecuteGameplayCue(UNTAG_GAMEPLAYCUE_CHARACTER_TELEPORTEFFECT, CueParam);
+
+				PlayerCharacter->GetController()->StopMovement();
+				TeleportToLocation(TargetLocation, CueParam);
 			}
 		}
-
-
-		PlayerCharacter->GetController()->StopMovement();
-		TeleportToLocation(TargetLocation);
 
 		bool bReplicatedEndAbility = true;
 		bool bWasCancelled = false;
@@ -113,8 +113,12 @@ void UUNGA_Teleport::EndDecal()
 	PlayerCharacter->EndDecal();
 }
 
-void UUNGA_Teleport::TeleportToLocation_Implementation(FVector NewLocation)
+void UUNGA_Teleport::TeleportToLocation_Implementation(FVector NewLocation, FGameplayCueParameters Params)
 {
+	UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo_Checked();
+	Params.Location = SourceASC->GetAvatarActor()->GetActorLocation();
+	SourceASC->ExecuteGameplayCue(UNTAG_GAMEPLAYCUE_CHARACTER_TELEPORTEFFECT, Params);
+
 	PlayerCharacter->TeleportTo(NewLocation, (NewLocation - PlayerCharacter->GetActorLocation()).Rotation(), false, true);
 }
 
