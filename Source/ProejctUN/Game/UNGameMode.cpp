@@ -44,6 +44,8 @@ AUNGameMode::AUNGameMode() :
 
 	GameStateClass = AUNGameState::StaticClass();
 	PlayerStateClass = AUNGASPlayerState::StaticClass();
+
+	//bDelayedStart = true;
 }
 
 void AUNGameMode::BeginPlay()

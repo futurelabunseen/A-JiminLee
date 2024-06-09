@@ -321,6 +321,7 @@ void AUNPlayerCharacter::SetCharacterControl()
 	PlayerController = CastChecked<APlayerController>(GetController());
 	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
 	{
+		//Subsystem->ClearAllMappings();
 		Subsystem->AddMappingContext(DefaultMappingContext, 0);
 	}
 	UN_LOG(LogUNNetwork, Log, TEXT("End"));

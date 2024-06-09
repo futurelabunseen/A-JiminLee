@@ -68,7 +68,7 @@ public:
 	FVector MaxSpawnLocation;
 
 	UFUNCTION()
-	void SpawnProps();
+	void SpawnProps(); 
 
 	UFUNCTION()
 	void OnCharacterDeath(AUNCharacter* Character);

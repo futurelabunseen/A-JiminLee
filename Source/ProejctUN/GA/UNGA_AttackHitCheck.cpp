@@ -4,6 +4,7 @@
 #include "GA/UNGA_AttackHitCheck.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "Attribute/UNCharacterAttributeSet.h"
+#include "ASC/UNAbilitySystemComponent.h"
 #include "Tag/UNGameplayTag.h"
 #include "GA/AT/UNAT_Trace.h"
 #include "GA/TA/UNTA_Trace.h"
@@ -81,6 +82,8 @@ void UUNGA_AttackHitCheck::OnTraceResultCallback(const FGameplayAbilityTargetDat
 	// 광역 스턴 공격 시
 	else if (TargetDataHandle.UniqueId == 1)
 	{
+		//FHitResult HitResult = UAbilitySystemBlueprintLibrary::GetHitResultFromTargetData(TargetDataHandle, 0);
+
 		UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo_Checked();
 
 		if (UAbilitySystemBlueprintLibrary::TargetDataHasActor(TargetDataHandle, 0))
