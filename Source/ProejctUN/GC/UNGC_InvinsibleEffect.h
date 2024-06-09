@@ -11,6 +11,7 @@
  */
 
 class UNiagaraSystem;
+class USoundBase;
 
 UCLASS()
 class PROEJCTUN_API UUNGC_InvinsibleEffect : public UGameplayCueNotify_Static
@@ -29,4 +30,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GameplayCue)
 	TObjectPtr<UNiagaraSystem> FloorNiagara;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GameplayCue)
+	TObjectPtr<USoundBase> Sound;
+
 };

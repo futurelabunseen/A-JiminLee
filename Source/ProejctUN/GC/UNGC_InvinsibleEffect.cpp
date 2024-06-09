@@ -20,6 +20,12 @@ UUNGC_InvinsibleEffect::UUNGC_InvinsibleEffect()
 	{
 		FloorNiagara = InvinsibleFloorEffectRef.Object;
 	}
+
+	static ConstructorHelpers::FObjectFinder<USoundBase> SoundEffectRef(TEXT("/Script/Engine.SoundWave'/Game/Sound/WSkillSound.WSkillSound'"));
+	if (SoundEffectRef.Object)
+	{
+		Sound = SoundEffectRef.Object;
+	}
 }
 
 bool UUNGC_InvinsibleEffect::OnExecute_Implementation(AActor* Target, const FGameplayCueParameters& Parameters) const
@@ -30,6 +36,7 @@ bool UUNGC_InvinsibleEffect::OnExecute_Implementation(AActor* Target, const FGam
 	{
 		PlayerCharacter->UpdateNiagara(Niagara);
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, FloorNiagara , PlayerCharacter->GetActorLocation() + FVector(0.f, 0.f, 50.f), FRotator::ZeroRotator);
+		UGameplayStatics::PlaySoundAtLocation(this, Sound, PlayerCharacter->GetActorLocation());
 	}
 	
 

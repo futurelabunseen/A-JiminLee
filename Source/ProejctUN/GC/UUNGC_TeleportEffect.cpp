@@ -23,6 +23,13 @@ UUUNGC_TeleportEffect::UUUNGC_TeleportEffect()
 	{
 		Niagara = TeleportEffectRef.Object;
 	}
+
+	static ConstructorHelpers::FObjectFinder<USoundBase> SoundEffectRef(TEXT("/Script/Engine.SoundWave'/Game/Sound/ESkillSound.ESkillSound'"));
+	if (SoundEffectRef.Object)
+	{
+		Sound = SoundEffectRef.Object;
+	}
+
 }
 
 bool UUUNGC_TeleportEffect::OnExecute_Implementation(AActor* Target, const FGameplayCueParameters& Parameters) const
@@ -35,6 +42,7 @@ bool UUUNGC_TeleportEffect::OnExecute_Implementation(AActor* Target, const FGame
 	if (HitResult)
 	{
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(Target, Niagara, HitResult->Location, FRotator::ZeroRotator);
+		UGameplayStatics::PlaySoundAtLocation(this, Sound, HitResult->Location);
 		//UGameplayStatics::SpawnEmitterAtLocation(Target, ParticleSystem, HitResult->Location, FRotator::ZeroRotator, true);
 	}
 	return false;
