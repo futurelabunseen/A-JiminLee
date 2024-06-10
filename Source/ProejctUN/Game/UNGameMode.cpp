@@ -13,6 +13,7 @@
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/WorldSettings.h"
 #include "Engine/World.h"
+#include "GameFramework/PlayerStart.h"
 #include "Kismet/GameplayStatics.h"
 
 namespace MatchState
@@ -94,6 +95,7 @@ APlayerController* AUNGameMode::Login(UPlayer* NewPlayer, ENetRole InRemoteRole,
 {
 	UN_LOG(LogUNNetwork, Log, TEXT("%s"), TEXT("Begin"));
 	APlayerController* NewPlayerController = Super::Login(NewPlayer, InRemoteRole, Portal, Options, UniqueId, ErrorMessage);
+	ChoosePlayerStart_Implementation(NewPlayerController);
 	UN_LOG(LogUNNetwork, Log, TEXT("%s"), TEXT("End"));
 	return NewPlayerController;
 }
@@ -171,7 +173,7 @@ void AUNGameMode::SpawnProps()
 			
 			FVector SpawnLoc = FVector(RandomX, RandomY, RandomZ);
 			FActorSpawnParameters SpawnParams;
-			AUNPickupObject* SpawnedActor = World->SpawnActor<AUNPickupObject>(AUNPickupObject::StaticClass(), SpawnLoc, FQuat::Identity.Rotator(), SpawnParams);
+			AUNPickupObject* SpawnedActor = World->SpawnActor<AUNPickupObject>(AUNPickupObject::StaticClass(), SpawnLoc, FRotator(90.f, 0.f, 55.f), SpawnParams); //FQuat::Identity.Rotator()
 			SpawnedItems.Add(SpawnedActor);
 		}
 	}
@@ -194,4 +196,21 @@ void AUNGameMode::OnCharacterDeath(AUNCharacter* Character)
 		// To Do .. : 끝내는 로직
 		GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Magenta, "End");
 	}
+}
+
+AActor* AUNGameMode::ChoosePlayerStart_Implementation(AController* Player)
+{
+	TArray<AActor*> PlayerStarts;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerStart::StaticClass(), PlayerStarts);
+
+	// Ensure we have at least one PlayerStart in the level
+	if (PlayerStarts.Num() > 0)
+	{
+		// Select a random PlayerStart
+		int32 RandomIndex = FMath::RandRange(0, PlayerStarts.Num() - 1);
+		return PlayerStarts[RandomIndex];
+	}
+
+	// Fall back to default behavior if no PlayerStart is found
+	return Super::ChoosePlayerStart_Implementation(Player);
 }

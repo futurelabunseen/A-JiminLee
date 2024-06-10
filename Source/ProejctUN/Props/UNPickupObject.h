@@ -50,13 +50,13 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "Pickup | Interaction")
 	FInteractableData InstanceInteractableData;
 
+	UPROPERTY(VisibleAnywhere)
 	bool bIsSelected;
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere)
 	AActor* InteractingActor;
 
-	UPROPERTY()
-	
+	UPROPERTY(VisibleAnywhere)
 	TArray<AActor*> OverlapList;
 
 	FTimerHandle TimerHandle;

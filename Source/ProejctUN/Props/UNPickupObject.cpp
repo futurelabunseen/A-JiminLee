@@ -25,7 +25,7 @@ AUNPickupObject::AUNPickupObject()
 		ItemDataTable = DataTableRef.Object;
 	}
 
-	BoxCollision->SetBoxExtent(FVector(150.f, 150.f, 1.f));
+	BoxCollision->SetBoxExtent(FVector(150.f, 150.f, 150.f));
 	BoxCollision->OnComponentBeginOverlap.AddDynamic(this, &AUNPickupObject::OnBoxCollisionBeginOverlap);
 	BoxCollision->OnComponentEndOverlap.AddDynamic(this, &AUNPickupObject::OnBoxCollisionEndOverlap);
 	bReplicates = true;
@@ -36,14 +36,6 @@ void AUNPickupObject::BeginPlay()
 	Super::BeginPlay();
 	
 	InitializePickup(UItemBase::StaticClass(), ItemQuantity);
-
-	if (GetWorld())
-	{
-		GetWorld()->GetTimerManager().SetTimer(TimerHandle, [this]()
-			{
-				SkeletalMesh->SetSimulatePhysics(false);
-			}, 5.0f, false);
-	}
 }
 
 void AUNPickupObject::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -88,16 +80,14 @@ void AUNPickupObject::InitializePickup(const TSubclassOf<UItemBase> BaseClass, c
 		if (ItemData->AssetData.Mesh)
 		{
 			Mesh->SetStaticMesh(ItemData->AssetData.Mesh);
-			Mesh->SetSimulatePhysics(true);
 			Mesh->SetCollisionProfileName("UNPickUpObject");
-			BoxCollision->SetCollisionProfileName("OverlapOnlyPawn");
+			BoxCollision->SetCollisionProfileName("ItemTrigger");
 		}
 		else
 		{
 			SkeletalMesh->SetSkeletalMesh(ItemData->AssetData.SkeletalMesh);
-			SkeletalMesh->SetSimulatePhysics(true);
 			SkeletalMesh->SetCollisionProfileName("UNPickUpObject");
-			BoxCollision->SetCollisionProfileName("OverlapOnlyPawn");
+			BoxCollision->SetCollisionProfileName("ItemTrigger");
 		}
 
 		UpdateInteractableData();
