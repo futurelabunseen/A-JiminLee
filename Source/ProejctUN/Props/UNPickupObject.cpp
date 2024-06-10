@@ -195,6 +195,10 @@ void AUNPickupObject::TakePickUp(AActor* Taker)
 
 void AUNPickupObject::OnBoxCollisionBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Magenta, "BeginOverlap");
+
+	OverlapList.Add(OtherActor);
+
 	if (bIsSelected && OtherActor == InteractingActor)
 	{
 		TakePickUp(OtherActor);
@@ -203,6 +207,10 @@ void AUNPickupObject::OnBoxCollisionBeginOverlap(UPrimitiveComponent* Overlapped
 
 void AUNPickupObject::OnBoxCollisionEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
+	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Magenta, "EndOverlap");
+
+	OverlapList.Remove(OtherActor);
+
 	if (OtherActor == InteractingActor)
 	{
 		EndInteract();
@@ -214,6 +222,11 @@ void AUNPickupObject::Interact(AActor* Player)
 	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Magenta, "Interact");
 	bIsSelected = true;
 	InteractingActor = Player;
+
+	if (OverlapList.Contains(InteractingActor))
+	{
+		TakePickUp(InteractingActor);
+	}
 }
 
 void AUNPickupObject::EndInteract()

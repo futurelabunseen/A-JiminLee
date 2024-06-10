@@ -23,6 +23,7 @@ void UUNGA_AttackHitCheck::ActivateAbility(const FGameplayAbilitySpecHandle Hand
 	if (UUNAbilitySystemComponent* ASC = Cast<UUNAbilitySystemComponent>(GetAbilitySystemComponentFromActorInfo_Checked()))
 	{
 		ASC->SetCurrentActiveAbility(nullptr);
+		ASC->bAbilityAlreadyActivate = true;
 	}
 
 	CurrentLevel = CurrentEventData.EventMagnitude;

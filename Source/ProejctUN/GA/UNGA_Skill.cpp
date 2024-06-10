@@ -85,11 +85,6 @@ void UUNGA_Skill::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGam
 
 void UUNGA_Skill::OnCompleteCallback()
 {
-	//if (UUNAbilitySystemComponent* ASC = Cast<UUNAbilitySystemComponent>(GetAbilitySystemComponentFromActorInfo_Checked()))
-	//{
-	//	ASC->SetCurrentActiveAbility(nullptr);
-	//}
-
 	bool bReplicatedEndAbility = true;
 	bool bWasCancelled = false;
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, bReplicatedEndAbility, bWasCancelled);

@@ -55,6 +55,10 @@ public:
 	UPROPERTY()
 	AActor* InteractingActor;
 
+	UPROPERTY()
+	
+	TArray<AActor*> OverlapList;
+
 	FTimerHandle TimerHandle;
 
 	UFUNCTION()

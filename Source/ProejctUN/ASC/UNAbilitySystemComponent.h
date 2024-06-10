@@ -27,4 +27,7 @@ public:
 
 	TObjectPtr<UGameplayAbility> GetCurrentActiveAbility() { return CurrentActiveAbility; }
 	void SetCurrentActiveAbility(TObjectPtr<UGameplayAbility> NewCurrentActiveAbility) { CurrentActiveAbility = NewCurrentActiveAbility; }
+
+	UPROPERTY()
+	uint32 bAbilityAlreadyActivate;
 };
