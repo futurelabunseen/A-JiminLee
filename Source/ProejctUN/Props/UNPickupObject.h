@@ -76,6 +76,8 @@ public:
 	UFUNCTION(Server, Unreliable)
 	void ServerRPCDestoryActor();
 
+	UFUNCTION()
+	void MoveToFloor();
 //
 //#if WITH_EDITOR
 //	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangeEvent) override;

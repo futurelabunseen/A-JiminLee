@@ -28,6 +28,7 @@ AUNPickupObject::AUNPickupObject()
 	BoxCollision->SetBoxExtent(FVector(150.f, 150.f, 150.f));
 	BoxCollision->OnComponentBeginOverlap.AddDynamic(this, &AUNPickupObject::OnBoxCollisionBeginOverlap);
 	BoxCollision->OnComponentEndOverlap.AddDynamic(this, &AUNPickupObject::OnBoxCollisionEndOverlap);
+
 	bReplicates = true;
 }
 
@@ -36,6 +37,8 @@ void AUNPickupObject::BeginPlay()
 	Super::BeginPlay();
 	
 	InitializePickup(UItemBase::StaticClass(), ItemQuantity);
+
+	MoveToFloor();
 }
 
 void AUNPickupObject::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -47,6 +50,11 @@ void AUNPickupObject::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 
 void AUNPickupObject::InitializePickup(const TSubclassOf<UItemBase> BaseClass, const int32 InQuantity)
 {
+	float RandomRotation = FMath::RandRange(0, 360);
+	float RandomLookAt = (FMath::RandRange(0, 1)) == 0 ? -90.f : 90.f;
+
+	this->SetActorRotation(FRotator(RandomLookAt, RandomRotation, 0.f));
+
 	if (DesiredItemID.IsNone())
 	{
 		TArray<FName> ItemNames = ItemDataTable->GetRowNames();
@@ -264,3 +272,24 @@ void AUNPickupObject::NotifyActorEndOverlap(AActor* Other)
 //		}
 //	}
 //}
+
+void AUNPickupObject::MoveToFloor()
+{
+	FVector Start = GetActorLocation();
+	FVector End = Start - FVector(0.0f, 0.0f, 500.0f);
+
+	FHitResult HitResult;
+	FCollisionQueryParams CollisionParams;
+	CollisionParams.AddIgnoredActor(this);
+
+	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, CollisionParams);
+	DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 2.0f, 0, 1.0f);
+
+	if (bHit)
+	{
+		FVector NewLocation = HitResult.Location;
+		SetActorLocation(NewLocation);
+
+		DrawDebugSphere(GetWorld(), NewLocation, 25.0f, 12, FColor::Red, false, 2.0f);
+	}
+}

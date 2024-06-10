@@ -20,6 +20,7 @@ AUNCharacter::AUNCharacter()
 	//기본 세팅
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 	GetCapsuleComponent()->SetCollisionProfileName(CPROFILE_UNCAPSULE);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
 
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
@@ -48,6 +49,7 @@ AUNCharacter::AUNCharacter()
 	GetMesh()->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, -100.0f), FRotator(0.0f, -90.0f, 0.0f));
 	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
 	GetMesh()->SetCollisionProfileName(TEXT("NoCollision"));
+	GetMesh()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
 
 	// 프로퍼티 기본값
 	DeadEventDelayTime = 5.f;

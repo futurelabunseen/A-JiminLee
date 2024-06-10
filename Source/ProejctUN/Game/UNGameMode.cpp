@@ -170,14 +170,38 @@ void AUNGameMode::SpawnProps()
 			float RandomX = FMath::RandRange(MinSpawnLocation.X, MaxSpawnLocation.X);
 			float RandomY = FMath::RandRange(MinSpawnLocation.Y, MaxSpawnLocation.Y);
 			float RandomZ = FMath::RandRange(MinSpawnLocation.Z, MaxSpawnLocation.Z);
-			
 			FVector SpawnLoc = FVector(RandomX, RandomY, RandomZ);
+
 			FActorSpawnParameters SpawnParams;
-			AUNPickupObject* SpawnedActor = World->SpawnActor<AUNPickupObject>(AUNPickupObject::StaticClass(), SpawnLoc, FRotator(90.f, 0.f, 55.f), SpawnParams); //FQuat::Identity.Rotator()
+			AUNPickupObject* SpawnedActor = World->SpawnActor<AUNPickupObject>(AUNPickupObject::StaticClass(), SpawnLoc, FQuat::Identity.Rotator(), SpawnParams); //FQuat::Identity.Rotator()
 			SpawnedItems.Add(SpawnedActor);
 		}
 	}
 }
+//
+//void AUNGameMode::SpawnProps()
+//{
+//	if (UWorld* World = GetWorld())
+//	{
+//		int SpawnCnt = FMath::RandRange(MinSpawnCount, MaxSpawnCount - 1);
+//
+//		for (int cnt = 0; cnt < SpawnCnt; cnt++)
+//		{
+//			// 테스트용 랜덤
+//			float RandomX = FMath::RandRange(MinSpawnLocation.X, MaxSpawnLocation.X);
+//			float RandomY = FMath::RandRange(MinSpawnLocation.Y, MaxSpawnLocation.Y);
+//			float RandomZ = FMath::RandRange(MinSpawnLocation.Z, MaxSpawnLocation.Z);
+//
+//			float RandomRotation = FMath::RandRange(0, 360);
+//			int32 RandomLookAt = FMath::RandRange(0, 1);
+//
+//			FVector SpawnLoc = FVector(RandomX, RandomY, RandomZ);
+//			FActorSpawnParameters SpawnParams;
+//			AUNPickupObject* SpawnedActor = World->SpawnActor<AUNPickupObject>(AUNPickupObject::StaticClass(), SpawnLoc, FRotator((RandomLookAt == 0) ? -90.f : 90.f, RandomRotation, 0.f), SpawnParams); //FQuat::Identity.Rotator()
+//			SpawnedItems.Add(SpawnedActor);
+//		}
+//	}
+//}
 
 void AUNGameMode::OnCharacterDeath(AUNCharacter* Character)
 {
