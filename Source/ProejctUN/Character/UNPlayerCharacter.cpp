@@ -755,6 +755,8 @@ void AUNPlayerCharacter::UpdateHeadNiagara(UNiagaraSystem* NiagaraSystem)
 void AUNPlayerCharacter::SCancelActionFunction()
 {
 	ServerRPCSCancelActionFunction();
+
+	PlayerController->StopMovement();
 }
 
 void AUNPlayerCharacter::ServerRPCSCancelActionFunction_Implementation()
@@ -765,6 +767,10 @@ void AUNPlayerCharacter::ServerRPCSCancelActionFunction_Implementation()
 		FGameplayAbilitySpec* Spec = ASC->FindAbilitySpecFromHandle(Handle);
 
 		ASC->CancelAbilityHandle(Handle);
-		//ASC->GetCurrentActiveAbility()->Cancel;
 	}
+
+	//else
+	//{
+	//	PlayerController->StopMovement();
+	//}
 }
