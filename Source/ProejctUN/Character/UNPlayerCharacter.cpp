@@ -15,6 +15,7 @@
 #include "NiagaraComponent.h"
 #include "NiagaraSystem.h"
 
+#include "Kismet/KismetMathLibrary.h"
 #include "Props/UNInteractableObjectBase.h"
 #include "ASC/UNAbilitySystemComponent.h"
 #include "UNComboActionData.h"
@@ -618,7 +619,9 @@ void AUNPlayerCharacter::DropItem(UItemBase* ItemToDrop, const int32 QuantityToD
 		SpawnParams.bNoFail = true;
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
-		const FVector SpawnLocation{ GetActorLocation() + (GetActorForwardVector() + 50.f)};
+		//const FVector SpawnLocation{ GetActorLocation() + (GetActorForwardVector() + 50.f)};
+		FVector SpawnLocation = UKismetMathLibrary::RandomPointInBoundingBox(GetActorLocation(), FVector(200.f));
+		SpawnLocation.Z = GetActorLocation().Z;
 		const FTransform SpawnTransform(GetActorRotation(), SpawnLocation);
 		
 		const int32 RemovedQuantity = PlayerInventory->RemoveAmountOfItem(ItemToDrop, QuantityToDrop);
