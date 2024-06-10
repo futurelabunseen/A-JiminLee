@@ -4,10 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "AbilitySystemInterface.h"
+#include "GameplayTagContainer.h"
 #include "UNUltimateSword.generated.h"
 
 UCLASS()
-class PROEJCTUN_API AUNUltimateSword : public AActor
+class PROEJCTUN_API AUNUltimateSword : public AActor, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 	
@@ -15,12 +17,27 @@ public:
 	// Sets default values for this actor's properties
 	AUNUltimateSword();
 
+	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+	virtual void NotifyActorBeginOverlap(class AActor* Other) override;
+
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	virtual void PostInitializeComponents() override;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	UPROPERTY()
+	TObjectPtr<class UAbilitySystemComponent> ASC;
 
+	UPROPERTY(VisibleAnywhere, Category = Box)
+	TObjectPtr<class UBoxComponent> Trigger;
+
+	UPROPERTY(VisibleAnywhere, Category = Box)
+	TObjectPtr<class USkeletalMeshComponent> Mesh;
+
+	UPROPERTY(EditAnywhere, Category = GAS)
+	TSubclassOf<class UGameplayEffect> GameplayEffectClass;
+
+	UPROPERTY(EditAnywhere, Category = GAS, Meta = (Categories = GameplayCue))
+	FGameplayTag GameplayCueTag;
+
+	void ApplyEffectToTarget(AActor* Target);
+	void InvokeGameplayCue(AActor* Target);
 };

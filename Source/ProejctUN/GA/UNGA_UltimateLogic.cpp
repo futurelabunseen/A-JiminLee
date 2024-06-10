@@ -37,16 +37,15 @@ void UUNGA_UltimateLogic::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 	PlayMontageTask->OnCompleted.AddDynamic(this, &UUNGA_UltimateLogic::OnCompleteCallback);
 	PlayMontageTask->OnInterrupted.AddDynamic(this, &UUNGA_UltimateLogic::OnInterruptedCallback);
 
-	//FActorSpawnParameters SpawnParams;
-	//SpawnParams.Owner = PlayerCharacter;
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = PlayerCharacter;
 
-	FVector SpawnLocation = PlayerCharacter->UltimateLocation;
-	//FRotator SpawnRotation = FRotator::ZeroRotator;
+	FVector SpawnLocation = PlayerCharacter->UltimateLocation + FVector(0.f, 0.f, 1000.f);
+	FRotator SpawnRotation = FRotator::ZeroRotator;
 
-	////AUNPickupObject* PickUpObject = GetWorld()->SpawnActor<AUNPickupObject>(AUNPickupObject::StaticClass(), SpawnLocaiton, SpawnParams);
-	//AUNUltimateSword* Sword = GetWorld()->SpawnActor<AUNUltimateSword>(UltimateSword, SpawnLocation, SpawnRotation, SpawnParams);
+	AUNUltimateSword* Sword = GetWorld()->SpawnActor<AUNUltimateSword>(UltimateSword, SpawnLocation, SpawnRotation, SpawnParams);
 
-	ServerRPCSpawnSword(SpawnLocation);
+	//ServerRPCSpawnSword(SpawnLocation);
 	PlayerCharacter->UpdateSpringArmLength(800.f, 1600.f, 1.f);
 	PlayMontageTask->ReadyForActivation();
 }
