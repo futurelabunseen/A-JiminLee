@@ -2,6 +2,16 @@
 
 
 #include "GA/UNGA_Ultimate.h"
+#include "AbilitySystemBlueprintLibrary.h"
+#include "TA/UNTA_TraceLocation.h"
+#include "AT/UNAT_TraceLocation.h"
+#include "Character/UNPlayerCharacter.h"
+
+#include "Tag/UNGameplayTag.h"
+#include "ASC/UNAbilitySystemComponent.h"
+
+#include "Kismet/GameplayStatics.h"
+
 
 UUNGA_Ultimate::UUNGA_Ultimate()
 {
@@ -13,10 +23,73 @@ void UUNGA_Ultimate::ActivateAbility(const FGameplayAbilitySpecHandle Handle, co
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Magenta, "Ultimate");
-	EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+
+	PlayerCharacter = CastChecked<AUNPlayerCharacter>(CurrentActorInfo->AvatarActor.Get());
+
+	if (IsLocallyControlled())
+	{
+		ActivateDecal();
+	}
+
+	UUNAT_TraceLocation* AttackTraceTask = UUNAT_TraceLocation::CreateTask(this, TargetActorClass);
+	AttackTraceTask->OnComplete.AddDynamic(this, &UUNGA_Ultimate::OnTraceResultCallback);
+	AttackTraceTask->OnInterrupted.AddDynamic(this, &UUNGA_Ultimate::OnInterruptedCallback);
+	AttackTraceTask->OnCanceled.AddDynamic(this, &UUNGA_Ultimate::OnCancelCallback);
+
+	AttackTraceTask->ReadyForActivation();
+	//GetWorld()->GetTimerManager().SetTimer(SpringArmUpdateTimerHandle, TimerCallback, 0.01f, true);
+	//EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 }
 
 void UUNGA_Ultimate::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
+	//PlayerCharacter->GetCameraBoom()->TargetArmLength = 800.f;
+	EndDecal();
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+}
+
+void UUNGA_Ultimate::OnTraceResultCallback(const FGameplayAbilityTargetDataHandle& TargetDataHandle)
+{
+	if (UAbilitySystemBlueprintLibrary::TargetDataHasHitResult(TargetDataHandle, 0))
+	{
+		FHitResult HitResult = UAbilitySystemBlueprintLibrary::GetHitResultFromTargetData(TargetDataHandle, 0);
+		FVector TargetLocation = HitResult.Location;
+		PlayerCharacter->UltimateLocation = TargetLocation;
+		//PlayerCharacter->StartUltimate(TargetLocation);
+		ServerRPCSendHitLocation(TargetLocation);
+		DrawDebugSphere(GetWorld(), TargetLocation, 25.0f, 12, FColor::Red, false, 2.0f);
+	}
+
+	bool bReplicatedEndAbility = true;
+	bool bWasCancelled = false;
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, bReplicatedEndAbility, bWasCancelled);
+}
+
+void UUNGA_Ultimate::OnInterruptedCallback(const FGameplayAbilityTargetDataHandle& TargetDataHandle)
+{
+	bool bReplicatedEndAbility = true;
+	bool bWasCancelled = true;
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, bReplicatedEndAbility, bWasCancelled);
+}
+
+void UUNGA_Ultimate::OnCancelCallback(const FGameplayAbilityTargetDataHandle& TargetDataHandle)
+{
+	bool bReplicatedEndAbility = true;
+	bool bWasCancelled = true;
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, bReplicatedEndAbility, bWasCancelled);
+}
+
+void UUNGA_Ultimate::ActivateDecal()
+{
+	PlayerCharacter->ActivateDecal(DecalStruct);
+}
+
+void UUNGA_Ultimate::EndDecal()
+{
+	PlayerCharacter->EndDecal();
+}
+
+void UUNGA_Ultimate::ServerRPCSendHitLocation_Implementation(FVector Location)
+{
+	PlayerCharacter->StartUltimate(Location);
 }

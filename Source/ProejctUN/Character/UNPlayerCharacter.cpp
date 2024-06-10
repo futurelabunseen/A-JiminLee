@@ -28,6 +28,7 @@
 #include "Props/UNPickupObject.h"
 #include "Item/ItemBase.h"
 #include "Game/UNWorldSubsystem.h"
+#include "GameFramework/SpringArmComponent.h"
 
 #include "ProejctUN.h"
 
@@ -762,6 +763,26 @@ void AUNPlayerCharacter::SCancelActionFunction()
 	PlayerController->StopMovement();
 }
 
+//ServerRPC여야하나?
+void AUNPlayerCharacter::StartUltimate(FVector Location)
+{
+	UltimateLocation = Location;
+
+	FGameplayAbilitySpec* Spec = ASC->FindAbilitySpecFromInputID(9);
+	if (Spec)
+	{
+		Spec->InputPressed = true;
+		if (Spec->IsActive())
+		{
+			ASC->AbilitySpecInputPressed(*Spec);
+		}
+		else
+		{
+			ASC->TryActivateAbility(Spec->Handle);
+		}
+	}
+}
+
 void AUNPlayerCharacter::ServerRPCSCancelActionFunction_Implementation()
 {
 	if (ASC->GetCurrentActiveAbility() != nullptr)
@@ -771,9 +792,30 @@ void AUNPlayerCharacter::ServerRPCSCancelActionFunction_Implementation()
 
 		ASC->CancelAbilityHandle(Handle);
 	}
+}
 
-	//else
-	//{
-	//	PlayerController->StopMovement();
-	//}
+
+void AUNPlayerCharacter::UpdateSpringArmLength(float Start, float End, float Time)
+{
+	SpringArmShortLength = Start;
+	SpringArmLongLength = End;
+	SpringArmStartTime = 0.f;
+	SpringArmMoveTime = Time;
+	SpringArm = GetCameraBoom();
+
+	GetWorld()->GetTimerManager().SetTimer(SpringArmUpdateTimerHandle, [&]()
+		{
+			SpringArmStartTime += 0.01f;
+
+			float Alpha = FMath::Clamp(SpringArmStartTime / SpringArmMoveTime, 0.0f, 1.0f);
+			float NewArmLength = FMath::Lerp(SpringArmShortLength, SpringArmLongLength, Alpha);
+			SpringArm->TargetArmLength = NewArmLength;
+
+			if (Alpha >= 1.0f)
+			{
+				SpringArmStartTime = 0.f;
+				GetWorld()->GetTimerManager().ClearTimer(SpringArmUpdateTimerHandle);
+			}
+		}, 0.01f, true);
+
 }

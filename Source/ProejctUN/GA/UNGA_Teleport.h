@@ -52,7 +52,6 @@ protected:
 
 
 public:
-
 	UFUNCTION(Server, Unreliable)
 	void StartCoolDown();
 

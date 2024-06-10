@@ -14,7 +14,7 @@ class UInputMappingContext;
 class UUNInventoryComponent;
 class AUNHUD;
 class UItemBase;
-
+class USpringArmComponent;
 /**
  * 
  */
@@ -258,4 +258,31 @@ public:
 
 	UFUNCTION(Server, Unreliable)
 	void ServerRPCSCancelActionFunction();
+
+	UFUNCTION()
+	void StartUltimate(FVector Location);
+
+	UPROPERTY()
+	FVector UltimateLocation;
+
+	UFUNCTION()
+	void UpdateSpringArmLength(float Start, float End, float Time);
+
+	UPROPERTY()
+	float SpringArmShortLength;
+
+	UPROPERTY()
+	float SpringArmLongLength;
+
+	UPROPERTY()
+	float SpringArmStartTime;
+
+	UPROPERTY()
+	float SpringArmMoveTime;
+
+	UPROPERTY()
+	TObjectPtr<USpringArmComponent> SpringArm;
+
+	UPROPERTY()
+	FTimerHandle SpringArmUpdateTimerHandle;
 };
