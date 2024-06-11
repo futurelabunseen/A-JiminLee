@@ -26,6 +26,7 @@ AUNPickupObject::AUNPickupObject()
 	}
 
 	BoxCollision->SetBoxExtent(FVector(150.f, 150.f, 150.f));
+	BoxCollision->SetCollisionResponseToChannel(ECC_EngineTraceChannel1, ECollisionResponse::ECR_Ignore);
 	BoxCollision->OnComponentBeginOverlap.AddDynamic(this, &AUNPickupObject::OnBoxCollisionBeginOverlap);
 	BoxCollision->OnComponentEndOverlap.AddDynamic(this, &AUNPickupObject::OnBoxCollisionEndOverlap);
 
@@ -89,13 +90,16 @@ void AUNPickupObject::InitializePickup(const TSubclassOf<UItemBase> BaseClass, c
 		{
 			Mesh->SetStaticMesh(ItemData->AssetData.Mesh);
 			Mesh->SetCollisionProfileName("UNPickUpObject");
+			Mesh->SetCollisionResponseToChannel(ECC_EngineTraceChannel1, ECollisionResponse::ECR_Ignore);
 			BoxCollision->SetCollisionProfileName("ItemTrigger");
 		}
 		else
 		{
 			SkeletalMesh->SetSkeletalMesh(ItemData->AssetData.SkeletalMesh);
 			SkeletalMesh->SetCollisionProfileName("UNPickUpObject");
+			SkeletalMesh->SetCollisionResponseToChannel(ECC_EngineTraceChannel1, ECollisionResponse::ECR_Ignore);
 			BoxCollision->SetCollisionProfileName("ItemTrigger");
+
 		}
 
 		UpdateInteractableData();

@@ -28,10 +28,6 @@ void UUNGA_UltimateLogic::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 	}
 
 	PlayerCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
-	if (UUNAbilitySystemComponent* ASC = Cast<UUNAbilitySystemComponent>(GetAbilitySystemComponentFromActorInfo_Checked()))
-	{
-		ASC->SetCurrentActiveAbility(this);
-	}
 
 	UAbilityTask_PlayMontageAndWait* PlayMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, TEXT("UltimateMontage"), UltimateActionMontage, 1.f);
 	PlayMontageTask->OnCompleted.AddDynamic(this, &UUNGA_UltimateLogic::OnCompleteCallback);
@@ -40,13 +36,13 @@ void UUNGA_UltimateLogic::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.Owner = PlayerCharacter;
 
-	FVector SpawnLocation = PlayerCharacter->UltimateLocation + FVector(0.f, 0.f, 1000.f);
+	FVector SpawnLocation = PlayerCharacter->UltimateLocation + FVector(0.f, 0.f, 750.f);
 	FRotator SpawnRotation = FRotator::ZeroRotator;
 
 	AUNUltimateSword* Sword = GetWorld()->SpawnActor<AUNUltimateSword>(UltimateSword, SpawnLocation, SpawnRotation, SpawnParams);
 
 	//ServerRPCSpawnSword(SpawnLocation);
-	PlayerCharacter->UpdateSpringArmLength(800.f, 1600.f, 1.f);
+	PlayerCharacter->UpdateSpringArmLength(800.f, 1600.f, 0.25f);
 	PlayMontageTask->ReadyForActivation();
 }
 

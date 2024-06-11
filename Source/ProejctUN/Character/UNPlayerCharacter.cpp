@@ -234,7 +234,7 @@ void AUNPlayerCharacter::BeginPlay()
 		UN_LOG(LogUNNetwork, Log, TEXT("%s"), TEXT("Have Controller"));
 		EnableInput(PlayerController);
 	}
-
+	//InitAbilityActorInfo();
 	SetCharacterControl();
 
 	UN_LOG(LogUNNetwork, Log, TEXT("End"));
@@ -283,7 +283,6 @@ void AUNPlayerCharacter::OnRep_PlayerState()
 	Super::OnRep_PlayerState();
 
 	InitAbilityActorInfo();
-
 	UN_LOG(LogUNNetwork, Log, TEXT("End"));
 }
 

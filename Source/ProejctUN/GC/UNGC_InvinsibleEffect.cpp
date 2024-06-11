@@ -34,6 +34,7 @@ bool UUNGC_InvinsibleEffect::OnExecute_Implementation(AActor* Target, const FGam
 	
 	if (PlayerCharacter)
 	{
+		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Magenta, "Invinsible!");
 		PlayerCharacter->UpdateNiagara(Niagara);
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, FloorNiagara , PlayerCharacter->GetActorLocation() + FVector(0.f, 0.f, 50.f), FRotator::ZeroRotator);
 		UGameplayStatics::PlaySoundAtLocation(this, Sound, PlayerCharacter->GetActorLocation());

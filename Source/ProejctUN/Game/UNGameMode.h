@@ -79,4 +79,7 @@ public:
 	TArray<AUNCharacter*> PlayerArray;
 
 	virtual AActor* ChoosePlayerStart_Implementation(AController* Player) override;
+
+	UPROPERTY()
+	uint8 bisBattleState;
 };

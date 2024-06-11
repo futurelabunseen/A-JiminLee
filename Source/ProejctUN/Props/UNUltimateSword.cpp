@@ -35,12 +35,11 @@ UAbilitySystemComponent* AUNUltimateSword::GetAbilitySystemComponent() const
 
 void AUNUltimateSword::NotifyActorBeginOverlap(AActor* Other)
 {
-	InvokeGameplayCue(Other);
-	ApplyEffectToTarget(Other);
-
 	if (!Cast<AUNUltimateSword>(Other))
 	{
-		Mesh->SetHiddenInGame(true);
+		InvokeGameplayCue(Other);
+		ApplyEffectToTarget(Other);
+		//Mesh->SetHiddenInGame(true);
 		SetActorEnableCollision(false);
 		SetLifeSpan(2.f);
 	}

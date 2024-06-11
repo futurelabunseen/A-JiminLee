@@ -51,6 +51,4 @@ protected:
 
 	void SetDead();
 	void PlayDeadAnimaition();
-
-
 };

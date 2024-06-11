@@ -101,7 +101,7 @@ void AUNPlayerController::OnMatchStateSet(FName State)
 	}
 	else if (MatchState == MatchState::Battle)
 	{
-		BattleFunction(100);
+		BattleFunction(999);
 	}
 }
 
@@ -121,7 +121,7 @@ void AUNPlayerController::OnRep_MatchState()
 	}
 	else if (MatchState == MatchState::Battle)
 	{
-		BattleFunction(100);
+		BattleFunction(999);
 	}
 }
 
@@ -201,6 +201,11 @@ void AUNPlayerController::FarmingFunction(int Value)
 
 void AUNPlayerController::BattleFunction(int Value)
 {
+	if (AUNGameMode* GM = Cast<AUNGameMode>(GetWorld()->GetAuthGameMode()))
+	{
+		GM->bisBattleState = true;
+	}
+
 	AUNPlayerCharacter* PlayerCharacter = Cast<AUNPlayerCharacter>(GetCharacter());
 	if (PlayerCharacter)
 	{

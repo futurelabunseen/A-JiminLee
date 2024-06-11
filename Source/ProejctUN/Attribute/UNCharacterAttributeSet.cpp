@@ -5,6 +5,7 @@
 #include "GameplayEffectExtension.h"
 #include "Tag/UNGameplayTag.h"
 #include "Net/UnrealNetwork.h"
+#include "Game/UNGameMode.h"
 
 // 초기화 리스트로 초기화
 UUNCharacterAttributeSet::UUNCharacterAttributeSet() :
@@ -16,7 +17,7 @@ UUNCharacterAttributeSet::UUNCharacterAttributeSet() :
 	MaxAttackRate(100.f),
 	ArmorRate(3.f),
 	MaxArmorRate(100.f),
-	MaxHealth(100.f),
+	MaxHealth(750.f),
 	Damage(0.f),
 	DefaultAttackRange(100.f),
 	DefaultAttackRate(30.f),
@@ -74,6 +75,15 @@ bool UUNCharacterAttributeSet::PreGameplayEffectExecute(FGameplayEffectModCallba
 			{
 				Data.EvaluatedData.Magnitude = 0.f;
 				return false;
+			}
+
+			if (AUNGameMode* GM = Cast<AUNGameMode>(GetWorld()->GetAuthGameMode()))
+			{
+				if (!GM->bisBattleState)
+				{
+					Data.EvaluatedData.Magnitude = 0.f;
+					return false;
+				}
 			}
 		}
 	}
