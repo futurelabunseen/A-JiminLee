@@ -204,9 +204,12 @@ void AUNPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 void AUNPlayerCharacter::SetupPlayerGASInputComponent()
 {
 	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
-	if (IsValid(ASC) && IsValid(InputComponent))
+	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
+	if (EnhancedInputComponent)
 	{
-		UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
+	//if (IsValid(ASC) && IsValid(InputComponent))
+	//{
+	//	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
 
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::LeftClickAction); //&AUNPlayerCharacter::GASInputPressed, 0
 		//EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::GASInputPressed, 0);
@@ -478,6 +481,8 @@ void AUNPlayerCharacter::InitializeAttributes()
 // GA 초기화. ASC에 GA를 등록하는 단계
 void AUNPlayerCharacter::InitalizeGameplayAbilities()
 {
+	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
+
 	for (const auto& StartAbility : StartAbilities)
 	{
 		FGameplayAbilitySpec StartSpec(StartAbility);

@@ -23,10 +23,16 @@ public:
 	void SetCountDownText(FString NewText);
 
 	UFUNCTION()
+	void SetCountDownMsg(FString NewText);
+
+	UFUNCTION()
 	void SetGameTimeText(FString NewText);
 
 	UFUNCTION()
 	void SetCountDownTextVisibility(bool option);
+
+	UFUNCTION()
+	void SetCountDownMsgVisibility(bool option);
 
 	UFUNCTION()
 	void SetGameTimeTextVisibility(bool option);
@@ -45,6 +51,9 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget), Category = "Icon")
 	UTextBlock* CountDownText;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget), Category = "Icon")
+	UTextBlock* CountDownMsg;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget), Category = "Icon")
 	UTextBlock* GameTimeText;

@@ -143,7 +143,13 @@ public:
 	void SetCountDownTextVisibility(bool option);
 
 	UFUNCTION()
+	void SetCountDownMsgVisibility(bool option);
+
+	UFUNCTION()
 	void SetCountDownText(FString Text);
+
+	UFUNCTION()
+	void SetCountDownMsg(FString Text);
 
 	UFUNCTION()
 	void SetGameTimeTextVisibility(bool option);

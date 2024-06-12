@@ -16,6 +16,14 @@ void UUNOverlayWidget::SetCountDownText(FString NewText)
 	}
 }
 
+void UUNOverlayWidget::SetCountDownMsg(FString NewText)
+{
+	if (CountDownMsg)
+	{
+		CountDownMsg->SetText(FText::FromString(NewText));
+	}
+}
+
 void UUNOverlayWidget::SetCountDownTextVisibility(bool option)
 {
 	if (option)
@@ -25,6 +33,18 @@ void UUNOverlayWidget::SetCountDownTextVisibility(bool option)
 	else
 	{
 		CountDownText->SetVisibility(ESlateVisibility::Collapsed);
+	}
+}
+
+void UUNOverlayWidget::SetCountDownMsgVisibility(bool option)
+{
+	if (option)
+	{
+		CountDownMsg->SetVisibility(ESlateVisibility::Visible);
+	}
+	else
+	{
+		CountDownMsg->SetVisibility(ESlateVisibility::Collapsed);
 	}
 }
 

@@ -214,11 +214,27 @@ void AUNHUD::SetCountDownTextVisibility(bool option)
 	}
 }
 
+void AUNHUD::SetCountDownMsgVisibility(bool option)
+{
+	if (OverlayWidget)
+	{
+		OverlayWidget->SetCountDownMsgVisibility(option);
+	}
+}
+
 void AUNHUD::SetCountDownText(FString Text)
 {
 	if (OverlayWidget)
 	{
 		OverlayWidget->SetCountDownText(Text);
+	}
+}
+
+void AUNHUD::SetCountDownMsg(FString Text)
+{
+	if (OverlayWidget)
+	{
+		OverlayWidget->SetCountDownMsg(Text);
 	}
 }
 

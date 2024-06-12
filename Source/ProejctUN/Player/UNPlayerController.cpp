@@ -141,6 +141,15 @@ void AUNPlayerController::CountDownFunction(int Value)
 	{
 		HUD->SetGameTimeTextVisibility(false);
 		HUD->SetCountDownTextVisibility(true);
+		HUD->SetCountDownMsgVisibility(true);
+		if (bisFarmingDone)
+		{
+			HUD->SetCountDownMsg("Waiting Battle Turn ...");
+		}
+		else
+		{
+			HUD->SetCountDownMsg("Waiting Farming Turn ...");
+		}
 	}
 
 	CountDownValue = Value;
@@ -179,6 +188,7 @@ void AUNPlayerController::FarmingFunction(int Value)
 	if (HUD)
 	{
 		HUD->SetCountDownTextVisibility(false);
+		HUD->SetCountDownMsgVisibility(false);
 		HUD->SetGameTimeTextVisibility(true);
 	}
 
@@ -218,6 +228,7 @@ void AUNPlayerController::BattleFunction(int Value)
 	if (HUD)
 	{
 		HUD->SetCountDownTextVisibility(false);
+		HUD->SetCountDownMsgVisibility(false);
 		HUD->SetGameTimeTextVisibility(true);
 	}
 	GameTimeValue = Value;
