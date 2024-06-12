@@ -70,9 +70,32 @@ void AUNUltimateSword::ApplyEffectToTarget(AActor* Target)
 
 void AUNUltimateSword::InvokeGameplayCue(AActor* Target)
 {
-	FGameplayCueParameters Param;
-	Param.SourceObject = this;
-	Param.Instigator = Target;
-	Param.Location = GetActorLocation();
-	ASC->ExecuteGameplayCue(GameplayCueTag, Param);
+	if(HasAuthority())
+	{
+		FGameplayCueParameters Param;
+		Param.SourceObject = this;
+		Param.Instigator = Target;
+
+		FVector Start = GetActorLocation();
+		FVector End = Start - FVector(0.0f, 0.0f, 500.0f);
+
+		FHitResult HitResult;
+		FCollisionQueryParams CollisionParams;
+		CollisionParams.AddIgnoredActor(this);
+
+		bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, CollisionParams);
+		DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 2.0f, 0, 1.0f);
+
+		if (bHit)
+		{
+			UE_LOG(LogTemp, Log, TEXT("FoundLocation"));
+			Param.Location = HitResult.Location;
+		}
+		else
+		{
+			UE_LOG(LogTemp, Log, TEXT("NotFoundLocation"));
+			Param.Location = GetActorLocation();
+		}
+		ASC->ExecuteGameplayCue(GameplayCueTag, Param);
+	}
 }

@@ -58,15 +58,15 @@ FGameplayAbilityTargetDataHandle AUNTA_SphereMultiTrace::MakeTargetData() const
 	TargetDataHandle.UniqueId = 1;
 
 // 범위 디버그
-
-#if ENABLE_DRAW_DEBUG
-
-	if (bShowDebug)
-	{
-		FColor DrawColor = HitActors.Num() > 0 ? FColor::Green : FColor::Red;
-		DrawDebugSphere(GetWorld(), Origin, SkillRadius, 16, DrawColor, false, 5.f);
-	}
-#endif
+//
+//#if ENABLE_DRAW_DEBUG
+//
+//	if (bShowDebug)
+//	{
+//		FColor DrawColor = HitActors.Num() > 0 ? FColor::Green : FColor::Red;
+//		DrawDebugSphere(GetWorld(), Origin, SkillRadius, 16, DrawColor, false, 5.f);
+//	}
+//#endif
 
 	return TargetDataHandle;
 	//return FGameplayAbilityTargetDataHandle(ActorsData);

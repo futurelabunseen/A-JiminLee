@@ -13,5 +13,6 @@
 #define UNTAG_GAMEPLAYCUE_CHARACTER_TELEPORTEFFECT FGameplayTag::RequestGameplayTag(FName("GameplayCue.Character.TeleportEffect"))
 #define UNTAG_GAMEPLAYCUE_CHARACTER_INVINSIBLEEFFECT FGameplayTag::RequestGameplayTag(FName("GameplayCue.Character.InvinsibleEffect"))
 #define UNTAG_GAMEPLAYCUE_CHARACTER_STUNEFFECT FGameplayTag::RequestGameplayTag(FName("GameplayCue.Character.StunEffect"))
+#define UNTAG_GAMEPLAYCUE_PROPS_ULTIMATEFLOORFFECT FGameplayTag::RequestGameplayTag(FName("GameplayCue.Props.UltimateFloorEffect"))
 #define UNTAG_EVENT_CHARACTER_WEAPONEQUIP FGameplayTag::RequestGameplayTag(FName("Event.Character.Weapon.Equip"))
 #define UNTAG_EVENT_CHARACTER_WEAPONUNEQUIP FGameplayTag::RequestGameplayTag(FName("Event.Character.Weapon.UnEquip"))

@@ -85,6 +85,11 @@ bool UUNCharacterAttributeSet::PreGameplayEffectExecute(FGameplayEffectModCallba
 					return false;
 				}
 			}
+			else
+			{
+				Data.EvaluatedData.Magnitude = 0.f;
+				return false;
+			}
 		}
 	}
 

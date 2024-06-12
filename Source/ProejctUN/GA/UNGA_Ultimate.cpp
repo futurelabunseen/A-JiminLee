@@ -22,7 +22,6 @@ UUNGA_Ultimate::UUNGA_Ultimate()
 void UUNGA_Ultimate::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Magenta, "Ultimate");
 
 	PlayerCharacter = CastChecked<AUNPlayerCharacter>(CurrentActorInfo->AvatarActor.Get());
 
@@ -57,7 +56,7 @@ void UUNGA_Ultimate::OnTraceResultCallback(const FGameplayAbilityTargetDataHandl
 		PlayerCharacter->UltimateLocation = TargetLocation;
 		//PlayerCharacter->StartUltimate(TargetLocation);
 		ServerRPCSendHitLocation(TargetLocation);
-		DrawDebugSphere(GetWorld(), TargetLocation, 25.0f, 12, FColor::Red, false, 2.0f);
+		//DrawDebugSphere(GetWorld(), TargetLocation, 25.0f, 12, FColor::Red, false, 2.0f);
 	}
 
 	bool bReplicatedEndAbility = true;

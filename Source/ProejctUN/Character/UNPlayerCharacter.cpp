@@ -247,7 +247,7 @@ void AUNPlayerCharacter::PossessedBy(AController* NewController)
 	Super::PossessedBy(NewController);
 
 	PlayerController = CastChecked<APlayerController>(GetController());
-	PlayerController->ConsoleCommand(TEXT("showdebug abilitysystem"));
+	//PlayerController->ConsoleCommand(TEXT("showdebug abilitysystem"));
 
 	InitAbilityActorInfo();
 
@@ -261,7 +261,7 @@ void AUNPlayerCharacter::OnRep_Owner()
 	Super::OnRep_Owner();
 
 	PlayerController = CastChecked<APlayerController>(GetController());
-	PlayerController->ConsoleCommand(TEXT("showdebug abilitysystem"));
+	//PlayerController->ConsoleCommand(TEXT("showdebug abilitysystem"));
 
 	AActor* OwnerActor = GetOwner();
 	if (OwnerActor)

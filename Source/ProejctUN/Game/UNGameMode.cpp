@@ -70,7 +70,6 @@ void AUNGameMode::BeginPlay()
 				PlayerArray.Add(Character);
 			}
 
-			GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, "GameStart");
 			SetMatchState(MatchState::CountDown);
 		}, 3.f, false);
 }
