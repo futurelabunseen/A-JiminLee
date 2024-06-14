@@ -41,7 +41,7 @@ void UUNGA_Teleport::EndAbility(const FGameplayAbilitySpecHandle Handle, const F
 	{
 		if (!bWasCancelled)
 		{
-			StartCoolDown();
+			//StartCoolDown();
 		}
 		EndDecal();
 	}
@@ -78,7 +78,12 @@ void UUNGA_Teleport::OnTraceResultCallback(const FGameplayAbilityTargetDataHandl
 
 				PlayerCharacter->GetController()->StopMovement();
 				TeleportToLocation(TargetLocation, CueParam);
+				StartCoolDown();
 			}
+		}
+		else
+		{
+			UE_LOG(LogTemp, Log, TEXT("Location is null!"));
 		}
 
 		bool bReplicatedEndAbility = true;

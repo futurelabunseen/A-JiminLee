@@ -53,10 +53,13 @@ void UUNGA_Ultimate::OnTraceResultCallback(const FGameplayAbilityTargetDataHandl
 	{
 		FHitResult HitResult = UAbilitySystemBlueprintLibrary::GetHitResultFromTargetData(TargetDataHandle, 0);
 		FVector TargetLocation = HitResult.Location;
-		PlayerCharacter->UltimateLocation = TargetLocation;
-		//PlayerCharacter->StartUltimate(TargetLocation);
-		ServerRPCSendHitLocation(TargetLocation);
-		//DrawDebugSphere(GetWorld(), TargetLocation, 25.0f, 12, FColor::Red, false, 2.0f);
+		if (UAbilitySystemBlueprintLibrary::TargetDataHasActor(TargetDataHandle, 0))
+		{
+			PlayerCharacter->UltimateLocation = TargetLocation;
+			//PlayerCharacter->StartUltimate(TargetLocation);
+			ServerRPCSendHitLocation(TargetLocation);
+			//DrawDebugSphere(GetWorld(), TargetLocation, 25.0f, 12, FColor::Red, false, 2.0f);
+		}
 	}
 
 	bool bReplicatedEndAbility = true;
