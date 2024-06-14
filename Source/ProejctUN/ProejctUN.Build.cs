@@ -26,7 +26,11 @@ public class ProejctUN : ModuleRules
 			"GameFeatures", 
 			"SlateCore",
 			"Slate",
-			"UMG", });
+			"UMG",
+			"MultiplayerSessions",
+			"OnlineSubsystem",
+			"OnlineSubsystemSteam"
+		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] { "ProejctUN" });
 
