@@ -218,6 +218,20 @@ void AUNGameMode::OnCharacterDeath(AUNCharacter* Character)
 	{
 		// To Do .. : 끝내는 로직
 		GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Magenta, "End");
+		GameEndFunction();
+	}
+}
+
+void AUNGameMode::GameEndFunction()
+{
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; It++)
+	{
+		AUNPlayerController* PlayerController = Cast<AUNPlayerController>(*It);
+		if (PlayerController)
+		{
+			PlayerController->MulticastRPCGameEndFunction();
+			PlayerController->ClientRPCOpenEndWidget();
+		}
 	}
 }
 

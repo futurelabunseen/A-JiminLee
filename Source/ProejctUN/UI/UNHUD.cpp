@@ -10,6 +10,7 @@
 #include "UI/Widget/UNInteractionWidget.h"
 #include "UI/Widget/UNPlayerInventoryWidget.h"
 #include "UI/Widget/UNOverlayWidget.h"
+#include "UI/Widget/UNEndWidget.h"
 
 
 #include "EngineUtils.h"
@@ -20,6 +21,7 @@ void AUNHUD::BeginPlay()
 	//DefaultInitOverlay();
 	InitBoxInventory();
 	InitInteractionWidget();
+	InitEndWidget();
 }
 
 UUNOverlayWidgetController* AUNHUD::GetOverlayWidgetController(const FWidgetControllerParams& WCParams)
@@ -132,6 +134,12 @@ UUNProgressBarWidgetController* AUNHUD::GetProgressBarWidgetController(const FWi
 	return ProgressBarWidgetController;
 }
 
+void AUNHUD::InitEndWidget()
+{
+	UUserWidget* Widget = CreateWidget<UUserWidget>(GetWorld(), EndWidgetClass);
+	EndWidget = Cast<UUNEndWidget>(Widget);
+}
+
 void AUNHUD::InitInteractionWidget()
 {
 	checkf(InteractionWidgetClass, TEXT("InteractionWidget Class uninitialized, please fill out BP_UNHUD"));
@@ -153,6 +161,14 @@ void AUNHUD::CloseInventory()
 {
 	InventoryWidget->SetVisibility(ESlateVisibility::Collapsed);
 	bisInventoryOpen = false;
+}
+
+void AUNHUD::OpenEndWidget()
+{
+	if (EndWidget)
+	{
+		EndWidget->MenuSetup();
+	}
 }
 
 void AUNHUD::ShowInteractionWidget()

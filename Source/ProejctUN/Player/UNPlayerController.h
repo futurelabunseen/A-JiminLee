@@ -107,5 +107,11 @@ public:
 	UFUNCTION(Client, Unreliable)
 	void ClientRPCRequestCurrentTime(FName ServerMatchState, int ServerTime);
 
+	UFUNCTION(Client, Unreliable)
+	void ClientRPCOpenEndWidget();
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void MulticastRPCGameEndFunction();
+
 	int8 bisFarmingDone;
 };

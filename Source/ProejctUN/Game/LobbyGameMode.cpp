@@ -2,6 +2,7 @@
 
 
 #include "Game/LobbyGameMode.h"
+#include "Player/UNPlayerController.h"
 #include "GameFramework/GameStateBase.h"
 
 void ALobbyGameMode::PostLogin(APlayerController* NewPlayer)
@@ -21,6 +22,18 @@ void ALobbyGameMode::PostLogin(APlayerController* NewPlayer)
 			//	bUseSeamlessTravel = true;
 			//	World->ServerTravel(FString("/Game/Maps/TestingMap?listen"));
 			//	}, 5.f, false);
+
+			for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; It++)
+			{
+				AUNPlayerController* PlayerController = Cast<AUNPlayerController>(*It);
+				if (PlayerController)
+				{
+					FInputModeUIOnly InputMode;
+					PlayerController->SetInputMode(InputMode);
+
+					PlayerController->MulticastRPCGameEndFunction();
+				}
+			}
 
 			World->ServerTravel(FString("/Game/FantasyBundle/Maps/CustomCastle?listen"));
 		}

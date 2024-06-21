@@ -386,3 +386,18 @@ void AUNPlayerController::ClientRPCRequestCurrentTime_Implementation(FName Serve
 		GameTimeValue = ServerTime;
 	}
 }
+
+void AUNPlayerController::MulticastRPCGameEndFunction_Implementation()
+{
+	GetWorld()->GetTimerManager().ClearTimer(GameTimeTimerHandle);
+	GetWorld()->GetTimerManager().ClearTimer(CountDownTimerHandle);
+	if (AUNPlayerCharacter* PlayerCharacter = Cast<AUNPlayerCharacter>(GetCharacter()))
+	{
+		GetWorld()->GetTimerManager().ClearTimer(PlayerCharacter->SpringArmUpdateTimerHandle);
+	}
+}
+
+void AUNPlayerController::ClientRPCOpenEndWidget_Implementation()
+{
+	HUD->OpenEndWidget();
+}

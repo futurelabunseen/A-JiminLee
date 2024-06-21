@@ -438,6 +438,12 @@ void AUNPlayerCharacter::RightClickAction()
 // 키 입력시 GA실행
 void AUNPlayerCharacter::GASInputPressed(int32 InputId)
 {
+	if (bisTargeting)
+	{
+		SendCancelToTargetActor();
+		bisCanceled = true;
+	}
+
 	FGameplayAbilitySpec* Spec = ASC->FindAbilitySpecFromInputID(InputId);
 	if (Spec)
 	{

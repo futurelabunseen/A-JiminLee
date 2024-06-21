@@ -73,6 +73,9 @@ public:
 	UFUNCTION()
 	void OnCharacterDeath(AUNCharacter* Character);
 
+	UFUNCTION()
+	void GameEndFunction();
+
 	UPROPERTY(VisibleAnywhere)
 	TArray<TObjectPtr<AUNPickupObject> > SpawnedItems;
 
