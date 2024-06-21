@@ -127,14 +127,9 @@ void AUNPlayerController::OnRep_MatchState()
 
 void AUNPlayerController::CountDownFunction(int Value)
 {
+	SetKeyBoardInputMode(false);
+	FlushPressedKeys();
 	StopMovement();
-	AUNPlayerCharacter* PlayerCharacter = Cast<AUNPlayerCharacter>(GetCharacter());
-	if (PlayerCharacter)
-	{
-		PlayerCharacter->StopMovement();
-	}
-	FInputModeUIOnly InputMode;
-	SetInputMode(InputMode);
 
 	HUD = Cast<AUNHUD>(GetHUD());
 	if (HUD)
@@ -176,14 +171,8 @@ void AUNPlayerController::CountDownFunction(int Value)
 
 void AUNPlayerController::FarmingFunction(int Value)
 {
-	AUNPlayerCharacter* PlayerCharacter = Cast<AUNPlayerCharacter>(GetCharacter());
-	if (PlayerCharacter)
-	{
-		PlayerCharacter->ActivateMovement();
-	}
-	FInputModeGameOnly InputMode;
-	InputMode.SetConsumeCaptureMouseDown(false);
-	SetInputMode(InputMode);
+	SetKeyBoardInputMode(true);
+
 	HUD = Cast<AUNHUD>(GetHUD());
 	if (HUD)
 	{
@@ -216,14 +205,8 @@ void AUNPlayerController::BattleFunction(int Value)
 		GM->bisBattleState = true;
 	}
 
-	AUNPlayerCharacter* PlayerCharacter = Cast<AUNPlayerCharacter>(GetCharacter());
-	if (PlayerCharacter)
-	{
-		PlayerCharacter->ActivateMovement();
-	}
-	FInputModeGameOnly InputMode;
-	InputMode.SetConsumeCaptureMouseDown(false);
-	SetInputMode(InputMode);
+	SetKeyBoardInputMode(true);
+
 	HUD = Cast<AUNHUD>(GetHUD());
 	if (HUD)
 	{
@@ -394,10 +377,28 @@ void AUNPlayerController::MulticastRPCGameEndFunction_Implementation()
 	if (AUNPlayerCharacter* PlayerCharacter = Cast<AUNPlayerCharacter>(GetCharacter()))
 	{
 		GetWorld()->GetTimerManager().ClearTimer(PlayerCharacter->SpringArmUpdateTimerHandle);
+
+		//if(IsLocalController())
+		//PlayerCharacter->ReturnSpringArmLength();
 	}
 }
 
 void AUNPlayerController::ClientRPCOpenEndWidget_Implementation()
 {
 	HUD->OpenEndWidget();
+}
+
+void AUNPlayerController::SetKeyBoardInputMode(bool bKeyboard)
+{
+	if (bKeyboard)
+	{
+		FInputModeGameOnly InputMode;
+		InputMode.SetConsumeCaptureMouseDown(false);
+		SetInputMode(InputMode);
+	}
+	else
+	{
+		FInputModeUIOnly InputMode;
+		SetInputMode(InputMode);
+	}
 }

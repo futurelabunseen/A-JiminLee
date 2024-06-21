@@ -268,6 +268,9 @@ public:
 	UFUNCTION()
 	void UpdateSpringArmLength(float Start, float End, float Time);
 
+	UFUNCTION()
+	void ReturnSpringArmLength();
+
 	UPROPERTY()
 	float SpringArmShortLength;
 

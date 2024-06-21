@@ -17,11 +17,9 @@ void UUNEndWidget::MenuSetup()
 	if (World)
 	{
 		PlayerController = PlayerController == nullptr ? World->GetFirstPlayerController() : PlayerController;
-		if (PlayerController)
+		if (AUNPlayerController* PC = Cast<AUNPlayerController>(PlayerController))
 		{
-			FInputModeGameAndUI InputModeData;
-			//InputModeData.SetWidgetToFocus(TakeWidget());
-			PlayerController->SetInputMode(InputModeData);
+			PC->SetKeyBoardInputMode(false);
 		}
 	}
 

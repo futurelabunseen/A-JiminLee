@@ -384,6 +384,7 @@ void AUNPlayerCharacter::OnSetDestinationReleased()
 
 	if (FollowTime <= ShortPressThreshold)
 	{
+		UE_LOG(LogTemp, Log, TEXT("%s"), *CachedDestination.ToString());
 		UAIBlueprintHelperLibrary::SimpleMoveToLocation(PlayerController, CachedDestination);
 	}
 
@@ -826,6 +827,11 @@ void AUNPlayerCharacter::UpdateSpringArmLength(float Start, float End, float Tim
 				SpringArmStartTime = 0.f;
 				GetWorld()->GetTimerManager().ClearTimer(SpringArmUpdateTimerHandle);
 			}
-		}, 0.01f, true);
+		}, 0.016f, true);
 
+}
+
+void AUNPlayerCharacter::ReturnSpringArmLength()
+{
+	SpringArm->TargetArmLength = 800.f;
 }

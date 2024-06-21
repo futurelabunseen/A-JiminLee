@@ -113,5 +113,10 @@ public:
 	UFUNCTION(NetMulticast, Unreliable)
 	void MulticastRPCGameEndFunction();
 
+	UFUNCTION()
+	void SetKeyBoardInputMode(bool bKeyboard);
+
+	void SetCharacterMovementMode(bool bMovement);
+
 	int8 bisFarmingDone;
 };
