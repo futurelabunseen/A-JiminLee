@@ -59,8 +59,7 @@ void UUNGA_UltimateLogic::EndAbility(const FGameplayAbilitySpecHandle Handle, co
 	PlayerCharacter->UpdateSpringArmLength(1600.f, 800.f, 0.5f);
 
 	UAbilitySystemComponent* AvatarActorASC = GetAbilitySystemComponentFromActorInfo();
-
-	if (!AvatarActorASC->HasMatchingGameplayTag(UNTAG_CHARACTER_STATE_ISSTUNING))
+	if (AvatarActorASC && !AvatarActorASC->HasMatchingGameplayTag(UNTAG_CHARACTER_STATE_ISSTUNING))
 	{
 		PlayerCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 	}

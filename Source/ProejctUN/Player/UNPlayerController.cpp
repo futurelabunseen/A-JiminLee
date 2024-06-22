@@ -78,6 +78,7 @@ void AUNPlayerController::CheckCursorOverObject(AActor* CursorOverObject)
 {
 	if (CursorOverObject)
 	{
+		UE_LOG(LogTemp, Log, TEXT("CheckCursorOverObject: CursorOverObject is valid: %s"), *CursorOverObject->GetName());
 		IUNInteractionInterface* Interface = Cast<IUNInteractionInterface>(CursorOverObject);
 		if (Interface)
 		{

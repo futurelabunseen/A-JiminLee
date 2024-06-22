@@ -41,7 +41,10 @@ void AUNInteractableObjectBase::SendBeginDataToController(UPrimitiveComponent* O
 {
 	if (AUNPlayerController* PC = Cast<AUNPlayerController>(GetWorld()->GetFirstPlayerController()))
 	{
-		PC->CheckCursorOverObject(this);
+		if (this)
+		{
+			PC->CheckCursorOverObject(this);
+		}
 	}
 }
 
