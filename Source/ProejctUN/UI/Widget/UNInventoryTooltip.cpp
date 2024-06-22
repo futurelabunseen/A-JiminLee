@@ -54,10 +54,21 @@ void UUNInventoryTooltip::NativeConstruct()
 	default:;
 	}
 
+	int32 Damage = ItemBeingHovered->ItemStatistics.DamageValue;
+	FText DamageText = FText::Format(NSLOCTEXT("WeaponStat", "DamageText", "Damage: {0}"), FText::AsNumber(Damage));
+	int32 Range = ItemBeingHovered->ItemStatistics.WeaponRange;
+	FText RangeText = FText::Format(NSLOCTEXT("WeaponStat", "RangeText", "Range: {0}"), FText::AsNumber(Range));
+	int32 Armor = ItemBeingHovered->ItemStatistics.ArmorRating;
+	FText ArmorText = FText::Format(NSLOCTEXT("WeaponStat", "ArmorText", "Armor: {0}"), FText::AsNumber(Armor));
+
+
 	ItemName->SetText(ItemBeingHovered->TextData.Name);
-	DamageValue->SetText(FText::AsNumber(ItemBeingHovered->ItemStatistics.DamageValue));
-	WeaponRange->SetText(FText::AsNumber(ItemBeingHovered->ItemStatistics.WeaponRange));
-	ArmorRating->SetText(FText::AsNumber(ItemBeingHovered->ItemStatistics.ArmorRating));
+	DamageValue->SetText(DamageText);
+	WeaponRange->SetText(RangeText);
+	ArmorRating->SetText(ArmorText);
+	//DamageValue->SetText(FText::AsNumber(ItemBeingHovered->ItemStatistics.DamageValue));
+	//WeaponRange->SetText(FText::AsNumber(ItemBeingHovered->ItemStatistics.WeaponRange));
+	//ArmorRating->SetText(FText::AsNumber(ItemBeingHovered->ItemStatistics.ArmorRating));
 	UsageText->SetText(ItemBeingHovered->TextData.UsageText);
 	ItemDescription->SetText(ItemBeingHovered->TextData.Description);
 	//SellValue->SetText(FText::AsNumber(ItemBeingHovered->ItemStatistics.SellValue));

@@ -77,7 +77,7 @@ void AUNUltimateSword::InvokeGameplayCue(AActor* Target)
 		Param.Instigator = Target;
 
 		FVector Start = GetActorLocation();
-		FVector End = Start - FVector(0.0f, 0.0f, 500.0f);
+		FVector End = Start - FVector(0.0f, 0.0f, 2000.0f);
 
 		FHitResult HitResult;
 		FCollisionQueryParams CollisionParams;

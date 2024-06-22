@@ -251,17 +251,25 @@ void AUNPlayerController::BeginOverInteractable(AActor* NewInteractable)
 
 	if (InteractionData.CurrentInteractable)
 	{
-		TargetInteractable = InteractionData.CurrentInteractable;
-		if (TargetInteractable)
+		IUNInteractionInterface* Interface = Cast<IUNInteractionInterface>(InteractionData.CurrentInteractable);
+		if (Interface)
 		{
-			TargetInteractable->EndFocus();
+			TargetInteractable = InteractionData.CurrentInteractable;
+			if (TargetInteractable)
+			{
+				TargetInteractable->EndFocus();
+			}
 		}
 	}
 
 	if (NewInteractable)
 	{
 		InteractionData.CurrentInteractable = NewInteractable;
-		TargetInteractable = NewInteractable;
+
+		if (IUNInteractionInterface* Interface = Cast<IUNInteractionInterface>(NewInteractable))
+		{
+			TargetInteractable = NewInteractable;
+		}
 	}
 
 	//if (AUNHUD* HUD = Cast<AUNHUD>(GetHUD()))
