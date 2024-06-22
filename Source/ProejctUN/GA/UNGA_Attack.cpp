@@ -5,6 +5,8 @@
 #include "Character/UNPlayerCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Character/UNComboActionData.h"
+#include "AbilitySystemComponent.h"
+#include "Tag/UNGameplayTag.h"
 
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 
@@ -55,14 +57,20 @@ void UUNGA_Attack::CancelAbility(const FGameplayAbilitySpecHandle Handle, const 
 // 공격 사이클이 끝날 시 콤보 데이터 초기화 
 void UUNGA_Attack::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
-	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
-
 	AUNPlayerCharacter* UNCharacter = CastChecked<AUNPlayerCharacter>(ActorInfo->AvatarActor.Get());
-	UNCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+	UAbilitySystemComponent* AvatarActorASC = GetAbilitySystemComponentFromActorInfo();
 
 	CurrentComboData = nullptr;
 	CurrentCombo = 0;
 	HasNextComboInput = false;
+
+	//UNCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+	if (!AvatarActorASC->HasMatchingGameplayTag(UNTAG_CHARACTER_STATE_ISSTUNING))
+	{
+		UNCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+	}
+
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
 void UUNGA_Attack::OnCompleteCallback()

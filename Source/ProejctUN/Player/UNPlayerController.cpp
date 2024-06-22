@@ -7,6 +7,7 @@
 #include "Net/UnrealNetwork.h"
 #include "Game/UNGameMode.h"
 #include "Character/UNPlayerCharacter.h"
+#include "Interface/UNInteractionInterface.h"
 
 #include "ProejctUN.h"
 
@@ -75,7 +76,14 @@ void AUNPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 // Interact
 void AUNPlayerController::CheckCursorOverObject(AActor* CursorOverObject)
 {
-	BeginOverInteractable(CursorOverObject);
+	if (CursorOverObject)
+	{
+		IUNInteractionInterface* Interface = Cast<IUNInteractionInterface>(CursorOverObject);
+		if (Interface)
+		{
+			BeginOverInteractable(CursorOverObject);
+		}
+	}
 }
 
 void AUNPlayerController::ClearCursorOverObject(AActor* CursorOverObject)
@@ -233,6 +241,8 @@ void AUNPlayerController::BattleFunction(int Value)
 
 void AUNPlayerController::BeginOverInteractable(AActor* NewInteractable)
 {
+	//UE_LOG(LogTemp, Warning, TEXT("BeginOverInteractable called with: %s"), *NewInteractable->GetName());
+
 	if (IsInteracting())
 	{
 		EndInteract();
@@ -241,19 +251,27 @@ void AUNPlayerController::BeginOverInteractable(AActor* NewInteractable)
 	if (InteractionData.CurrentInteractable)
 	{
 		TargetInteractable = InteractionData.CurrentInteractable;
-		TargetInteractable->EndFocus();
+		if (TargetInteractable)
+		{
+			TargetInteractable->EndFocus();
+		}
 	}
 
-	InteractionData.CurrentInteractable = NewInteractable;
-	TargetInteractable = NewInteractable;
+	if (NewInteractable)
+	{
+		InteractionData.CurrentInteractable = NewInteractable;
+		TargetInteractable = NewInteractable;
+	}
 
 	//if (AUNHUD* HUD = Cast<AUNHUD>(GetHUD()))
 	//{
 	//	HUD->UpdateInteractionWidget(&TargetInteractable->InteractableData);
 	//}
 
-	TargetInteractable->BeginFocus();
-	
+	if (TargetInteractable)
+	{
+		TargetInteractable->BeginFocus();
+	}
 }
 
 void AUNPlayerController::EndOverInteractable()
@@ -372,13 +390,16 @@ void AUNPlayerController::ClientRPCRequestCurrentTime_Implementation(FName Serve
 
 void AUNPlayerController::MulticastRPCGameEndFunction_Implementation()
 {
+	SetKeyBoardInputMode(false);
+	FlushPressedKeys();
+	StopMovement();
+
 	GetWorld()->GetTimerManager().ClearTimer(GameTimeTimerHandle);
 	GetWorld()->GetTimerManager().ClearTimer(CountDownTimerHandle);
 	if (AUNPlayerCharacter* PlayerCharacter = Cast<AUNPlayerCharacter>(GetCharacter()))
 	{
 		GetWorld()->GetTimerManager().ClearTimer(PlayerCharacter->SpringArmUpdateTimerHandle);
 
-		//if(IsLocalController())
 		//PlayerCharacter->ReturnSpringArmLength();
 	}
 }

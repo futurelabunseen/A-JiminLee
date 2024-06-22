@@ -42,8 +42,6 @@ void UUNGA_Ultimate::ActivateAbility(const FGameplayAbilitySpecHandle Handle, co
 
 void UUNGA_Ultimate::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Magenta, "OnEndCallback");
-	//PlayerCharacter->GetCameraBoom()->TargetArmLength = 800.f;
 	EndDecal();
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
@@ -57,7 +55,6 @@ void UUNGA_Ultimate::OnTraceResultCallback(const FGameplayAbilityTargetDataHandl
 		if (UAbilitySystemBlueprintLibrary::TargetDataHasActor(TargetDataHandle, 0))
 		{
 			PlayerCharacter->UltimateLocation = TargetLocation;
-			//PlayerCharacter->StartUltimate(TargetLocation);
 			ServerRPCSendHitLocation(TargetLocation);
 			//DrawDebugSphere(GetWorld(), TargetLocation, 25.0f, 12, FColor::Red, false, 2.0f);
 		}
@@ -70,7 +67,6 @@ void UUNGA_Ultimate::OnTraceResultCallback(const FGameplayAbilityTargetDataHandl
 
 void UUNGA_Ultimate::OnInterruptedCallback(const FGameplayAbilityTargetDataHandle& TargetDataHandle)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Magenta, "OnInterruptedCallback");
 	bool bReplicatedEndAbility = true;
 	bool bWasCancelled = true;
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, bReplicatedEndAbility, bWasCancelled);
@@ -78,7 +74,6 @@ void UUNGA_Ultimate::OnInterruptedCallback(const FGameplayAbilityTargetDataHandl
 
 void UUNGA_Ultimate::OnCancelCallback(const FGameplayAbilityTargetDataHandle& TargetDataHandle)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Magenta, "OnCancelCallback");
 	bool bReplicatedEndAbility = true;
 	bool bWasCancelled = true;
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, bReplicatedEndAbility, bWasCancelled);

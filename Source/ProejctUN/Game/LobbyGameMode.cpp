@@ -3,6 +3,7 @@
 
 #include "Game/LobbyGameMode.h"
 #include "Player/UNPlayerController.h"
+#include "Character/UNPlayerCharacter.h"
 #include "GameFramework/GameStateBase.h"
 
 void ALobbyGameMode::PostLogin(APlayerController* NewPlayer)
@@ -24,17 +25,14 @@ void ALobbyGameMode::PostLogin(APlayerController* NewPlayer)
 			World->GetTimerManager().SetTimer(CharacterHandleCleartimerhandle, this, &ALobbyGameMode::CharacterHandleClear, 2.f, false);
 
 			FTimerHandle timerhandle;
-			World->GetTimerManager().SetTimer(timerhandle, this, &ALobbyGameMode::MoveMap, 5.f, false);
+			World->GetTimerManager().SetTimer(timerhandle, this, &ALobbyGameMode::MoveMap, 6.f, false);
 
 			//for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; It++)
 			//{
 			//	AUNPlayerController* PlayerController = Cast<AUNPlayerController>(*It);
 			//	if (PlayerController)
 			//	{
-			//		FInputModeUIOnly InputMode;
-			//		PlayerController->SetInputMode(InputMode);
-
-			//		PlayerController->MulticastRPCGameEndFunction();
+			//		PlayerController->CountDownFunction(3);
 			//	}
 			//}
 
@@ -50,9 +48,9 @@ void ALobbyGameMode::CharacterHandleClear()
 		AUNPlayerController* PlayerController = Cast<AUNPlayerController>(*It);
 		if (PlayerController)
 		{
-			PlayerController->SetKeyBoardInputMode(false);
-			PlayerController->FlushPressedKeys();
-			PlayerController->StopMovement();
+			//PlayerController->SetKeyBoardInputMode(false);
+			//PlayerController->FlushPressedKeys();
+			//PlayerController->StopMovement();
 			PlayerController->MulticastRPCGameEndFunction();
 		}
 	}

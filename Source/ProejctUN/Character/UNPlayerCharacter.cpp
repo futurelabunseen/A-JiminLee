@@ -555,7 +555,6 @@ void AUNPlayerCharacter::UnEquipWeapon(const FGameplayEventData* EventData)
 	if (Weapon)
 	{
 		Weapon->SetSkeletalMesh(nullptr);
-
 		//FGameplayAbilitySpec* SKillAbilitySpec = ASC->FindAbilitySpecFromClass(SkillAbilityClass);
 
 		//if (SKillAbilitySpec)
@@ -575,8 +574,12 @@ void AUNPlayerCharacter::OnStunTagChange(const FGameplayTag CallbackTag, int32 N
 {
 	if (NewCount > 0)
 	{
-		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+		if (bisTargeting)
+		{
+			SendCancelToTargetActor();
+		}
 		PlayStunAnimation();
+		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 	}
 	else
 	{

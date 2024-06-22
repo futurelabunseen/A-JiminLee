@@ -69,8 +69,9 @@ void UUNGA_Skill::CancelAbility(const FGameplayAbilitySpecHandle Handle, const F
 
 void UUNGA_Skill::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
+	UAbilitySystemComponent* AvatarActorASC = GetAbilitySystemComponentFromActorInfo();
 	AUNPlayerCharacter* PlayerCharacter = Cast<AUNPlayerCharacter>(ActorInfo->AvatarActor.Get());
-	if (PlayerCharacter)
+	if (PlayerCharacter && !AvatarActorASC->HasMatchingGameplayTag(UNTAG_CHARACTER_STATE_ISSTUNING))
 	{
 		PlayerCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 	}

@@ -172,6 +172,7 @@ void AUNGameMode::SpawnProps()
 			FVector SpawnLoc = FVector(RandomX, RandomY, RandomZ);
 
 			FActorSpawnParameters SpawnParams;
+			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 			AUNPickupObject* SpawnedActor = World->SpawnActor<AUNPickupObject>(AUNPickupObject::StaticClass(), SpawnLoc, FQuat::Identity.Rotator(), SpawnParams); //FQuat::Identity.Rotator()
 			SpawnedItems.Add(SpawnedActor);
 		}

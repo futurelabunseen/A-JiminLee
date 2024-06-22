@@ -81,7 +81,7 @@ protected:
 
 	UPROPERTY()
 	int GameTimeValue;
-
+public:
 	UFUNCTION()
 	void CountDownFunction(int Value);
 
@@ -91,7 +91,6 @@ protected:
 	UFUNCTION()
 	void BattleFunction(int Value);
 
-public:
 	void BeginOverInteractable(AActor* NewInteractable);
 	void EndOverInteractable();
 	void BeginInteract();

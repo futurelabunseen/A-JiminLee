@@ -57,7 +57,14 @@ void UUNGA_UltimateLogic::CancelAbility(const FGameplayAbilitySpecHandle Handle,
 void UUNGA_UltimateLogic::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
 	PlayerCharacter->UpdateSpringArmLength(1600.f, 800.f, 0.5f);
-	PlayerCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+
+	UAbilitySystemComponent* AvatarActorASC = GetAbilitySystemComponentFromActorInfo();
+
+	if (!AvatarActorASC->HasMatchingGameplayTag(UNTAG_CHARACTER_STATE_ISSTUNING))
+	{
+		PlayerCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+	}
+	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 

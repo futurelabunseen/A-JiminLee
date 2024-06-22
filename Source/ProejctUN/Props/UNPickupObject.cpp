@@ -61,7 +61,7 @@ void AUNPickupObject::InitializePickup(const TSubclassOf<UItemBase> BaseClass, c
 		TArray<FName> ItemNames = ItemDataTable->GetRowNames();
 		const int32 NumRows = ItemNames.Num();
 		//const int32 NumRows = ItemDataTable->GetTableData().Num();
-		const int32 RandomRowIndex = FMath::RandRange(0, NumRows - 2);
+		const int32 RandomRowIndex = FMath::RandRange(0, NumRows - 1);
 
 		const TArray<FName>& RowNames = ItemDataTable->GetRowNames();
 		DesiredItemID = RowNames[RandomRowIndex];

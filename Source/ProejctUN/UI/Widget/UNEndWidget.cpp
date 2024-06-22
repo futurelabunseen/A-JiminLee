@@ -25,18 +25,15 @@ void UUNEndWidget::MenuSetup()
 
 	if (ReturnButton && !ReturnButton->OnClicked.IsBound())
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Magenta, "Onclicked AddDynamic");
 		ReturnButton->OnClicked.AddDynamic(this, &UUNEndWidget::ReturnButtonClicked);
 	}
 
 	UGameInstance* GameInstance = GetGameInstance();
 	if (GameInstance)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Magenta, "HaveGameInstance");
 		MultiplayerSessionsSubsystem = GameInstance->GetSubsystem<UMultiplayerSessionsSubsystem>();
 		if (MultiplayerSessionsSubsystem)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Magenta, "OnclickedComplete AddDynamic");
 			MultiplayerSessionsSubsystem->MultiplayerOnDestroySessionComplete.AddDynamic(this, &UUNEndWidget::OnDestroySession);
 		}
 	}
@@ -46,13 +43,11 @@ bool UUNEndWidget::Initialize()
 {
 	if (!Super::Initialize())
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Magenta, "false");
 		return false;
 	}
 
 	if (ReturnButton)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Magenta, "Onclicked2 AddDynamic");
 		ReturnButton->OnClicked.AddDynamic(this, &UUNEndWidget::ReturnButtonClicked);
 	}
 
@@ -115,8 +110,6 @@ void UUNEndWidget::ReturnButtonClicked()
 
 	if (MultiplayerSessionsSubsystem)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Magenta, "DestroySession");
-
 		if (AUNPlayerController* PC = Cast<AUNPlayerController>(GetWorld()->GetFirstPlayerController()))
 		{
 			PC->MulticastRPCGameEndFunction();
