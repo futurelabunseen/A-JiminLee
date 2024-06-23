@@ -8,6 +8,7 @@
 
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values
 AUNUltimateSword::AUNUltimateSword()
@@ -43,6 +44,23 @@ void AUNUltimateSword::NotifyActorBeginOverlap(AActor* Other)
 		SetActorEnableCollision(false);
 		SetLifeSpan(2.f);
 	}
+}
+
+void AUNUltimateSword::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (WeaponMesh)
+	{
+		Mesh->SetSkeletalMesh(WeaponMesh);
+	}
+}
+
+void AUNUltimateSword::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME_CONDITION_NOTIFY(AUNUltimateSword, WeaponMesh, COND_None, REPNOTIFY_Always);
 }
 
 void AUNUltimateSword::PostInitializeComponents()
@@ -89,7 +107,7 @@ void AUNUltimateSword::InvokeGameplayCue(AActor* Target)
 		if (bHit)
 		{
 			UE_LOG(LogTemp, Log, TEXT("FoundLocation"));
-			Param.Location = HitResult.Location;
+			Param.Location = HitResult.Location + FVector(0.f, 0.f ,5.f);
 		}
 		else
 		{
@@ -98,4 +116,10 @@ void AUNUltimateSword::InvokeGameplayCue(AActor* Target)
 		}
 		ASC->ExecuteGameplayCue(GameplayCueTag, Param);
 	}
+}
+
+void AUNUltimateSword::SetMeshToWeaponMesh(USkeletalMesh* NewMesh)
+{
+	WeaponMesh = NewMesh;
+	//Mesh->SetSkeletalMesh(NewMesh);
 }

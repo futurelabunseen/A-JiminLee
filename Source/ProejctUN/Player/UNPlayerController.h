@@ -118,4 +118,8 @@ public:
 	void SetCharacterMovementMode(bool bMovement);
 
 	int8 bisFarmingDone;
+
+	//void ClientLeaveGame();
+
+	//virtual void ClientReturnToMainMenuWithTextReason(const FText& ReturnReason) override;
 };

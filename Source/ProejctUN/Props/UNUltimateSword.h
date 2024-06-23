@@ -19,6 +19,8 @@ public:
 
 	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	virtual void NotifyActorBeginOverlap(class AActor* Other) override;
+	virtual void BeginPlay() override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 protected:
 	virtual void PostInitializeComponents() override;
@@ -40,4 +42,12 @@ protected:
 
 	void ApplyEffectToTarget(AActor* Target);
 	void InvokeGameplayCue(AActor* Target);
+
+	UPROPERTY(Replicated)
+	USkeletalMesh* WeaponMesh;
+
+public:
+	
+	UFUNCTION()
+	void SetMeshToWeaponMesh(USkeletalMesh* NewMesh);
 };

@@ -8,6 +8,7 @@
 #include "Game/UNGameMode.h"
 #include "Character/UNPlayerCharacter.h"
 #include "Interface/UNInteractionInterface.h"
+#include "Kismet/GameplayStatics.h"
 
 #include "ProejctUN.h"
 
@@ -432,3 +433,13 @@ void AUNPlayerController::SetKeyBoardInputMode(bool bKeyboard)
 		SetInputMode(InputMode);
 	}
 }
+
+//void AUNPlayerController::ClientLeaveGame()
+//{
+//	ClientReturnToMainMenuWithTextReason(FText::FromString("You have left the game"));
+//}
+//
+//void AUNPlayerController::ClientReturnToMainMenuWithTextReason(const FText& ReturnReason)
+//{
+//	UGameplayStatics::OpenLevel(this, FName("MainMenu"));
+//}

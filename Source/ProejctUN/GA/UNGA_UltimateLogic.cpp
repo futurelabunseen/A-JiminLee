@@ -10,6 +10,7 @@
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Engine/World.h"
 #include "Net/UnrealNetwork.h"
+#include "Kismet/GameplayStatics.h"
 
 UUNGA_UltimateLogic::UUNGA_UltimateLogic()
 {
@@ -33,16 +34,28 @@ void UUNGA_UltimateLogic::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 	PlayMontageTask->OnCompleted.AddDynamic(this, &UUNGA_UltimateLogic::OnCompleteCallback);
 	PlayMontageTask->OnInterrupted.AddDynamic(this, &UUNGA_UltimateLogic::OnInterruptedCallback);
 
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.Owner = PlayerCharacter;
 
-	FVector SpawnLocation = PlayerCharacter->UltimateLocation + FVector(0.f, 0.f, 750.f);
-	FRotator SpawnRotation = FRotator::ZeroRotator;
+	//USkeletalMesh* Mesh = PlayerCharacter->WeaponMesh;
+	if (PlayerCharacter->GetOwner()->HasAuthority())
+	{
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = PlayerCharacter;
+		FVector SpawnLocation = PlayerCharacter->UltimateLocation + FVector(0.f, 0.f, 750.f);
+		FRotator SpawnRotation = FRotator::ZeroRotator;
 
-	AUNUltimateSword* Sword = GetWorld()->SpawnActor<AUNUltimateSword>(UltimateSword, SpawnLocation, SpawnRotation, SpawnParams);
+		//AUNUltimateSword* Sword = GetWorld()->SpawnActor<AUNUltimateSword>(UltimateSword, SpawnLocation, SpawnRotation, SpawnParams);
+		AUNUltimateSword* Sword = GetWorld()->SpawnActorDeferred<AUNUltimateSword>(UltimateSword, FTransform(SpawnRotation, SpawnLocation), PlayerCharacter, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+		if (Sword)
+		{
+			Sword->SetMeshToWeaponMesh(PlayerCharacter->WeaponMesh);
+			UGameplayStatics::FinishSpawningActor(Sword, FTransform(SpawnRotation, SpawnLocation));
+		}
+		
+		//Sword->SetMeshToWeaponMesh(Mesh);
+	}
 
 	//ServerRPCSpawnSword(SpawnLocation);
-	PlayerCharacter->UpdateSpringArmLength(800.f, 1600.f, 0.25f);
+	PlayerCharacter->UpdateSpringArmLength(800.f, 1600.f, 0.15f);
 	PlayMontageTask->ReadyForActivation();
 }
 
@@ -81,12 +94,13 @@ void UUNGA_UltimateLogic::OnInterruptedCallback()
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, bReplicatedEndAbility, bWasCancelled);
 }
 
+// 이 부분은 	if (PlayerCharacter->GetOwner()->HasAuthority())로 대체
 void UUNGA_UltimateLogic::ServerRPCSpawnSword_Implementation(FVector Location)
 {
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.Owner = PlayerCharacter;
 
-	FVector SpawnLocation = Location + FVector(0.f, 0.f, 1000.f);
+	FVector SpawnLocation = Location;
 	FRotator SpawnRotation = FRotator::ZeroRotator;
 
 	AUNUltimateSword* Sword = GetWorld()->SpawnActor<AUNUltimateSword>(UltimateSword, SpawnLocation, SpawnRotation, SpawnParams);

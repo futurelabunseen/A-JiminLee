@@ -131,7 +131,7 @@ AUNPlayerCharacter::AUNPlayerCharacter()
 		SkillActionMontage = SkillActionMontageRef.Object;
 	}
 
-	static ConstructorHelpers::FObjectFinder<USkeletalMesh> WeaponMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/InfinityBladeWeapons/Weapons/Blunt/Blunt_Hellhammer/SK_Blunt_HellHammer.SK_Blunt_HellHammer'"));
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> WeaponMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/InfinityBladeWeapons/Weapons/Sword/SK_Blade_BlackKnight.SK_Blade_BlackKnight'"));
 	if (WeaponMeshRef.Object)
 	{
 		WeaponMesh = WeaponMeshRef.Object;
@@ -681,7 +681,9 @@ void AUNPlayerCharacter::ServerRPCUpdateWeapon_Implementation()
 	if (UUNWorldSubsystem* WorldSubSystem = GetWorld()->GetSubsystem<UUNWorldSubsystem>())
 	{
 		UItemBase* CurrentEquipItem = WorldSubSystem->GetItemReference(PlayerInventory->CurrentWeaponItemID);
-		Weapon->SetSkeletalMesh(CurrentEquipItem->AssetData.SkeletalMesh);
+		WeaponMesh = CurrentEquipItem->AssetData.SkeletalMesh;
+		//Weapon->SetSkeletalMesh(CurrentEquipItem->AssetData.SkeletalMesh);
+		Weapon->SetSkeletalMesh(WeaponMesh);
 
 		ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute(), DefaultAttackRange + CurrentEquipItem->ItemStatistics.WeaponRange);
 		ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute(), DefaultAttackRate + CurrentEquipItem->ItemStatistics.DamageValue);
@@ -716,6 +718,8 @@ void AUNPlayerCharacter::ServerRPCUpdateArmor_Implementation()
 
 void AUNPlayerCharacter::MulticastRPCUpdateWeapon_Implementation(USkeletalMesh* ItemID)
 {
+	WeaponMesh = ItemID;
+	//UE_LOG(LogTemp, Log, TEXT("%s"), *ItemID->GetName());
 	Weapon->SetSkeletalMesh(ItemID);
 }
 
@@ -777,7 +781,6 @@ void AUNPlayerCharacter::SCancelActionFunction()
 	PlayerController->StopMovement();
 }
 
-//ServerRPC여야하나?
 void AUNPlayerCharacter::StartUltimate(FVector Location)
 {
 	UltimateLocation = Location;

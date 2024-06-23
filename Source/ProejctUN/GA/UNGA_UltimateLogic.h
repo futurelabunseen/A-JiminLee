@@ -36,7 +36,6 @@ protected:
 
 	UFUNCTION(Server, Unreliable)
 	void ServerRPCSpawnSword(FVector Location);
-
 public:
 	UPROPERTY()
 	TObjectPtr<class AUNPlayerCharacter> PlayerCharacter;
