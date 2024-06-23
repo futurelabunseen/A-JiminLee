@@ -15,7 +15,13 @@
 // 타겟 지정 후 핸들 리턴
 FGameplayAbilityTargetDataHandle AUNTA_SphereMultiTrace::MakeTargetData() const
 {
-	ACharacter* Character = CastChecked<ACharacter>(SourceActor);
+	ACharacter* Character = Cast<ACharacter>(SourceActor);
+
+	if (!Character)
+	{
+		UN_LOG(LogUNNetwork, Log, TEXT("Can't find Character!"));
+		return FGameplayAbilityTargetDataHandle();
+	}
 
 	UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(SourceActor);
 	if (!ASC)

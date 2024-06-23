@@ -23,7 +23,12 @@ void UUNGA_Ultimate::ActivateAbility(const FGameplayAbilitySpecHandle Handle, co
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	PlayerCharacter = CastChecked<AUNPlayerCharacter>(CurrentActorInfo->AvatarActor.Get());
+	PlayerCharacter = Cast<AUNPlayerCharacter>(CurrentActorInfo->AvatarActor.Get());
+	if (!PlayerCharacter)
+	{
+		UE_LOG(LogTemp, Log, TEXT("Can't find Character!"));
+		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
+	}
 
 	if (IsLocallyControlled())
 	{
@@ -81,15 +86,24 @@ void UUNGA_Ultimate::OnCancelCallback(const FGameplayAbilityTargetDataHandle& Ta
 
 void UUNGA_Ultimate::ActivateDecal()
 {
-	PlayerCharacter->ActivateDecal(DecalStruct);
+	if (PlayerCharacter)
+	{
+		PlayerCharacter->ActivateDecal(DecalStruct);
+	}
 }
 
 void UUNGA_Ultimate::EndDecal()
 {
-	PlayerCharacter->EndDecal();
+	if (PlayerCharacter)
+	{
+		PlayerCharacter->EndDecal();
+	}
 }
 
 void UUNGA_Ultimate::ServerRPCSendHitLocation_Implementation(FVector Location)
 {
-	PlayerCharacter->StartUltimate(Location);
+	if (PlayerCharacter)
+	{
+		PlayerCharacter->StartUltimate(Location);
+	}
 }

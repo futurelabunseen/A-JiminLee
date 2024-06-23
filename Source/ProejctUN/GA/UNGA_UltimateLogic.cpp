@@ -33,7 +33,13 @@ void UUNGA_UltimateLogic::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 	UAbilityTask_PlayMontageAndWait* PlayMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, TEXT("UltimateMontage"), UltimateActionMontage, 1.f);
 	PlayMontageTask->OnCompleted.AddDynamic(this, &UUNGA_UltimateLogic::OnCompleteCallback);
 	PlayMontageTask->OnInterrupted.AddDynamic(this, &UUNGA_UltimateLogic::OnInterruptedCallback);
-
+	
+	if (!Sounds.IsEmpty())
+	{
+		int32 RandomIndex = FMath::RandRange(0, Sounds.Num() - 1);
+		USoundBase* Sound = Sounds[RandomIndex];
+		UGameplayStatics::PlaySoundAtLocation(this, Sound, PlayerCharacter->GetActorLocation());
+	}
 
 	//USkeletalMesh* Mesh = PlayerCharacter->WeaponMesh;
 	if (PlayerCharacter->GetOwner()->HasAuthority())
@@ -56,6 +62,7 @@ void UUNGA_UltimateLogic::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 
 	//ServerRPCSpawnSword(SpawnLocation);
 	PlayerCharacter->UpdateSpringArmLength(800.f, 1600.f, 0.15f);
+
 	PlayMontageTask->ReadyForActivation();
 }
 
@@ -69,11 +76,15 @@ void UUNGA_UltimateLogic::CancelAbility(const FGameplayAbilitySpecHandle Handle,
 
 void UUNGA_UltimateLogic::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
-	PlayerCharacter->UpdateSpringArmLength(1600.f, 800.f, 0.5f);
+	if(PlayerCharacter)
+	{ 
+		PlayerCharacter->UpdateSpringArmLength(1600.f, 800.f, 0.5f);
+	}
 
 	UAbilitySystemComponent* AvatarActorASC = GetAbilitySystemComponentFromActorInfo();
-	if (AvatarActorASC && !AvatarActorASC->HasMatchingGameplayTag(UNTAG_CHARACTER_STATE_ISSTUNING))
+	if (PlayerCharacter && AvatarActorASC && !AvatarActorASC->HasMatchingGameplayTag(UNTAG_CHARACTER_STATE_ISSTUNING))
 	{
+
 		PlayerCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 	}
 	
@@ -105,5 +116,8 @@ void UUNGA_UltimateLogic::ServerRPCSpawnSword_Implementation(FVector Location)
 
 	AUNUltimateSword* Sword = GetWorld()->SpawnActor<AUNUltimateSword>(UltimateSword, SpawnLocation, SpawnRotation, SpawnParams);
 
-	PlayerCharacter->UltimateLocation = FVector();
+	if (PlayerCharacter)
+	{
+		PlayerCharacter->UltimateLocation = FVector();
+	}
 }

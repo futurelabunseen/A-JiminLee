@@ -36,7 +36,11 @@ protected:
 
 	UFUNCTION(Server, Unreliable)
 	void ServerRPCSpawnSword(FVector Location);
+
 public:
 	UPROPERTY()
 	TObjectPtr<class AUNPlayerCharacter> PlayerCharacter;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GameplayCue)
+	TArray<TObjectPtr<USoundBase>> Sounds;
 };

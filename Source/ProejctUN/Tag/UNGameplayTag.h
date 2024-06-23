@@ -7,6 +7,9 @@
 #define UNTAG_CHARACTER_STATE_ISDEAD FGameplayTag::RequestGameplayTag(FName("Character.State.IsDead"))
 #define UNTAG_CHARACTER_STATE_INVINSIBLE FGameplayTag::RequestGameplayTag(FName("Character.State.Invinsible"))
 #define UNTAG_CHARACTER_STATE_ISSTUNING FGameplayTag::RequestGameplayTag(FName("Character.State.IsStuning"))
+#define UNTAG_CHARACTER_STATE_ISATTACKING FGameplayTag::RequestGameplayTag(FName("Character.State.IsAttacking"))
+#define UNTAG_CHARACTER_STATE_ISULTIMATING FGameplayTag::RequestGameplayTag(FName("Character.State.IsUltimating"))
+#define UNTAG_CHARACTER_STATE_ISSKILLING FGameplayTag::RequestGameplayTag(FName("Character.State.IsSkilling"))
 
 #define UNTAG_GameplayCue_CHARACTER_AttackHit FGameplayTag::RequestGameplayTag(FName("GameplayCue.Character.AttackHit"))
 #define UNTAG_GAMEPLAYCUE_CHARACTER_FLOORSKILLEFFECT FGameplayTag::RequestGameplayTag(FName("GameplayCue.Character.FloorSkillEffect"))

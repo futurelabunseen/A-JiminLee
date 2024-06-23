@@ -77,14 +77,13 @@ void AUNPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 // Interact
 void AUNPlayerController::CheckCursorOverObject(AActor* CursorOverObject)
 {
-	if (CursorOverObject)
+	if (!CursorOverObject) return;
+
+	UE_LOG(LogTemp, Log, TEXT("CheckCursorOverObject: CursorOverObject is valid: %s"), *CursorOverObject->GetName());
+	IUNInteractionInterface* Interface = Cast<IUNInteractionInterface>(CursorOverObject);
+	if (Interface)
 	{
-		UE_LOG(LogTemp, Log, TEXT("CheckCursorOverObject: CursorOverObject is valid: %s"), *CursorOverObject->GetName());
-		IUNInteractionInterface* Interface = Cast<IUNInteractionInterface>(CursorOverObject);
-		if (Interface)
-		{
-			BeginOverInteractable(CursorOverObject);
-		}
+		BeginOverInteractable(CursorOverObject);
 	}
 }
 
@@ -111,7 +110,7 @@ void AUNPlayerController::OnMatchStateSet(FName State)
 	}
 	else if (MatchState == MatchState::Battle)
 	{
-		BattleFunction(30);
+		BattleFunction(99);
 	}
 }
 
@@ -131,7 +130,7 @@ void AUNPlayerController::OnRep_MatchState()
 	}
 	else if (MatchState == MatchState::Battle)
 	{
-		BattleFunction(30);
+		BattleFunction(99);
 	}
 }
 

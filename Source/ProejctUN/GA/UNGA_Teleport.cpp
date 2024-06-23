@@ -21,7 +21,13 @@ void UUNGA_Teleport::ActivateAbility(const FGameplayAbilitySpecHandle Handle, co
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	
-	PlayerCharacter = CastChecked<AUNPlayerCharacter>(CurrentActorInfo->AvatarActor.Get());
+	PlayerCharacter = Cast<AUNPlayerCharacter>(CurrentActorInfo->AvatarActor.Get());
+	if (!PlayerCharacter)
+	{
+		UE_LOG(LogTemp, Log, TEXT("Can't find Character!"));
+		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
+	}
+
 	if (IsLocallyControlled())
 	{
 		ActivateDecal();

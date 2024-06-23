@@ -282,13 +282,13 @@ void AUNPickupObject::MoveToFloor()
 	CollisionParams.AddIgnoredActor(this);
 
 	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, CollisionParams);
-	DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 2.0f, 0, 1.0f);
+	//DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 2.0f, 0, 1.0f);
 
 	if (bHit)
 	{
 		FVector NewLocation = HitResult.Location;
 		SetActorLocation(NewLocation);
 
-		DrawDebugSphere(GetWorld(), NewLocation, 25.0f, 12, FColor::Red, false, 2.0f);
+		//DrawDebugSphere(GetWorld(), NewLocation, 25.0f, 12, FColor::Red, false, 2.0f);
 	}
 }

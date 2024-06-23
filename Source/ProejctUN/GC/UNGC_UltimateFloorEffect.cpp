@@ -34,6 +34,7 @@ bool UUNGC_UltimateFloorEffect::OnExecute_Implementation(AActor* Target, const F
 	//}
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(Target, Niagara, Parameters.Location, FRotator::ZeroRotator);
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(Target, Niagara2, Parameters.Location, FRotator::ZeroRotator);
+	UGameplayStatics::PlaySoundAtLocation(this, Sound, Parameters.Location);
 
 	return false;
 }

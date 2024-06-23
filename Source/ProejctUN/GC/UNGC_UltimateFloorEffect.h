@@ -29,4 +29,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GameplayCue)
 	TObjectPtr<UNiagaraSystem> Niagara2;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USoundBase> Sound;
 };

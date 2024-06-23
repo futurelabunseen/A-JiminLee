@@ -35,7 +35,11 @@ void AUNTA_Trace::ConfirmTargetingAndContinue()
 // Å¸°Ù Å½Áö
 FGameplayAbilityTargetDataHandle AUNTA_Trace::MakeTargetData() const
 {
-	ACharacter* Character = CastChecked<ACharacter>(SourceActor);
+	ACharacter* Character = Cast<ACharacter>(SourceActor);
+	if (!Character)
+	{
+		return FGameplayAbilityTargetDataHandle();
+	}
 
 	UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(SourceActor);
 	if (!ASC)

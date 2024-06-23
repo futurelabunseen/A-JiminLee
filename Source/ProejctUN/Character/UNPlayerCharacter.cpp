@@ -25,6 +25,7 @@
 #include "UI/Widget/UNGASUserWidget.h"
 #include "UI/UNInventoryComponent.h"
 #include "Abilities/GameplayAbilityTargetActor.h"
+#include "GameplayTagContainer.h"
 #include "Props/UNPickupObject.h"
 #include "Item/ItemBase.h"
 #include "Game/UNWorldSubsystem.h"
@@ -249,7 +250,12 @@ void AUNPlayerCharacter::PossessedBy(AController* NewController)
 	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
 	Super::PossessedBy(NewController);
 
-	PlayerController = CastChecked<APlayerController>(GetController());
+	PlayerController = Cast<APlayerController>(GetController());
+	if (!PlayerController)
+	{
+		UE_LOG(LogTemp, Log, TEXT("Can't find Controller!"));
+		return;
+	}
 	//PlayerController->ConsoleCommand(TEXT("showdebug abilitysystem"));
 
 	InitAbilityActorInfo();
@@ -263,7 +269,12 @@ void AUNPlayerCharacter::OnRep_Owner()
 	UN_LOG(LogUNNetwork, Log, TEXT("%s %s"), *GetName(), TEXT("Begin"));
 	Super::OnRep_Owner();
 
-	PlayerController = CastChecked<APlayerController>(GetController());
+	PlayerController = Cast<APlayerController>(GetController());
+	if (!PlayerController)
+	{
+		UE_LOG(LogTemp, Log, TEXT("Can't find Controller!"));
+		return;
+	}
 	//PlayerController->ConsoleCommand(TEXT("showdebug abilitysystem"));
 
 	AActor* OwnerActor = GetOwner();
@@ -342,7 +353,13 @@ void AUNPlayerCharacter::SetCharacterControl()
 		return;
 	}
 
-	PlayerController = CastChecked<APlayerController>(GetController());
+	PlayerController = Cast<APlayerController>(GetController());
+	if (!PlayerController)
+	{
+		UE_LOG(LogTemp, Log, TEXT("Can't find Controller!"));
+		return;
+	}
+
 	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
 	{
 		//Subsystem->ClearAllMappings();
@@ -578,6 +595,17 @@ void AUNPlayerCharacter::OnStunTagChange(const FGameplayTag CallbackTag, int32 N
 		{
 			SendCancelToTargetActor();
 		}
+
+		FGameplayTagContainer CancelTagContainer;
+		CancelTagContainer.AddTag(UNTAG_CHARACTER_STATE_ISATTACKING);
+		CancelTagContainer.AddTag(UNTAG_CHARACTER_STATE_ISULTIMATING);
+		CancelTagContainer.AddTag(UNTAG_CHARACTER_STATE_ISSKILLING);
+
+		FGameplayTagContainer IgnoreTagContainer;
+		TArray<FGameplayAbilitySpec*> AbilitySpecs;
+		ASC->GetActivatableGameplayAbilitySpecsByAllMatchingTags(CancelTagContainer, AbilitySpecs, true);
+		ASC->CancelAbilities(&CancelTagContainer, &IgnoreTagContainer);
+
 		PlayStunAnimation();
 		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 	}

@@ -102,7 +102,7 @@ void AUNUltimateSword::InvokeGameplayCue(AActor* Target)
 		CollisionParams.AddIgnoredActor(this);
 
 		bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, CollisionParams);
-		DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 2.0f, 0, 1.0f);
+		//DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 2.0f, 0, 1.0f);
 
 		if (bHit)
 		{

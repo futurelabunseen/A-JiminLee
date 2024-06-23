@@ -22,7 +22,12 @@ void UUNGA_Attack::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	AUNPlayerCharacter* UNCharacter = CastChecked<AUNPlayerCharacter>(ActorInfo->AvatarActor.Get());
+	AUNPlayerCharacter* UNCharacter = Cast<AUNPlayerCharacter>(ActorInfo->AvatarActor.Get());
+	if (!UNCharacter)
+	{
+		UE_LOG(LogTemp, Log, TEXT("Can't find Character!"));
+		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
+	}
 	CurrentComboData = UNCharacter->GetComboActionData();
 	UNCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 
@@ -57,7 +62,7 @@ void UUNGA_Attack::CancelAbility(const FGameplayAbilitySpecHandle Handle, const 
 // 공격 사이클이 끝날 시 콤보 데이터 초기화 
 void UUNGA_Attack::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
-	AUNPlayerCharacter* UNCharacter = CastChecked<AUNPlayerCharacter>(ActorInfo->AvatarActor.Get());
+	AUNPlayerCharacter* UNCharacter = Cast<AUNPlayerCharacter>(ActorInfo->AvatarActor.Get());
 	UAbilitySystemComponent* AvatarActorASC = GetAbilitySystemComponentFromActorInfo();
 
 	CurrentComboData = nullptr;
@@ -65,7 +70,7 @@ void UUNGA_Attack::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGa
 	HasNextComboInput = false;
 
 	//UNCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
-	if (!AvatarActorASC->HasMatchingGameplayTag(UNTAG_CHARACTER_STATE_ISSTUNING))
+	if (UNCharacter && !AvatarActorASC->HasMatchingGameplayTag(UNTAG_CHARACTER_STATE_ISSTUNING))
 	{
 		UNCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 	}

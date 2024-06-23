@@ -12,7 +12,6 @@ void UUNEndWidget::MenuSetup()
 {
 	AddToViewport();
 	SetVisibility(ESlateVisibility::Visible);
-	bIsFocusable = true;
 
 	UWorld* World = GetWorld();
 	if (World)
@@ -47,11 +46,6 @@ bool UUNEndWidget::Initialize()
 		return false;
 	}
 
-	//if (ReturnButton)
-	//{
-	//	ReturnButton->OnClicked.AddDynamic(this, &UUNEndWidget::ReturnButtonClicked);
-	//}
-
 	return true;
 }
 
@@ -69,7 +63,6 @@ void UUNEndWidget::OnDestroySession(bool bWasSuccessful)
 		AGameModeBase* GameMode = World->GetAuthGameMode<AGameModeBase>();
 		if (GameMode)
 		{
-			UE_LOG(LogTemp, Log, TEXT("ReturnToMainMenuHost!!!"));
 			GameMode->ReturnToMainMenuHost();
 		}
 		else
@@ -125,8 +118,6 @@ void UUNEndWidget::ReturnButtonClicked()
 			//	PC->ClientReturnToMainMenuWithTextReason(FText());
 			//}
 		}
-
-		UE_LOG(LogTemp, Log, TEXT("TryDestroySession!!!"));
 		
 		MultiplayerSessionsSubsystem->DestroySession();
 	}
