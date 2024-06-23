@@ -50,7 +50,10 @@ void UUNOverlayWidget::SetCountDownMsgVisibility(bool option)
 
 void UUNOverlayWidget::SetGameTimeText(FString NewText)
 {
-	GameTimeText->SetText(FText::FromString(NewText));
+	FText NewTextAsFText = FText::FromString(NewText);
+	FText CountText = FText::Format(NSLOCTEXT("CountDown", "CountDownRemain", "[CountDown:{0}]"), NewTextAsFText);
+	GameTimeText->SetText(CountText);
+	//GameTimeText->SetText(FText::FromString(NewText));
 }
 
 void UUNOverlayWidget::SetGameTimeTextVisibility(bool option)

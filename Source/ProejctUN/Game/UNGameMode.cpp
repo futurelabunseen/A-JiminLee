@@ -217,8 +217,6 @@ void AUNGameMode::OnCharacterDeath(AUNCharacter* Character)
 
 	if (RemainingCharacterCount == 1)
 	{
-		// To Do .. : 끝내는 로직
-		GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Magenta, "End");
 		GameEndFunction();
 	}
 }

@@ -127,6 +127,7 @@ void UUNEndWidget::ReturnButtonClicked()
 		}
 
 		UE_LOG(LogTemp, Log, TEXT("TryDestroySession!!!"));
+		
 		MultiplayerSessionsSubsystem->DestroySession();
 	}
 }

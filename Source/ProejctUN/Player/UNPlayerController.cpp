@@ -99,7 +99,7 @@ void AUNPlayerController::OnMatchStateSet(FName State)
 
 	if (MatchState == MatchState::InProgress)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Magenta, "InProgress!");
+		// InProgress로직
 	}
 	else if (MatchState == MatchState::CountDown)
 	{
@@ -111,7 +111,7 @@ void AUNPlayerController::OnMatchStateSet(FName State)
 	}
 	else if (MatchState == MatchState::Battle)
 	{
-		BattleFunction(999);
+		BattleFunction(30);
 	}
 }
 
@@ -119,7 +119,7 @@ void AUNPlayerController::OnRep_MatchState()
 {
 	if (MatchState == MatchState::InProgress)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Magenta, "InProgress!");
+		// InProgress로직
 	}
 	else if (MatchState == MatchState::CountDown)
 	{
@@ -131,7 +131,7 @@ void AUNPlayerController::OnRep_MatchState()
 	}
 	else if (MatchState == MatchState::Battle)
 	{
-		BattleFunction(999);
+		BattleFunction(30);
 	}
 }
 
@@ -181,6 +181,10 @@ void AUNPlayerController::CountDownFunction(int Value)
 
 void AUNPlayerController::FarmingFunction(int Value)
 {
+	if (AUNGameMode* GM = Cast<AUNGameMode>(GetWorld()->GetAuthGameMode()))
+	{
+		GM->bisBattleState = false;
+	}
 	SetKeyBoardInputMode(true);
 
 	HUD = Cast<AUNHUD>(GetHUD());
@@ -233,7 +237,7 @@ void AUNPlayerController::BattleFunction(int Value)
 		GameTimeValue -= 1;
 		if (GameTimeValue < 0)
 		{
-			bisFarmingDone = true;
+			bisFarmingDone = false;
 			OnMatchStateSet(MatchState::CountDown);
 
 			GetWorld()->GetTimerManager().ClearTimer(GameTimeTimerHandle);
