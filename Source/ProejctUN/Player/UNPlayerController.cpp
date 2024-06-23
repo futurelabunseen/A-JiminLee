@@ -7,6 +7,8 @@
 #include "Net/UnrealNetwork.h"
 #include "Game/UNGameMode.h"
 #include "Character/UNPlayerCharacter.h"
+#include "Interface/UNInteractionInterface.h"
+#include "Kismet/GameplayStatics.h"
 
 #include "ProejctUN.h"
 
@@ -75,7 +77,14 @@ void AUNPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 // Interact
 void AUNPlayerController::CheckCursorOverObject(AActor* CursorOverObject)
 {
-	BeginOverInteractable(CursorOverObject);
+	if (!CursorOverObject) return;
+
+	UE_LOG(LogTemp, Log, TEXT("CheckCursorOverObject: CursorOverObject is valid: %s"), *CursorOverObject->GetName());
+	IUNInteractionInterface* Interface = Cast<IUNInteractionInterface>(CursorOverObject);
+	if (Interface)
+	{
+		BeginOverInteractable(CursorOverObject);
+	}
 }
 
 void AUNPlayerController::ClearCursorOverObject(AActor* CursorOverObject)
@@ -89,7 +98,7 @@ void AUNPlayerController::OnMatchStateSet(FName State)
 
 	if (MatchState == MatchState::InProgress)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Magenta, "InProgress!");
+		// InProgress로직
 	}
 	else if (MatchState == MatchState::CountDown)
 	{
@@ -101,7 +110,7 @@ void AUNPlayerController::OnMatchStateSet(FName State)
 	}
 	else if (MatchState == MatchState::Battle)
 	{
-		BattleFunction(100);
+		BattleFunction(99);
 	}
 }
 
@@ -109,7 +118,7 @@ void AUNPlayerController::OnRep_MatchState()
 {
 	if (MatchState == MatchState::InProgress)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Magenta, "InProgress!");
+		// InProgress로직
 	}
 	else if (MatchState == MatchState::CountDown)
 	{
@@ -121,26 +130,30 @@ void AUNPlayerController::OnRep_MatchState()
 	}
 	else if (MatchState == MatchState::Battle)
 	{
-		BattleFunction(100);
+		BattleFunction(99);
 	}
 }
 
 void AUNPlayerController::CountDownFunction(int Value)
 {
+	SetKeyBoardInputMode(false);
+	FlushPressedKeys();
 	StopMovement();
-	AUNPlayerCharacter* PlayerCharacter = Cast<AUNPlayerCharacter>(GetCharacter());
-	if (PlayerCharacter)
-	{
-		PlayerCharacter->StopMovement();
-	}
-	FInputModeUIOnly InputMode;
-	SetInputMode(InputMode);
 
 	HUD = Cast<AUNHUD>(GetHUD());
 	if (HUD)
 	{
 		HUD->SetGameTimeTextVisibility(false);
 		HUD->SetCountDownTextVisibility(true);
+		HUD->SetCountDownMsgVisibility(true);
+		if (bisFarmingDone)
+		{
+			HUD->SetCountDownMsg("Waiting Battle Turn ...");
+		}
+		else
+		{
+			HUD->SetCountDownMsg("Waiting Farming Turn ...");
+		}
 	}
 
 	CountDownValue = Value;
@@ -167,18 +180,17 @@ void AUNPlayerController::CountDownFunction(int Value)
 
 void AUNPlayerController::FarmingFunction(int Value)
 {
-	AUNPlayerCharacter* PlayerCharacter = Cast<AUNPlayerCharacter>(GetCharacter());
-	if (PlayerCharacter)
+	if (AUNGameMode* GM = Cast<AUNGameMode>(GetWorld()->GetAuthGameMode()))
 	{
-		PlayerCharacter->ActivateMovement();
+		GM->bisBattleState = false;
 	}
-	FInputModeGameOnly InputMode;
-	InputMode.SetConsumeCaptureMouseDown(false);
-	SetInputMode(InputMode);
+	SetKeyBoardInputMode(true);
+
 	HUD = Cast<AUNHUD>(GetHUD());
 	if (HUD)
 	{
 		HUD->SetCountDownTextVisibility(false);
+		HUD->SetCountDownMsgVisibility(false);
 		HUD->SetGameTimeTextVisibility(true);
 	}
 
@@ -201,18 +213,18 @@ void AUNPlayerController::FarmingFunction(int Value)
 
 void AUNPlayerController::BattleFunction(int Value)
 {
-	AUNPlayerCharacter* PlayerCharacter = Cast<AUNPlayerCharacter>(GetCharacter());
-	if (PlayerCharacter)
+	if (AUNGameMode* GM = Cast<AUNGameMode>(GetWorld()->GetAuthGameMode()))
 	{
-		PlayerCharacter->ActivateMovement();
+		GM->bisBattleState = true;
 	}
-	FInputModeGameOnly InputMode;
-	InputMode.SetConsumeCaptureMouseDown(false);
-	SetInputMode(InputMode);
+
+	SetKeyBoardInputMode(true);
+
 	HUD = Cast<AUNHUD>(GetHUD());
 	if (HUD)
 	{
 		HUD->SetCountDownTextVisibility(false);
+		HUD->SetCountDownMsgVisibility(false);
 		HUD->SetGameTimeTextVisibility(true);
 	}
 	GameTimeValue = Value;
@@ -224,7 +236,7 @@ void AUNPlayerController::BattleFunction(int Value)
 		GameTimeValue -= 1;
 		if (GameTimeValue < 0)
 		{
-			bisFarmingDone = true;
+			bisFarmingDone = false;
 			OnMatchStateSet(MatchState::CountDown);
 
 			GetWorld()->GetTimerManager().ClearTimer(GameTimeTimerHandle);
@@ -234,6 +246,8 @@ void AUNPlayerController::BattleFunction(int Value)
 
 void AUNPlayerController::BeginOverInteractable(AActor* NewInteractable)
 {
+	//UE_LOG(LogTemp, Warning, TEXT("BeginOverInteractable called with: %s"), *NewInteractable->GetName());
+
 	if (IsInteracting())
 	{
 		EndInteract();
@@ -241,20 +255,36 @@ void AUNPlayerController::BeginOverInteractable(AActor* NewInteractable)
 
 	if (InteractionData.CurrentInteractable)
 	{
-		TargetInteractable = InteractionData.CurrentInteractable;
-		TargetInteractable->EndFocus();
+		IUNInteractionInterface* Interface = Cast<IUNInteractionInterface>(InteractionData.CurrentInteractable);
+		if (Interface)
+		{
+			TargetInteractable = InteractionData.CurrentInteractable;
+			if (TargetInteractable)
+			{
+				TargetInteractable->EndFocus();
+			}
+		}
 	}
 
-	InteractionData.CurrentInteractable = NewInteractable;
-	TargetInteractable = NewInteractable;
+	if (NewInteractable)
+	{
+		InteractionData.CurrentInteractable = NewInteractable;
+
+		if (IUNInteractionInterface* Interface = Cast<IUNInteractionInterface>(NewInteractable))
+		{
+			TargetInteractable = NewInteractable;
+		}
+	}
 
 	//if (AUNHUD* HUD = Cast<AUNHUD>(GetHUD()))
 	//{
 	//	HUD->UpdateInteractionWidget(&TargetInteractable->InteractableData);
 	//}
 
-	TargetInteractable->BeginFocus();
-	
+	if (TargetInteractable)
+	{
+		TargetInteractable->BeginFocus();
+	}
 }
 
 void AUNPlayerController::EndOverInteractable()
@@ -370,3 +400,49 @@ void AUNPlayerController::ClientRPCRequestCurrentTime_Implementation(FName Serve
 		GameTimeValue = ServerTime;
 	}
 }
+
+void AUNPlayerController::MulticastRPCGameEndFunction_Implementation()
+{
+	SetKeyBoardInputMode(false);
+	FlushPressedKeys();
+	StopMovement();
+
+	GetWorld()->GetTimerManager().ClearTimer(GameTimeTimerHandle);
+	GetWorld()->GetTimerManager().ClearTimer(CountDownTimerHandle);
+	if (AUNPlayerCharacter* PlayerCharacter = Cast<AUNPlayerCharacter>(GetCharacter()))
+	{
+		GetWorld()->GetTimerManager().ClearTimer(PlayerCharacter->SpringArmUpdateTimerHandle);
+
+		//PlayerCharacter->ReturnSpringArmLength();
+	}
+}
+
+void AUNPlayerController::ClientRPCOpenEndWidget_Implementation()
+{
+	HUD->OpenEndWidget();
+}
+
+void AUNPlayerController::SetKeyBoardInputMode(bool bKeyboard)
+{
+	if (bKeyboard)
+	{
+		FInputModeGameOnly InputMode;
+		InputMode.SetConsumeCaptureMouseDown(false);
+		SetInputMode(InputMode);
+	}
+	else
+	{
+		FInputModeUIOnly InputMode;
+		SetInputMode(InputMode);
+	}
+}
+
+//void AUNPlayerController::ClientLeaveGame()
+//{
+//	ClientReturnToMainMenuWithTextReason(FText::FromString("You have left the game"));
+//}
+//
+//void AUNPlayerController::ClientReturnToMainMenuWithTextReason(const FText& ReturnReason)
+//{
+//	UGameplayStatics::OpenLevel(this, FName("MainMenu"));
+//}

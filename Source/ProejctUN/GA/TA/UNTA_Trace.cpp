@@ -35,7 +35,11 @@ void AUNTA_Trace::ConfirmTargetingAndContinue()
 // 타겟 탐지
 FGameplayAbilityTargetDataHandle AUNTA_Trace::MakeTargetData() const
 {
-	ACharacter* Character = CastChecked<ACharacter>(SourceActor);
+	ACharacter* Character = Cast<ACharacter>(SourceActor);
+	if (!Character)
+	{
+		return FGameplayAbilityTargetDataHandle();
+	}
 
 	UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(SourceActor);
 	if (!ASC)
@@ -62,6 +66,7 @@ FGameplayAbilityTargetDataHandle AUNTA_Trace::MakeTargetData() const
 	bool HitDetected = GetWorld()->SweepSingleByChannel(OutHitResult, Start, End, FQuat::Identity, CCHANNEL_UNACTION, FCollisionShape::MakeSphere(AttackRadius), Params);
 
 	FGameplayAbilityTargetDataHandle DataHandle;
+	DataHandle.UniqueId = 0;
 	if (HitDetected)
 	{
 		//지금은 TakeDamage대신 GE를 사용 중. 불필요하다고 판단 시 주석 제거 예정
@@ -74,17 +79,17 @@ FGameplayAbilityTargetDataHandle AUNTA_Trace::MakeTargetData() const
 
 // 범위 디버그
 
-#if ENABLE_DRAW_DEBUG
-
-	if (bShowDebug)
-	{
-		FVector CapsuleOrigin = Start + (End - Start) * 0.5f;
-		float CapsuleHalfHeight = AttackRange * 0.5f;
-		FColor DrawColor = HitDetected ? FColor::Green : FColor::Red;
-		DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, AttackRadius, FRotationMatrix::MakeFromZ(Forward).ToQuat(), DrawColor, false, 5.f);
-	}
-
-#endif
+//#if ENABLE_DRAW_DEBUG
+//
+//	if (bShowDebug)
+//	{
+//		FVector CapsuleOrigin = Start + (End - Start) * 0.5f;
+//		float CapsuleHalfHeight = AttackRange * 0.5f;
+//		FColor DrawColor = HitDetected ? FColor::Green : FColor::Red;
+//		DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, AttackRadius, FRotationMatrix::MakeFromZ(Forward).ToQuat(), DrawColor, false, 5.f);
+//	}
+//
+//#endif
 
 	return DataHandle;
 }

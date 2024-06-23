@@ -21,7 +21,13 @@ void UUNGA_Teleport::ActivateAbility(const FGameplayAbilitySpecHandle Handle, co
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	
-	PlayerCharacter = CastChecked<AUNPlayerCharacter>(CurrentActorInfo->AvatarActor.Get());
+	PlayerCharacter = Cast<AUNPlayerCharacter>(CurrentActorInfo->AvatarActor.Get());
+	if (!PlayerCharacter)
+	{
+		UE_LOG(LogTemp, Log, TEXT("Can't find Character!"));
+		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
+	}
+
 	if (IsLocallyControlled())
 	{
 		ActivateDecal();
@@ -41,7 +47,7 @@ void UUNGA_Teleport::EndAbility(const FGameplayAbilitySpecHandle Handle, const F
 	{
 		if (!bWasCancelled)
 		{
-			StartCoolDown();
+			//StartCoolDown();
 		}
 		EndDecal();
 	}
@@ -73,13 +79,18 @@ void UUNGA_Teleport::OnTraceResultCallback(const FGameplayAbilityTargetDataHandl
 				
 				FGameplayCueParameters CueParam;
 				CueParam.EffectContext = CueContextHandle;
+				//CueParam.Location = SourceASC->GetAvatarActor()->GetActorLocation();
 				SourceASC->ExecuteGameplayCue(UNTAG_GAMEPLAYCUE_CHARACTER_TELEPORTEFFECT, CueParam);
+
+				PlayerCharacter->GetController()->StopMovement();
+				TeleportToLocation(TargetLocation, CueParam);
+				StartCoolDown();
 			}
 		}
-
-
-		PlayerCharacter->GetController()->StopMovement();
-		TeleportToLocation(TargetLocation);
+		else
+		{
+			UE_LOG(LogTemp, Log, TEXT("Location is null!"));
+		}
 
 		bool bReplicatedEndAbility = true;
 		bool bWasCancelled = false;
@@ -113,8 +124,12 @@ void UUNGA_Teleport::EndDecal()
 	PlayerCharacter->EndDecal();
 }
 
-void UUNGA_Teleport::TeleportToLocation_Implementation(FVector NewLocation)
+void UUNGA_Teleport::TeleportToLocation_Implementation(FVector NewLocation, FGameplayCueParameters Params)
 {
+	UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo_Checked();
+	Params.Location = SourceASC->GetAvatarActor()->GetActorLocation();
+	SourceASC->ExecuteGameplayCue(UNTAG_GAMEPLAYCUE_CHARACTER_TELEPORTEFFECT, Params);
+
 	PlayerCharacter->TeleportTo(NewLocation, (NewLocation - PlayerCharacter->GetActorLocation()).Rotation(), false, true);
 }
 

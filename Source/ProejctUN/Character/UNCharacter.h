@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "UNCharacter.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDeathDelegate, AUNCharacter*, Character);
+
 UCLASS()
 class PROEJCTUN_API AUNCharacter : public ACharacter
 {
@@ -18,6 +20,9 @@ public:
 
 	FORCEINLINE class UCameraComponent* GetTopDownCameraComponent() const { return TopDownCameraComponent; }
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+
+	UPROPERTY(BlueprintAssignable, Category = "Delegate")
+	FOnDeathDelegate OnDeath;
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* TopDownCameraComponent;
@@ -46,6 +51,4 @@ protected:
 
 	void SetDead();
 	void PlayDeadAnimaition();
-
-
 };

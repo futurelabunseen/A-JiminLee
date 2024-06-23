@@ -7,11 +7,13 @@
 #include "Player/UNGASPlayerState.h"
 #include "Player/UNPlayerController.h"
 #include "Props/UNPickupObject.h"
+#include "Character/UNPlayerCharacter.h"
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/WorldSettings.h"
 #include "Engine/World.h"
+#include "GameFramework/PlayerStart.h"
 #include "Kismet/GameplayStatics.h"
 
 namespace MatchState
@@ -43,6 +45,8 @@ AUNGameMode::AUNGameMode() :
 
 	GameStateClass = AUNGameState::StaticClass();
 	PlayerStateClass = AUNGASPlayerState::StaticClass();
+
+	//bDelayedStart = true;
 }
 
 void AUNGameMode::BeginPlay()
@@ -52,6 +56,22 @@ void AUNGameMode::BeginPlay()
 	LevelStartingTime = GetWorld()->GetTimeSeconds();
 
 	SpawnProps();
+
+	FTimerHandle CountDownTimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(CountDownTimerHandle, [&]()
+		{
+			TArray<AActor*> Players;
+			UGameplayStatics::GetAllActorsOfClass(GetWorld(), AUNPlayerCharacter::StaticClass(), Players);
+
+			for (const auto& Player : Players)
+			{
+				AUNPlayerCharacter* Character = Cast<AUNPlayerCharacter>(Player);
+				Character->OnDeath.AddDynamic(this, &AUNGameMode::OnCharacterDeath);
+				PlayerArray.Add(Character);
+			}
+
+			SetMatchState(MatchState::CountDown);
+		}, 3.f, false);
 }
 
 //void AUNGameMode::Tick(float DeltaTime)
@@ -74,8 +94,15 @@ APlayerController* AUNGameMode::Login(UPlayer* NewPlayer, ENetRole InRemoteRole,
 {
 	UN_LOG(LogUNNetwork, Log, TEXT("%s"), TEXT("Begin"));
 	APlayerController* NewPlayerController = Super::Login(NewPlayer, InRemoteRole, Portal, Options, UniqueId, ErrorMessage);
+	ChoosePlayerStart_Implementation(NewPlayerController);
 	UN_LOG(LogUNNetwork, Log, TEXT("%s"), TEXT("End"));
 	return NewPlayerController;
+}
+
+void AUNGameMode::Logout(AController* Exiting)
+{
+	//APlayerController* PlayerController = Cast<APlayerController>(Exiting);
+	Super::Logout(Exiting);
 }
 
 void AUNGameMode::PostLogin(APlayerController* NewPlayer)
@@ -108,12 +135,6 @@ void AUNGameMode::PostLogin(APlayerController* NewPlayer)
 		UWorld* World = GetWorld();
 		if (World)
 		{
-			FTimerHandle CountDownTimerHandle;
-			GetWorld()->GetTimerManager().SetTimer(CountDownTimerHandle, [&]()
-				{
-					SetMatchState(MatchState::CountDown);
-				}, 1.f, false);
-			
 			//StartMatch();
 		}
 	}
@@ -148,11 +169,84 @@ void AUNGameMode::SpawnProps()
 			float RandomX = FMath::RandRange(MinSpawnLocation.X, MaxSpawnLocation.X);
 			float RandomY = FMath::RandRange(MinSpawnLocation.Y, MaxSpawnLocation.Y);
 			float RandomZ = FMath::RandRange(MinSpawnLocation.Z, MaxSpawnLocation.Z);
-			
 			FVector SpawnLoc = FVector(RandomX, RandomY, RandomZ);
+
 			FActorSpawnParameters SpawnParams;
-			AUNPickupObject* SpawnedActor = World->SpawnActor<AUNPickupObject>(AUNPickupObject::StaticClass(), SpawnLoc, FQuat::Identity.Rotator(), SpawnParams);
+			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+			AUNPickupObject* SpawnedActor = World->SpawnActor<AUNPickupObject>(AUNPickupObject::StaticClass(), SpawnLoc, FQuat::Identity.Rotator(), SpawnParams); //FQuat::Identity.Rotator()
 			SpawnedItems.Add(SpawnedActor);
 		}
 	}
+}
+//
+//void AUNGameMode::SpawnProps()
+//{
+//	if (UWorld* World = GetWorld())
+//	{
+//		int SpawnCnt = FMath::RandRange(MinSpawnCount, MaxSpawnCount - 1);
+//
+//		for (int cnt = 0; cnt < SpawnCnt; cnt++)
+//		{
+//			// 테스트용 랜덤
+//			float RandomX = FMath::RandRange(MinSpawnLocation.X, MaxSpawnLocation.X);
+//			float RandomY = FMath::RandRange(MinSpawnLocation.Y, MaxSpawnLocation.Y);
+//			float RandomZ = FMath::RandRange(MinSpawnLocation.Z, MaxSpawnLocation.Z);
+//
+//			float RandomRotation = FMath::RandRange(0, 360);
+//			int32 RandomLookAt = FMath::RandRange(0, 1);
+//
+//			FVector SpawnLoc = FVector(RandomX, RandomY, RandomZ);
+//			FActorSpawnParameters SpawnParams;
+//			AUNPickupObject* SpawnedActor = World->SpawnActor<AUNPickupObject>(AUNPickupObject::StaticClass(), SpawnLoc, FRotator((RandomLookAt == 0) ? -90.f : 90.f, RandomRotation, 0.f), SpawnParams); //FQuat::Identity.Rotator()
+//			SpawnedItems.Add(SpawnedActor);
+//		}
+//	}
+//}
+
+void AUNGameMode::OnCharacterDeath(AUNCharacter* Character)
+{
+	for (int i = 0; i < PlayerArray.Num(); i++)
+	{
+		if (PlayerArray[i] == Character)
+		{
+			PlayerArray.RemoveAt(i);
+		}
+	}
+
+	int32 RemainingCharacterCount = PlayerArray.Num();
+
+	if (RemainingCharacterCount == 1)
+	{
+		GameEndFunction();
+	}
+}
+
+void AUNGameMode::GameEndFunction()
+{
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; It++)
+	{
+		AUNPlayerController* PlayerController = Cast<AUNPlayerController>(*It);
+		if (PlayerController)
+		{
+			PlayerController->MulticastRPCGameEndFunction();
+			PlayerController->ClientRPCOpenEndWidget();
+		}
+	}
+}
+
+AActor* AUNGameMode::ChoosePlayerStart_Implementation(AController* Player)
+{
+	TArray<AActor*> PlayerStarts;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerStart::StaticClass(), PlayerStarts);
+
+	// Ensure we have at least one PlayerStart in the level
+	if (PlayerStarts.Num() > 0)
+	{
+		// Select a random PlayerStart
+		int32 RandomIndex = FMath::RandRange(0, PlayerStarts.Num() - 1);
+		return PlayerStarts[RandomIndex];
+	}
+
+	// Fall back to default behavior if no PlayerStart is found
+	return Super::ChoosePlayerStart_Implementation(Player);
 }

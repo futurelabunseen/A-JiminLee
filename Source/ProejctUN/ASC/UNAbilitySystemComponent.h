@@ -9,6 +9,7 @@
 /**
  * 
  */
+
 UCLASS()
 class PROEJCTUN_API UUNAbilitySystemComponent : public UAbilitySystemComponent
 {
@@ -18,7 +19,15 @@ class PROEJCTUN_API UUNAbilitySystemComponent : public UAbilitySystemComponent
 protected:
 	TObjectPtr<AGameplayAbilityTargetActor> CurrentActiveTargetActor;
 
+	TObjectPtr<UGameplayAbility> CurrentActiveAbility;
+
 public:
 	TObjectPtr<AGameplayAbilityTargetActor> GetCurrentActiveTargetActor() { return CurrentActiveTargetActor; }
 	void SetCurrentActiveTargetActor(TObjectPtr<AGameplayAbilityTargetActor> NewCurrentActiveTargetActor) { CurrentActiveTargetActor = NewCurrentActiveTargetActor; }
+
+	TObjectPtr<UGameplayAbility> GetCurrentActiveAbility() { return CurrentActiveAbility; }
+	void SetCurrentActiveAbility(TObjectPtr<UGameplayAbility> NewCurrentActiveAbility) { CurrentActiveAbility = NewCurrentActiveAbility; }
+
+	UPROPERTY()
+	uint32 bAbilityAlreadyActivate;
 };

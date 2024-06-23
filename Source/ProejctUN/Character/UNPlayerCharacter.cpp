@@ -12,7 +12,10 @@
 #include "EnhancedInputSubsystems.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/DecalComponent.h"
+#include "NiagaraComponent.h"
+#include "NiagaraSystem.h"
 
+#include "Kismet/KismetMathLibrary.h"
 #include "Props/UNInteractableObjectBase.h"
 #include "ASC/UNAbilitySystemComponent.h"
 #include "UNComboActionData.h"
@@ -22,14 +25,16 @@
 #include "UI/Widget/UNGASUserWidget.h"
 #include "UI/UNInventoryComponent.h"
 #include "Abilities/GameplayAbilityTargetActor.h"
+#include "GameplayTagContainer.h"
 #include "Props/UNPickupObject.h"
 #include "Item/ItemBase.h"
 #include "Game/UNWorldSubsystem.h"
+#include "GameFramework/SpringArmComponent.h"
 
 #include "ProejctUN.h"
 
 
-AUNPlayerCharacter::AUNPlayerCharacter()
+AUNPlayerCharacter::AUNPlayerCharacter() 
 {
 	ASC = nullptr;
 
@@ -73,6 +78,24 @@ AUNPlayerCharacter::AUNPlayerCharacter()
 		TeleportAction = InputActionTeleportRef.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionInvinsibleRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Action/IA_Invinsible.IA_Invinsible'"));
+	if (nullptr != InputActionInvinsibleRef.Object)
+	{
+		InvinsibleAction = InputActionInvinsibleRef.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionUltimateRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Action/IA_Ultimate.IA_Ultimate'"));
+	if (nullptr != InputActionUltimateRef.Object)
+	{
+		UltimateAction = InputActionUltimateRef.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionSCancelRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Action/IA_SCancel.IA_SCancel'"));
+	if (nullptr != InputActionSCancelRef.Object)
+	{
+		SCancelAction = InputActionSCancelRef.Object;
+	}
+
 	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionConfirmRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Action/IA_Confirm.IA_Confirm'"));
 	if (nullptr != InputActionConfirmRef.Object)
 	{
@@ -109,7 +132,7 @@ AUNPlayerCharacter::AUNPlayerCharacter()
 		SkillActionMontage = SkillActionMontageRef.Object;
 	}
 
-	static ConstructorHelpers::FObjectFinder<USkeletalMesh> WeaponMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/InfinityBladeWeapons/Weapons/Blunt/Blunt_Hellhammer/SK_Blunt_HellHammer.SK_Blunt_HellHammer'"));
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> WeaponMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/InfinityBladeWeapons/Weapons/Sword/SK_Blade_BlackKnight.SK_Blade_BlackKnight'"));
 	if (WeaponMeshRef.Object)
 	{
 		WeaponMesh = WeaponMeshRef.Object;
@@ -139,6 +162,17 @@ AUNPlayerCharacter::AUNPlayerCharacter()
 	PlayerInventory = CreateDefaultSubobject<UUNInventoryComponent>(TEXT("Inventory"));
 	PlayerInventory->SetSlotsCapacity(20);
 	PlayerInventory->SetWeightCapacity(50.f);
+
+	Niagara = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Niagara"));
+	Niagara->SetupAttachment(RootComponent);
+	Niagara->SetAutoActivate(false);
+	Niagara->SetWorldScale3D(FVector(3.f, 3.f, 3.f));
+
+	HeadNiagara = CreateDefaultSubobject<UNiagaraComponent>(TEXT("HeadNiagara"));
+	HeadNiagara->SetupAttachment(RootComponent);
+	HeadNiagara->SetAutoActivate(false);
+	HeadNiagara->SetRelativeLocation(FVector(0.f, 0.f, 120.f));
+	HeadNiagara->SetWorldScale3D(FVector(0.5f, 0.5f, 0.5f));
 }
 
 UAbilitySystemComponent* AUNPlayerCharacter::GetAbilitySystemComponent() const
@@ -171,14 +205,20 @@ void AUNPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 void AUNPlayerCharacter::SetupPlayerGASInputComponent()
 {
 	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
-	if (IsValid(ASC) && IsValid(InputComponent))
+	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
+	if (EnhancedInputComponent)
 	{
-		UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
+	//if (IsValid(ASC) && IsValid(InputComponent))
+	//{
+	//	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
 
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::LeftClickAction); //&AUNPlayerCharacter::GASInputPressed, 0
 		//EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::GASInputPressed, 0);
 		EnhancedInputComponent->BindAction(SkillAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::GASInputPressed, 1);
 		EnhancedInputComponent->BindAction(TeleportAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::GASInputPressed, 2);
+		EnhancedInputComponent->BindAction(InvinsibleAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::GASInputPressed, 3);
+		EnhancedInputComponent->BindAction(UltimateAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::GASInputPressed, 4);
+		EnhancedInputComponent->BindAction(SCancelAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::SCancelActionFunction);
 		EnhancedInputComponent->BindAction(ConfirmAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::SendConfirmToTargetActor);
 		EnhancedInputComponent->BindAction(CancelAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::SendCancelToTargetActor);
 
@@ -198,7 +238,7 @@ void AUNPlayerCharacter::BeginPlay()
 		UN_LOG(LogUNNetwork, Log, TEXT("%s"), TEXT("Have Controller"));
 		EnableInput(PlayerController);
 	}
-
+	//InitAbilityActorInfo();
 	SetCharacterControl();
 
 	UN_LOG(LogUNNetwork, Log, TEXT("End"));
@@ -210,8 +250,13 @@ void AUNPlayerCharacter::PossessedBy(AController* NewController)
 	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
 	Super::PossessedBy(NewController);
 
-	PlayerController = CastChecked<APlayerController>(GetController());
-	PlayerController->ConsoleCommand(TEXT("showdebug abilitysystem"));
+	PlayerController = Cast<APlayerController>(GetController());
+	if (!PlayerController)
+	{
+		UE_LOG(LogTemp, Log, TEXT("Can't find Controller!"));
+		return;
+	}
+	//PlayerController->ConsoleCommand(TEXT("showdebug abilitysystem"));
 
 	InitAbilityActorInfo();
 
@@ -224,8 +269,13 @@ void AUNPlayerCharacter::OnRep_Owner()
 	UN_LOG(LogUNNetwork, Log, TEXT("%s %s"), *GetName(), TEXT("Begin"));
 	Super::OnRep_Owner();
 
-	PlayerController = CastChecked<APlayerController>(GetController());
-	PlayerController->ConsoleCommand(TEXT("showdebug abilitysystem"));
+	PlayerController = Cast<APlayerController>(GetController());
+	if (!PlayerController)
+	{
+		UE_LOG(LogTemp, Log, TEXT("Can't find Controller!"));
+		return;
+	}
+	//PlayerController->ConsoleCommand(TEXT("showdebug abilitysystem"));
 
 	AActor* OwnerActor = GetOwner();
 	if (OwnerActor)
@@ -247,7 +297,6 @@ void AUNPlayerCharacter::OnRep_PlayerState()
 	Super::OnRep_PlayerState();
 
 	InitAbilityActorInfo();
-
 	UN_LOG(LogUNNetwork, Log, TEXT("End"));
 }
 
@@ -304,9 +353,16 @@ void AUNPlayerCharacter::SetCharacterControl()
 		return;
 	}
 
-	PlayerController = CastChecked<APlayerController>(GetController());
+	PlayerController = Cast<APlayerController>(GetController());
+	if (!PlayerController)
+	{
+		UE_LOG(LogTemp, Log, TEXT("Can't find Controller!"));
+		return;
+	}
+
 	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
 	{
+		//Subsystem->ClearAllMappings();
 		Subsystem->AddMappingContext(DefaultMappingContext, 0);
 	}
 	UN_LOG(LogUNNetwork, Log, TEXT("End"));
@@ -345,6 +401,7 @@ void AUNPlayerCharacter::OnSetDestinationReleased()
 
 	if (FollowTime <= ShortPressThreshold)
 	{
+		UE_LOG(LogTemp, Log, TEXT("%s"), *CachedDestination.ToString());
 		UAIBlueprintHelperLibrary::SimpleMoveToLocation(PlayerController, CachedDestination);
 	}
 
@@ -399,6 +456,12 @@ void AUNPlayerCharacter::RightClickAction()
 // 키 입력시 GA실행
 void AUNPlayerCharacter::GASInputPressed(int32 InputId)
 {
+	if (bisTargeting)
+	{
+		SendCancelToTargetActor();
+		bisCanceled = true;
+	}
+
 	FGameplayAbilitySpec* Spec = ASC->FindAbilitySpecFromInputID(InputId);
 	if (Spec)
 	{
@@ -442,6 +505,8 @@ void AUNPlayerCharacter::InitializeAttributes()
 // GA 초기화. ASC에 GA를 등록하는 단계
 void AUNPlayerCharacter::InitalizeGameplayAbilities()
 {
+	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
+
 	for (const auto& StartAbility : StartAbilities)
 	{
 		FGameplayAbilitySpec StartSpec(StartAbility);
@@ -507,7 +572,6 @@ void AUNPlayerCharacter::UnEquipWeapon(const FGameplayEventData* EventData)
 	if (Weapon)
 	{
 		Weapon->SetSkeletalMesh(nullptr);
-
 		//FGameplayAbilitySpec* SKillAbilitySpec = ASC->FindAbilitySpecFromClass(SkillAbilityClass);
 
 		//if (SKillAbilitySpec)
@@ -527,8 +591,23 @@ void AUNPlayerCharacter::OnStunTagChange(const FGameplayTag CallbackTag, int32 N
 {
 	if (NewCount > 0)
 	{
-		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+		if (bisTargeting)
+		{
+			SendCancelToTargetActor();
+		}
+
+		FGameplayTagContainer CancelTagContainer;
+		CancelTagContainer.AddTag(UNTAG_CHARACTER_STATE_ISATTACKING);
+		CancelTagContainer.AddTag(UNTAG_CHARACTER_STATE_ISULTIMATING);
+		CancelTagContainer.AddTag(UNTAG_CHARACTER_STATE_ISSKILLING);
+
+		FGameplayTagContainer IgnoreTagContainer;
+		TArray<FGameplayAbilitySpec*> AbilitySpecs;
+		ASC->GetActivatableGameplayAbilitySpecsByAllMatchingTags(CancelTagContainer, AbilitySpecs, true);
+		ASC->CancelAbilities(&CancelTagContainer, &IgnoreTagContainer);
+
 		PlayStunAnimation();
+		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 	}
 	else
 	{
@@ -583,7 +662,9 @@ void AUNPlayerCharacter::DropItem(UItemBase* ItemToDrop, const int32 QuantityToD
 		SpawnParams.bNoFail = true;
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
-		const FVector SpawnLocation{ GetActorLocation() + (GetActorForwardVector() + 50.f)};
+		//const FVector SpawnLocation{ GetActorLocation() + (GetActorForwardVector() + 50.f)};
+		FVector SpawnLocation = UKismetMathLibrary::RandomPointInBoundingBox(GetActorLocation(), FVector(200.f));
+		SpawnLocation.Z = GetActorLocation().Z;
 		const FTransform SpawnTransform(GetActorRotation(), SpawnLocation);
 		
 		const int32 RemovedQuantity = PlayerInventory->RemoveAmountOfItem(ItemToDrop, QuantityToDrop);
@@ -628,7 +709,9 @@ void AUNPlayerCharacter::ServerRPCUpdateWeapon_Implementation()
 	if (UUNWorldSubsystem* WorldSubSystem = GetWorld()->GetSubsystem<UUNWorldSubsystem>())
 	{
 		UItemBase* CurrentEquipItem = WorldSubSystem->GetItemReference(PlayerInventory->CurrentWeaponItemID);
-		Weapon->SetSkeletalMesh(CurrentEquipItem->AssetData.SkeletalMesh);
+		WeaponMesh = CurrentEquipItem->AssetData.SkeletalMesh;
+		//Weapon->SetSkeletalMesh(CurrentEquipItem->AssetData.SkeletalMesh);
+		Weapon->SetSkeletalMesh(WeaponMesh);
 
 		ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute(), DefaultAttackRange + CurrentEquipItem->ItemStatistics.WeaponRange);
 		ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute(), DefaultAttackRate + CurrentEquipItem->ItemStatistics.DamageValue);
@@ -663,6 +746,8 @@ void AUNPlayerCharacter::ServerRPCUpdateArmor_Implementation()
 
 void AUNPlayerCharacter::MulticastRPCUpdateWeapon_Implementation(USkeletalMesh* ItemID)
 {
+	WeaponMesh = ItemID;
+	//UE_LOG(LogTemp, Log, TEXT("%s"), *ItemID->GetName());
 	Weapon->SetSkeletalMesh(ItemID);
 }
 
@@ -697,4 +782,90 @@ void AUNPlayerCharacter::ServerRPCSpawnItem_Implementation(FName ID, FTransform 
 	AUNPickupObject* PickUpObject = GetWorld()->SpawnActor<AUNPickupObject>(AUNPickupObject::StaticClass(), SpawnLocaiton, SpawnParams);
 
 	PickUpObject->InitializeDropItem(ID, Quantity);
+}
+
+void AUNPlayerCharacter::UpdateNiagara(UNiagaraSystem* NiagaraSystem)
+{
+	if (Niagara)
+	{
+		Niagara->SetAsset(NiagaraSystem);
+		Niagara->Activate(true);
+	}
+}
+
+void AUNPlayerCharacter::UpdateHeadNiagara(UNiagaraSystem* NiagaraSystem)
+{
+	if (ASC->HasMatchingGameplayTag(UNTAG_CHARACTER_STATE_ISSTUNING))
+	{
+		HeadNiagara->SetAsset(NiagaraSystem);
+		HeadNiagara->Activate(true);
+	}
+}
+
+void AUNPlayerCharacter::SCancelActionFunction()
+{
+	ServerRPCSCancelActionFunction();
+
+	PlayerController->StopMovement();
+}
+
+void AUNPlayerCharacter::StartUltimate(FVector Location)
+{
+	UltimateLocation = Location;
+
+	FGameplayAbilitySpec* Spec = ASC->FindAbilitySpecFromInputID(9);
+	if (Spec)
+	{
+		Spec->InputPressed = true;
+		if (Spec->IsActive())
+		{
+			ASC->AbilitySpecInputPressed(*Spec);
+		}
+		else
+		{
+			ASC->TryActivateAbility(Spec->Handle);
+		}
+	}
+}
+
+void AUNPlayerCharacter::ServerRPCSCancelActionFunction_Implementation()
+{
+	if (ASC->GetCurrentActiveAbility() != nullptr)
+	{
+		FGameplayAbilitySpecHandle Handle = ASC->GetCurrentActiveAbility()->GetCurrentAbilitySpecHandle();
+		FGameplayAbilitySpec* Spec = ASC->FindAbilitySpecFromHandle(Handle);
+
+		ASC->CancelAbilityHandle(Handle);
+	}
+}
+
+
+void AUNPlayerCharacter::UpdateSpringArmLength(float Start, float End, float Time)
+{
+	SpringArmShortLength = Start;
+	SpringArmLongLength = End;
+	SpringArmStartTime = 0.f;
+	SpringArmMoveTime = Time;
+	SpringArm = GetCameraBoom();
+
+	GetWorld()->GetTimerManager().SetTimer(SpringArmUpdateTimerHandle, [&]()
+		{
+			SpringArmStartTime += 0.01f;
+
+			float Alpha = FMath::Clamp(SpringArmStartTime / SpringArmMoveTime, 0.0f, 1.0f);
+			float NewArmLength = FMath::Lerp(SpringArmShortLength, SpringArmLongLength, Alpha);
+			SpringArm->TargetArmLength = NewArmLength;
+
+			if (Alpha >= 1.0f)
+			{
+				SpringArmStartTime = 0.f;
+				GetWorld()->GetTimerManager().ClearTimer(SpringArmUpdateTimerHandle);
+			}
+		}, 0.016f, true);
+
+}
+
+void AUNPlayerCharacter::ReturnSpringArmLength()
+{
+	SpringArm->TargetArmLength = 800.f;
 }

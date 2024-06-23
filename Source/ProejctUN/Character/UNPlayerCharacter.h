@@ -14,7 +14,7 @@ class UInputMappingContext;
 class UUNInventoryComponent;
 class AUNHUD;
 class UItemBase;
-
+class USpringArmComponent;
 /**
  * 
  */
@@ -56,6 +56,15 @@ public:
 	UInputAction* TeleportAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* InvinsibleAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* UltimateAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* SCancelAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* ConfirmAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -66,6 +75,13 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UDecalComponent* Decal;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	class UNiagaraComponent* Niagara;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	class UNiagaraComponent* HeadNiagara;
+
 
 	UPROPERTY(EditAnywhere)
 	APlayerController* PlayerController;
@@ -228,4 +244,48 @@ public:
 
 	UFUNCTION(Server, Unreliable)
 	void ServerRPCDestoryActor(AUNPickupObject* Obj);
+
+// Niagara
+public:
+	UFUNCTION()
+	void UpdateNiagara(UNiagaraSystem* NiagaraSystem);
+
+	UFUNCTION()
+	void UpdateHeadNiagara(UNiagaraSystem* NiagaraSystem);
+
+	UFUNCTION()
+	void SCancelActionFunction();
+
+	UFUNCTION(Server, Unreliable)
+	void ServerRPCSCancelActionFunction();
+
+	UFUNCTION()
+	void StartUltimate(FVector Location);
+
+	UPROPERTY()
+	FVector UltimateLocation;
+
+	UFUNCTION()
+	void UpdateSpringArmLength(float Start, float End, float Time);
+
+	UFUNCTION()
+	void ReturnSpringArmLength();
+
+	UPROPERTY()
+	float SpringArmShortLength;
+
+	UPROPERTY()
+	float SpringArmLongLength;
+
+	UPROPERTY()
+	float SpringArmStartTime;
+
+	UPROPERTY()
+	float SpringArmMoveTime;
+
+	UPROPERTY()
+	TObjectPtr<USpringArmComponent> SpringArm;
+
+	UPROPERTY()
+	FTimerHandle SpringArmUpdateTimerHandle;
 };

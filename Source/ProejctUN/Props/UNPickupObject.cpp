@@ -25,9 +25,11 @@ AUNPickupObject::AUNPickupObject()
 		ItemDataTable = DataTableRef.Object;
 	}
 
-	BoxCollision->SetBoxExtent(FVector(150.f, 150.f, 1.f));
+	BoxCollision->SetBoxExtent(FVector(150.f, 150.f, 150.f));
+	BoxCollision->SetCollisionResponseToChannel(ECC_EngineTraceChannel1, ECollisionResponse::ECR_Ignore);
 	BoxCollision->OnComponentBeginOverlap.AddDynamic(this, &AUNPickupObject::OnBoxCollisionBeginOverlap);
 	BoxCollision->OnComponentEndOverlap.AddDynamic(this, &AUNPickupObject::OnBoxCollisionEndOverlap);
+
 	bReplicates = true;
 }
 
@@ -37,13 +39,7 @@ void AUNPickupObject::BeginPlay()
 	
 	InitializePickup(UItemBase::StaticClass(), ItemQuantity);
 
-	if (GetWorld())
-	{
-		GetWorld()->GetTimerManager().SetTimer(TimerHandle, [this]()
-			{
-				SkeletalMesh->SetSimulatePhysics(false);
-			}, 5.0f, false);
-	}
+	MoveToFloor();
 }
 
 void AUNPickupObject::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -55,12 +51,17 @@ void AUNPickupObject::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 
 void AUNPickupObject::InitializePickup(const TSubclassOf<UItemBase> BaseClass, const int32 InQuantity)
 {
+	float RandomRotation = FMath::RandRange(0, 360);
+	float RandomLookAt = (FMath::RandRange(0, 1)) == 0 ? -90.f : 90.f;
+
+	this->SetActorRotation(FRotator(RandomLookAt, RandomRotation, 0.f));
+
 	if (DesiredItemID.IsNone())
 	{
 		TArray<FName> ItemNames = ItemDataTable->GetRowNames();
 		const int32 NumRows = ItemNames.Num();
 		//const int32 NumRows = ItemDataTable->GetTableData().Num();
-		const int32 RandomRowIndex = FMath::RandRange(0, NumRows - 2);
+		const int32 RandomRowIndex = FMath::RandRange(0, NumRows - 1);
 
 		const TArray<FName>& RowNames = ItemDataTable->GetRowNames();
 		DesiredItemID = RowNames[RandomRowIndex];
@@ -88,16 +89,17 @@ void AUNPickupObject::InitializePickup(const TSubclassOf<UItemBase> BaseClass, c
 		if (ItemData->AssetData.Mesh)
 		{
 			Mesh->SetStaticMesh(ItemData->AssetData.Mesh);
-			Mesh->SetSimulatePhysics(true);
 			Mesh->SetCollisionProfileName("UNPickUpObject");
-			BoxCollision->SetCollisionProfileName("OverlapOnlyPawn");
+			Mesh->SetCollisionResponseToChannel(ECC_EngineTraceChannel1, ECollisionResponse::ECR_Ignore);
+			BoxCollision->SetCollisionProfileName("ItemTrigger");
 		}
 		else
 		{
 			SkeletalMesh->SetSkeletalMesh(ItemData->AssetData.SkeletalMesh);
-			SkeletalMesh->SetSimulatePhysics(true);
 			SkeletalMesh->SetCollisionProfileName("UNPickUpObject");
-			BoxCollision->SetCollisionProfileName("OverlapOnlyPawn");
+			SkeletalMesh->SetCollisionResponseToChannel(ECC_EngineTraceChannel1, ECollisionResponse::ECR_Ignore);
+			BoxCollision->SetCollisionProfileName("ItemTrigger");
+
 		}
 
 		UpdateInteractableData();
@@ -195,6 +197,8 @@ void AUNPickupObject::TakePickUp(AActor* Taker)
 
 void AUNPickupObject::OnBoxCollisionBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	OverlapList.Add(OtherActor);
+
 	if (bIsSelected && OtherActor == InteractingActor)
 	{
 		TakePickUp(OtherActor);
@@ -203,6 +207,8 @@ void AUNPickupObject::OnBoxCollisionBeginOverlap(UPrimitiveComponent* Overlapped
 
 void AUNPickupObject::OnBoxCollisionEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
+	OverlapList.Remove(OtherActor);
+
 	if (OtherActor == InteractingActor)
 	{
 		EndInteract();
@@ -211,9 +217,13 @@ void AUNPickupObject::OnBoxCollisionEndOverlap(UPrimitiveComponent* OverlappedCo
 
 void AUNPickupObject::Interact(AActor* Player)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Magenta, "Interact");
 	bIsSelected = true;
 	InteractingActor = Player;
+
+	if (OverlapList.Contains(InteractingActor))
+	{
+		TakePickUp(InteractingActor);
+	}
 }
 
 void AUNPickupObject::EndInteract()
@@ -261,3 +271,24 @@ void AUNPickupObject::NotifyActorEndOverlap(AActor* Other)
 //		}
 //	}
 //}
+
+void AUNPickupObject::MoveToFloor()
+{
+	FVector Start = GetActorLocation();
+	FVector End = Start - FVector(0.0f, 0.0f, 500.0f);
+
+	FHitResult HitResult;
+	FCollisionQueryParams CollisionParams;
+	CollisionParams.AddIgnoredActor(this);
+
+	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, CollisionParams);
+	//DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 2.0f, 0, 1.0f);
+
+	if (bHit)
+	{
+		FVector NewLocation = HitResult.Location;
+		SetActorLocation(NewLocation);
+
+		//DrawDebugSphere(GetWorld(), NewLocation, 25.0f, 12, FColor::Red, false, 2.0f);
+	}
+}

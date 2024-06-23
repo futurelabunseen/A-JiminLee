@@ -14,6 +14,7 @@ class UUNProgressBarWidgetController;
 class UUNBoxInventoryWidgetController;
 class UUNOverlayWidget;
 class UUNGASUserWidget;
+class UUNEndWidget;
 struct FWidgetControllerParams;
 
 struct FInteractableData;
@@ -113,6 +114,14 @@ private:
 	UPROPERTY()
 	TObjectPtr<UUNInteractionWidget> InteractionWidget;
 
+	UPROPERTY()
+	TObjectPtr<class UUNEndWidget> EndWidget;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UUserWidget> EndWidgetClass;
+
+	void InitEndWidget();
+
 	void InitInteractionWidget();
 
 public:
@@ -121,6 +130,9 @@ public:
 
 	UFUNCTION()
 	void CloseInventory();
+
+	UFUNCTION()
+	void OpenEndWidget();
 
 	UFUNCTION()
 	void ShowInteractionWidget();
@@ -143,7 +155,13 @@ public:
 	void SetCountDownTextVisibility(bool option);
 
 	UFUNCTION()
+	void SetCountDownMsgVisibility(bool option);
+
+	UFUNCTION()
 	void SetCountDownText(FString Text);
+
+	UFUNCTION()
+	void SetCountDownMsg(FString Text);
 
 	UFUNCTION()
 	void SetGameTimeTextVisibility(bool option);

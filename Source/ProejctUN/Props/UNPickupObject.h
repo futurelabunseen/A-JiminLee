@@ -50,10 +50,14 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "Pickup | Interaction")
 	FInteractableData InstanceInteractableData;
 
+	UPROPERTY(VisibleAnywhere)
 	bool bIsSelected;
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere)
 	AActor* InteractingActor;
+
+	UPROPERTY(VisibleAnywhere)
+	TArray<AActor*> OverlapList;
 
 	FTimerHandle TimerHandle;
 
@@ -72,6 +76,8 @@ public:
 	UFUNCTION(Server, Unreliable)
 	void ServerRPCDestoryActor();
 
+	UFUNCTION()
+	void MoveToFloor();
 //
 //#if WITH_EDITOR
 //	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangeEvent) override;

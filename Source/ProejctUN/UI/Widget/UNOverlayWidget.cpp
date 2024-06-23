@@ -16,6 +16,14 @@ void UUNOverlayWidget::SetCountDownText(FString NewText)
 	}
 }
 
+void UUNOverlayWidget::SetCountDownMsg(FString NewText)
+{
+	if (CountDownMsg)
+	{
+		CountDownMsg->SetText(FText::FromString(NewText));
+	}
+}
+
 void UUNOverlayWidget::SetCountDownTextVisibility(bool option)
 {
 	if (option)
@@ -28,9 +36,24 @@ void UUNOverlayWidget::SetCountDownTextVisibility(bool option)
 	}
 }
 
+void UUNOverlayWidget::SetCountDownMsgVisibility(bool option)
+{
+	if (option)
+	{
+		CountDownMsg->SetVisibility(ESlateVisibility::Visible);
+	}
+	else
+	{
+		CountDownMsg->SetVisibility(ESlateVisibility::Collapsed);
+	}
+}
+
 void UUNOverlayWidget::SetGameTimeText(FString NewText)
 {
-	GameTimeText->SetText(FText::FromString(NewText));
+	FText NewTextAsFText = FText::FromString(NewText);
+	FText CountText = FText::Format(NSLOCTEXT("CountDown", "CountDownRemain", "[CountDown:{0}]"), NewTextAsFText);
+	GameTimeText->SetText(CountText);
+	//GameTimeText->SetText(FText::FromString(NewText));
 }
 
 void UUNOverlayWidget::SetGameTimeTextVisibility(bool option)

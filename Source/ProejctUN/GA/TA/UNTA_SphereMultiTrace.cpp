@@ -15,7 +15,13 @@
 // 타겟 지정 후 핸들 리턴
 FGameplayAbilityTargetDataHandle AUNTA_SphereMultiTrace::MakeTargetData() const
 {
-	ACharacter* Character = CastChecked<ACharacter>(SourceActor);
+	ACharacter* Character = Cast<ACharacter>(SourceActor);
+
+	if (!Character)
+	{
+		UN_LOG(LogUNNetwork, Log, TEXT("Can't find Character!"));
+		return FGameplayAbilityTargetDataHandle();
+	}
 
 	UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(SourceActor);
 	if (!ASC)
@@ -51,21 +57,23 @@ FGameplayAbilityTargetDataHandle AUNTA_SphereMultiTrace::MakeTargetData() const
 			//UE_LOG(LogTemp, Log, TEXT("%s"), *HitActor->GetName());
 		}
 	}
-
 	FGameplayAbilityTargetData_ActorArray* ActorsData = new FGameplayAbilityTargetData_ActorArray();
 	ActorsData->SetActors(HitActors);
 
+	FGameplayAbilityTargetDataHandle TargetDataHandle(ActorsData);
+	TargetDataHandle.UniqueId = 1;
 
 // 범위 디버그
+//
+//#if ENABLE_DRAW_DEBUG
+//
+//	if (bShowDebug)
+//	{
+//		FColor DrawColor = HitActors.Num() > 0 ? FColor::Green : FColor::Red;
+//		DrawDebugSphere(GetWorld(), Origin, SkillRadius, 16, DrawColor, false, 5.f);
+//	}
+//#endif
 
-#if ENABLE_DRAW_DEBUG
-
-	if (bShowDebug)
-	{
-		FColor DrawColor = HitActors.Num() > 0 ? FColor::Green : FColor::Red;
-		DrawDebugSphere(GetWorld(), Origin, SkillRadius, 16, DrawColor, false, 5.f);
-	}
-#endif
-
-	return FGameplayAbilityTargetDataHandle(ActorsData);
+	return TargetDataHandle;
+	//return FGameplayAbilityTargetDataHandle(ActorsData);
 }

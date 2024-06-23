@@ -81,7 +81,7 @@ protected:
 
 	UPROPERTY()
 	int GameTimeValue;
-
+public:
 	UFUNCTION()
 	void CountDownFunction(int Value);
 
@@ -91,7 +91,6 @@ protected:
 	UFUNCTION()
 	void BattleFunction(int Value);
 
-public:
 	void BeginOverInteractable(AActor* NewInteractable);
 	void EndOverInteractable();
 	void BeginInteract();
@@ -107,5 +106,20 @@ public:
 	UFUNCTION(Client, Unreliable)
 	void ClientRPCRequestCurrentTime(FName ServerMatchState, int ServerTime);
 
+	UFUNCTION(Client, Unreliable)
+	void ClientRPCOpenEndWidget();
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void MulticastRPCGameEndFunction();
+
+	UFUNCTION()
+	void SetKeyBoardInputMode(bool bKeyboard);
+
+	void SetCharacterMovementMode(bool bMovement);
+
 	int8 bisFarmingDone;
+
+	//void ClientLeaveGame();
+
+	//virtual void ClientReturnToMainMenuWithTextReason(const FText& ReturnReason) override;
 };

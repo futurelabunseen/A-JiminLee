@@ -5,6 +5,7 @@
 #include "GameplayEffectExtension.h"
 #include "Tag/UNGameplayTag.h"
 #include "Net/UnrealNetwork.h"
+#include "Game/UNGameMode.h"
 
 // 초기화 리스트로 초기화
 UUNCharacterAttributeSet::UUNCharacterAttributeSet() :
@@ -16,7 +17,7 @@ UUNCharacterAttributeSet::UUNCharacterAttributeSet() :
 	MaxAttackRate(100.f),
 	ArmorRate(3.f),
 	MaxArmorRate(100.f),
-	MaxHealth(100.f),
+	MaxHealth(750.f),
 	Damage(0.f),
 	DefaultAttackRange(100.f),
 	DefaultAttackRate(30.f),
@@ -71,6 +72,20 @@ bool UUNCharacterAttributeSet::PreGameplayEffectExecute(FGameplayEffectModCallba
 		{
 			// 태그 확인 후 무적상태라면 데미지를 0으로 변환 후 false리턴
 			if (Data.Target.HasMatchingGameplayTag(UNTAG_CHARACTER_STATE_INVINSIBLE))
+			{
+				Data.EvaluatedData.Magnitude = 0.f;
+				return false;
+			}
+
+			if (AUNGameMode* GM = Cast<AUNGameMode>(GetWorld()->GetAuthGameMode()))
+			{
+				if (!GM->bisBattleState)
+				{
+					Data.EvaluatedData.Magnitude = 0.f;
+					return false;
+				}
+			}
+			else
 			{
 				Data.EvaluatedData.Magnitude = 0.f;
 				return false;
