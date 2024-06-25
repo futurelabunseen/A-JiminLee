@@ -22,7 +22,8 @@ public:
 	AUNPickupObject();
 
 	virtual void BeginPlay() override;
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;	virtual void Interact(AActor* Player) override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void Interact(AActor* Player) override;
 	virtual void EndInteract() override;
 
 	virtual void NotifyActorBeginOverlap(class AActor* Other) override;
@@ -74,10 +75,17 @@ public:
 	void InitializeDropItem(FName ID, int32 Quantity);
 
 	UFUNCTION(Server, Unreliable)
-	void ServerRPCDestoryActor();
+	void ServerRPCDestroyActor();
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void MulticastRPCDestroyActor();
 
 	UFUNCTION()
 	void MoveToFloor();
+
+	UPROPERTY()
+	FTimerHandle DestroyTimerHandle;
+
 //
 //#if WITH_EDITOR
 //	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangeEvent) override;

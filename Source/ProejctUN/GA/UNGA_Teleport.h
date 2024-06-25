@@ -38,8 +38,8 @@ protected:
 	UFUNCTION()
 	void EndDecal();
 
-	UFUNCTION(Server, reliable)
-	void TeleportToLocation(FVector NewLocation, FGameplayCueParameters Params);
+	UFUNCTION(Server, reliable, WithValidation)
+	void ServerRPCTeleportToLocation(FVector NewLocation, FGameplayCueParameters Params);
 
 	UPROPERTY(EditAnywhere, Category = GAS)
 	TSubclassOf<class AUNTA_TraceLocation> TargetActorClass;
@@ -49,6 +49,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = GAS)
 	TSubclassOf<class UGameplayEffect> TeleportEffect;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	FVector HalfCapsuleVector;
 
 
 public:

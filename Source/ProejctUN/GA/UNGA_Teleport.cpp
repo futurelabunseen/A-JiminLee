@@ -10,10 +10,12 @@
 #include "Tag/UNGameplayTag.h"
 #include "AbilitySystemComponent.h"
 #include "ASC/UNAbilitySystemComponent.h"
+#include "NavigationSystem.h"
 
 UUNGA_Teleport::UUNGA_Teleport()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+	HalfCapsuleVector = FVector(0.f, 0.f, 50.f);
 }
 
 // GA를 가지고 있는 클래스에서 TryActivateAbility를 실행하면 실행되는 함수
@@ -60,17 +62,29 @@ void UUNGA_Teleport::OnTraceResultCallback(const FGameplayAbilityTargetDataHandl
 {
 	if (UAbilitySystemBlueprintLibrary::TargetDataHasHitResult(TargetDataHandle, 0))
 	{
+		// 반환된 위치 데이터 캐싱
 		FHitResult HitResult = UAbilitySystemBlueprintLibrary::GetHitResultFromTargetData(TargetDataHandle, 0);
 		FVector TargetLocation = HitResult.Location;
+
+		// 근처 네비게이션포인트로 위치값 변경 시도
+		UNavigationSystemV1* Nav = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
+		if (Nav)
+		{
+			// Hit위치에서 가장 가까운 네비게이션 Location 반환
+			FNavLocation NavLocation;
+			bool bProjected = Nav->ProjectPointToNavigation(TargetLocation, NavLocation);
+			if (bProjected)
+			{
+				TargetLocation = NavLocation.Location + HalfCapsuleVector;
+			}
+		}
 		
 		if (UAbilitySystemBlueprintLibrary::TargetDataHasActor(TargetDataHandle, 0))
 		{
 			UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo_Checked();
-
 			FGameplayEffectSpecHandle EffectSpecHandle = MakeOutgoingGameplayEffectSpec(TeleportEffect, CurrentEventData.EventMagnitude);
 			if (SourceASC && EffectSpecHandle.IsValid())
 			{
-				//EffectSpecHandle.Data->SetSetByCallerMagnitude(UNTAG_DATA_DAMAGE, -SourceAttribute->GetAttackRate());
 				ApplyGameplayEffectSpecToTarget(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, EffectSpecHandle, TargetDataHandle);
 
 				FGameplayEffectContextHandle CueContextHandle = UAbilitySystemBlueprintLibrary::GetEffectContext(EffectSpecHandle);
@@ -79,11 +93,10 @@ void UUNGA_Teleport::OnTraceResultCallback(const FGameplayAbilityTargetDataHandl
 				
 				FGameplayCueParameters CueParam;
 				CueParam.EffectContext = CueContextHandle;
-				//CueParam.Location = SourceASC->GetAvatarActor()->GetActorLocation();
 				SourceASC->ExecuteGameplayCue(UNTAG_GAMEPLAYCUE_CHARACTER_TELEPORTEFFECT, CueParam);
 
 				PlayerCharacter->GetController()->StopMovement();
-				TeleportToLocation(TargetLocation, CueParam);
+				ServerRPCTeleportToLocation(TargetLocation, CueParam);
 				StartCoolDown();
 			}
 		}
@@ -124,13 +137,46 @@ void UUNGA_Teleport::EndDecal()
 	PlayerCharacter->EndDecal();
 }
 
-void UUNGA_Teleport::TeleportToLocation_Implementation(FVector NewLocation, FGameplayCueParameters Params)
+bool UUNGA_Teleport::ServerRPCTeleportToLocation_Validate(FVector NewLocation, FGameplayCueParameters Params)
+{
+	// [BUG] 현재 크래시 이슈 때문에 true반환
+	return true;
+
+	if (Params.Location == FVector::ZeroVector)
+	{
+		UE_LOG(LogTemp, Log, TEXT("Params.Location is not valid"));
+		return false;
+	}
+
+	if (NewLocation == FVector::ZeroVector)
+	{
+		UE_LOG(LogTemp, Log, TEXT("NewLocation is not valid"));
+		return false;
+	}
+
+	// To Do .. : NewLocation & Params의 위칫값이 이동 가능한 범위가 아니라면(Ex. 스테이지 밖)
+	//			  해킹의 위험성이 있을 수 있으므로 false return
+
+	return true;
+}
+
+void UUNGA_Teleport::ServerRPCTeleportToLocation_Implementation
+						(FVector NewLocation, FGameplayCueParameters Params)
 {
 	UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo_Checked();
+	#pragma region SourceASC NullCheck & return
+	if (!SourceASC)
+	{
+		UE_LOG(LogTemp, Log, TEXT("SourceASC is Null!"));
+		return;
+	}
+#pragma endregion
+
+	FVector PlayerLocation = PlayerCharacter->GetActorLocation();
 	Params.Location = SourceASC->GetAvatarActor()->GetActorLocation();
 	SourceASC->ExecuteGameplayCue(UNTAG_GAMEPLAYCUE_CHARACTER_TELEPORTEFFECT, Params);
 
-	PlayerCharacter->TeleportTo(NewLocation, (NewLocation - PlayerCharacter->GetActorLocation()).Rotation(), false, true);
+	PlayerCharacter->TeleportTo(NewLocation, (NewLocation - PlayerLocation).Rotation(), false, true);
 }
 
 void UUNGA_Teleport::StartCoolDown_Implementation()

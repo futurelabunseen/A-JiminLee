@@ -19,7 +19,8 @@ void UUNGASHpBarUserWidget::SetAbilitySystemComponent(AActor* InOwner)
 	{
 		ASC->GetGameplayAttributeValueChangeDelegate(UUNCharacterAttributeSet::GetHealthAttribute()).AddUObject(this, &UUNGASHpBarUserWidget::OnHealthChange);
 		ASC->GetGameplayAttributeValueChangeDelegate(UUNCharacterAttributeSet::GetMaxHealthAttribute()).AddUObject(this, &UUNGASHpBarUserWidget::OnMaxHealthChange);
-		ASC->RegisterGameplayTagEvent(UNTAG_CHARACTER_STATE_INVINSIBLE, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &UUNGASHpBarUserWidget::OnInvinsibleTagChange);
+		ASC->RegisterGameplayTagEvent(UNTAG_CHARACTER_STATE_INVINSIBLE, 
+			EGameplayTagEventType::NewOrRemoved).AddUObject(this, &UUNGASHpBarUserWidget::OnInvinsibleTagChange);
 
 		PbHpBar->SetFillColorAndOpacity(HealthColor);
 
@@ -60,7 +61,6 @@ void UUNGASHpBarUserWidget::OnInvinsibleTagChange(const FGameplayTag CallbackTag
 	if (NewCount > 0)
 	{
 		PbHpBar->SetFillColorAndOpacity(InvinsibleColor);
-		//PbHpBar->SetPercent(1.f);
 	}
 	else
 	{

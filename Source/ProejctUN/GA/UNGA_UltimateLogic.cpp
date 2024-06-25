@@ -61,7 +61,7 @@ void UUNGA_UltimateLogic::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 	}
 
 	//ServerRPCSpawnSword(SpawnLocation);
-	PlayerCharacter->UpdateSpringArmLength(800.f, 1600.f, 0.15f);
+	PlayerCharacter->UpdateSpringArmLength(800.f, 1600.f, 0.15f, 0.016f);
 
 	PlayMontageTask->ReadyForActivation();
 }
@@ -78,7 +78,7 @@ void UUNGA_UltimateLogic::EndAbility(const FGameplayAbilitySpecHandle Handle, co
 {
 	if(PlayerCharacter)
 	{ 
-		PlayerCharacter->UpdateSpringArmLength(1600.f, 800.f, 0.5f);
+		PlayerCharacter->UpdateSpringArmLength(1600.f, 800.f, 0.5f, 0.016f);
 	}
 
 	UAbilitySystemComponent* AvatarActorASC = GetAbilitySystemComponentFromActorInfo();

@@ -243,7 +243,7 @@ public:
 	void ServerRPCSpawnItem(FName ID, FTransform SpawnLocation, const int32 Quantity);
 
 	UFUNCTION(Server, Unreliable)
-	void ServerRPCDestoryActor(AUNPickupObject* Obj);
+	void ServerRPCDestroyActor(AUNPickupObject* Obj);
 
 // Niagara
 public:
@@ -266,7 +266,7 @@ public:
 	FVector UltimateLocation;
 
 	UFUNCTION()
-	void UpdateSpringArmLength(float Start, float End, float Time);
+	void UpdateSpringArmLength(float Start, float End, float Time, float Frame);
 
 	UFUNCTION()
 	void ReturnSpringArmLength();

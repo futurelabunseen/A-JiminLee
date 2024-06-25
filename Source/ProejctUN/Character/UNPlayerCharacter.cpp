@@ -589,31 +589,34 @@ void AUNPlayerCharacter::UnEquipWeapon(const FGameplayEventData* EventData)
 
 void AUNPlayerCharacter::OnStunTagChange(const FGameplayTag CallbackTag, int32 NewCount)
 {
-	if (NewCount > 0)
-	{
-		if (bisTargeting)
-		{
-			SendCancelToTargetActor();
-		}
-
-		FGameplayTagContainer CancelTagContainer;
-		CancelTagContainer.AddTag(UNTAG_CHARACTER_STATE_ISATTACKING);
-		CancelTagContainer.AddTag(UNTAG_CHARACTER_STATE_ISULTIMATING);
-		CancelTagContainer.AddTag(UNTAG_CHARACTER_STATE_ISSKILLING);
-
-		FGameplayTagContainer IgnoreTagContainer;
-		TArray<FGameplayAbilitySpec*> AbilitySpecs;
-		ASC->GetActivatableGameplayAbilitySpecsByAllMatchingTags(CancelTagContainer, AbilitySpecs, true);
-		ASC->CancelAbilities(&CancelTagContainer, &IgnoreTagContainer);
-
-		PlayStunAnimation();
-		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
-	}
-	else
+	// 기절 상태 해재
+	if (NewCount <= 0)
 	{
 		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 		StopStunAnimation();
+
+		return;
 	}
+
+	// 타겟팅 해제
+	if (bisTargeting)
+	{
+		SendCancelToTargetActor();
+	}
+
+	// 기절 상태 시 캔슬되어야 할 어빌리티를 태그를 통해 모두 캔슬
+	FGameplayTagContainer CancelTagContainer;
+	CancelTagContainer.AddTag(UNTAG_CHARACTER_STATE_ISATTACKING);
+	CancelTagContainer.AddTag(UNTAG_CHARACTER_STATE_ISULTIMATING);
+	CancelTagContainer.AddTag(UNTAG_CHARACTER_STATE_ISSKILLING);
+
+	FGameplayTagContainer IgnoreTagContainer;
+	TArray<FGameplayAbilitySpec*> AbilitySpecs;
+	ASC->GetActivatableGameplayAbilitySpecsByAllMatchingTags(CancelTagContainer, AbilitySpecs, true);
+	ASC->CancelAbilities(&CancelTagContainer, &IgnoreTagContainer);
+
+	PlayStunAnimation();
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 }
 
 void AUNPlayerCharacter::PlayStunAnimation_Implementation()
@@ -692,6 +695,7 @@ void AUNPlayerCharacter::UpdateArmor()
 
 void AUNPlayerCharacter::ServerRPCUpdateWeapon_Implementation()
 {
+	// 우선 AT를 기본 상태로
 	Weapon->SetSkeletalMesh(nullptr);
 
 	const float DefaultAttackRange = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetDefaultAttackRangeAttribute());
@@ -700,17 +704,18 @@ void AUNPlayerCharacter::ServerRPCUpdateWeapon_Implementation()
 	ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute(), DefaultAttackRange);
 	ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute(), DefaultAttackRate);
 
+	// 무기 착용 유무 확인
 	if (PlayerInventory->CurrentWeaponItemID == NAME_None)
 	{
 		MulticastRPCUpdateWeapon(nullptr);
 		return;
 	}
 
+	// 새로운 무기 장착 및 AT업데이트
 	if (UUNWorldSubsystem* WorldSubSystem = GetWorld()->GetSubsystem<UUNWorldSubsystem>())
 	{
 		UItemBase* CurrentEquipItem = WorldSubSystem->GetItemReference(PlayerInventory->CurrentWeaponItemID);
 		WeaponMesh = CurrentEquipItem->AssetData.SkeletalMesh;
-		//Weapon->SetSkeletalMesh(CurrentEquipItem->AssetData.SkeletalMesh);
 		Weapon->SetSkeletalMesh(WeaponMesh);
 
 		ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute(), DefaultAttackRange + CurrentEquipItem->ItemStatistics.WeaponRange);
@@ -767,9 +772,14 @@ void AUNPlayerCharacter::ActivateMovement()
 	GetCharacterMovement()->SetMovementMode(MOVE_Walking);
 }
 
-void AUNPlayerCharacter::ServerRPCDestoryActor_Implementation(AUNPickupObject* Obj)
+void AUNPlayerCharacter::ServerRPCDestroyActor_Implementation(AUNPickupObject* Obj)
 {
-	Obj->Destroy(true);
+	if (!IsValid(Obj))
+	{
+		return;
+	}
+
+	Obj->MulticastRPCDestroyActor();
 }
 
 void AUNPlayerCharacter::ServerRPCSpawnItem_Implementation(FName ID, FTransform SpawnLocaiton, const int32 Quantity)
@@ -840,7 +850,7 @@ void AUNPlayerCharacter::ServerRPCSCancelActionFunction_Implementation()
 }
 
 
-void AUNPlayerCharacter::UpdateSpringArmLength(float Start, float End, float Time)
+void AUNPlayerCharacter::UpdateSpringArmLength(float Start, float End, float Time, float Frame)
 {
 	SpringArmShortLength = Start;
 	SpringArmLongLength = End;
@@ -861,7 +871,7 @@ void AUNPlayerCharacter::UpdateSpringArmLength(float Start, float End, float Tim
 				SpringArmStartTime = 0.f;
 				GetWorld()->GetTimerManager().ClearTimer(SpringArmUpdateTimerHandle);
 			}
-		}, 0.016f, true);
+		}, Frame, true);
 
 }
 

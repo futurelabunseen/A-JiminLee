@@ -40,6 +40,4 @@ public:
 	virtual void BeginInteract() override;
 	virtual void EndInteract() override;
 	virtual void Interact(AActor* Actor) override;
-
-
 };

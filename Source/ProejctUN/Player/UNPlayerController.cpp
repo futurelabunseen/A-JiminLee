@@ -255,6 +255,8 @@ void AUNPlayerController::BeginOverInteractable(AActor* NewInteractable)
 
 	if (InteractionData.CurrentInteractable)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("CurrentInteractable : %s"), *InteractionData.CurrentInteractable->GetName());
+
 		IUNInteractionInterface* Interface = Cast<IUNInteractionInterface>(InteractionData.CurrentInteractable);
 		if (Interface)
 		{
@@ -264,14 +266,14 @@ void AUNPlayerController::BeginOverInteractable(AActor* NewInteractable)
 				TargetInteractable->EndFocus();
 			}
 		}
+		InteractionData.CurrentInteractable = nullptr;
 	}
 
 	if (NewInteractable)
 	{
-		InteractionData.CurrentInteractable = NewInteractable;
-
 		if (IUNInteractionInterface* Interface = Cast<IUNInteractionInterface>(NewInteractable))
 		{
+			InteractionData.CurrentInteractable = NewInteractable;
 			TargetInteractable = NewInteractable;
 		}
 	}

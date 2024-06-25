@@ -26,17 +26,15 @@ private:
 	FVector Scale;
 
 public:
-	#pragma region GetSetÇÔ¼ö
-		void SetMaterial(TObjectPtr<UMaterial> NewMaterial) { Material = NewMaterial; }
-		TObjectPtr<UMaterial> GetMaterial() { return Material; }
+	void SetMaterial(TObjectPtr<UMaterial> NewMaterial) { Material = NewMaterial; }
+	TObjectPtr<UMaterial> GetMaterial() { return Material; }
 
-		void SetLocation(FVector NewLocation) { Location = NewLocation; }
-		FVector GetLocation() { return Location; }
+	void SetLocation(FVector NewLocation) { Location = NewLocation; }
+	FVector GetLocation() { return Location; }
 
-		void SetRotation(FRotator NewRotation) { Rotation = NewRotation; }
-		FRotator GetRotation() { return Rotation; }
+	void SetRotation(FRotator NewRotation) { Rotation = NewRotation; }
+	FRotator GetRotation() { return Rotation; }
 
-		void SetScale(FVector NewScale) { Scale = NewScale; }
-		FVector GetScale() { return Scale; }
-	#pragma endregion
+	void SetScale(FVector NewScale) { Scale = NewScale; }
+	FVector GetScale() { return Scale; }
 };

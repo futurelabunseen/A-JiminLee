@@ -82,17 +82,17 @@ FGameplayAbilityTargetDataHandle AUNTA_Trace::MakeTargetData() const
 
 // 범위 디버그
 
-#if ENABLE_DRAW_DEBUG
-
-	if (bShowDebug)
-	{
-		FVector CapsuleOrigin = Start + (End - Start) * 0.5f;
-		float CapsuleHalfHeight = NewRange;
-		FColor DrawColor = HitDetected ? FColor::Green : FColor::Red;
-		DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, AttackRadius, Rotation, DrawColor, false, 5.f);
-	}
-
-#endif
+//#if ENABLE_DRAW_DEBUG
+//
+//	if (bShowDebug)
+//	{
+//		FVector CapsuleOrigin = Start + (End - Start) * 0.5f;
+//		float CapsuleHalfHeight = NewRange;
+//		FColor DrawColor = HitDetected ? FColor::Green : FColor::Red;
+//		DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, AttackRadius, Rotation, DrawColor, false, 5.f);
+//	}
+//
+//#endif
 
 	return DataHandle;
 }

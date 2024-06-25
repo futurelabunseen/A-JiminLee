@@ -31,14 +31,15 @@ UUNGC_InvinsibleEffect::UUNGC_InvinsibleEffect()
 bool UUNGC_InvinsibleEffect::OnExecute_Implementation(AActor* Target, const FGameplayCueParameters& Parameters) const
 {
 	AUNPlayerCharacter* PlayerCharacter = Cast<AUNPlayerCharacter>(Parameters.EffectContext.GetInstigator());
-	
-	if (PlayerCharacter)
+	if (!PlayerCharacter)
 	{
-		PlayerCharacter->UpdateNiagara(Niagara);
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, FloorNiagara , PlayerCharacter->GetActorLocation() + FVector(0.f, 0.f, 50.f), FRotator::ZeroRotator);
-		UGameplayStatics::PlaySoundAtLocation(this, Sound, PlayerCharacter->GetActorLocation());
+		UE_LOG(LogTemp, Log, TEXT("PlayerCharacter is NULL!"));
+		return false;
 	}
-	
+
+	PlayerCharacter->UpdateNiagara(Niagara);
+	UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, FloorNiagara , PlayerCharacter->GetActorLocation() + FVector(0.f, 0.f, 50.f), FRotator::ZeroRotator);
+	UGameplayStatics::PlaySoundAtLocation(this, Sound, PlayerCharacter->GetActorLocation());
 
 	return false;
 }
