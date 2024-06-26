@@ -171,6 +171,14 @@ void AUNHUD::OpenEndWidget()
 	}
 }
 
+void AUNHUD::CloseEndWidget()
+{
+	if (EndWidget)
+	{
+		EndWidget->MenuTearDown();
+	}
+}
+
 void AUNHUD::ShowInteractionWidget()
 {
 	if (InteractionWidget)

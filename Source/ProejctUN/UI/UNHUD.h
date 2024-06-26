@@ -135,6 +135,9 @@ public:
 	void OpenEndWidget();
 
 	UFUNCTION()
+	void CloseEndWidget();
+
+	UFUNCTION()
 	void ShowInteractionWidget();
 
 	UFUNCTION()

@@ -114,6 +114,12 @@ AUNPlayerCharacter::AUNPlayerCharacter()
 		InventoryAction = InventoryActionConfirmRef.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionMenuPanelRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Action/IA_MenuPanel.IA_MenuPanel'"));
+	if (nullptr != InputActionMenuPanelRef.Object)
+	{
+		MenuPanelAction = InputActionMenuPanelRef.Object;
+	}
+
 	static ConstructorHelpers::FObjectFinder<UAnimMontage> ComboActionMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/OutsideAsset/ParagonGreystone/Characters/Heroes/Greystone/Animations/CustomAnimation/AM_ComboAttack.AM_ComboAttack'"));
 	if (ComboActionMontageRef.Object)
 	{
@@ -194,6 +200,7 @@ void AUNPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Completed, this, &AUNPlayerCharacter::OnSetDestinationReleased);
 		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Canceled, this, &AUNPlayerCharacter::OnSetDestinationReleased);
 
+		EnhancedInputComponent->BindAction(MenuPanelAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::MenuPanelFunction);
 		EnhancedInputComponent->BindAction(InventoryAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::InventoryInteraction);
 	}
 	SetupPlayerGASInputComponent();
@@ -314,6 +321,7 @@ void AUNPlayerCharacter::InitAbilityActorInfo()
 		ASC->GenericGameplayEventCallbacks.FindOrAdd(UNTAG_EVENT_CHARACTER_WEAPONEQUIP).AddUObject(this, &AUNPlayerCharacter::EquipWeapon);
 		ASC->GenericGameplayEventCallbacks.FindOrAdd(UNTAG_EVENT_CHARACTER_WEAPONUNEQUIP).AddUObject(this, &AUNPlayerCharacter::UnEquipWeapon);
 		ASC->RegisterGameplayTagEvent(UNTAG_CHARACTER_STATE_ISSTUNING, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &AUNPlayerCharacter::OnStunTagChange);
+		ASC->RegisterGameplayTagEvent(UNTAG_CHARACTER_STATE_ISDEAD, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &AUNPlayerCharacter::OnDeadTagChange);
 
 		//PlayerInventory->OnInventoryUpdated.AddUObject(this, &AUNPlayerCharacter::EquipItem);
 		if (UUNInventoryComponent* Inven = Cast<UUNInventoryComponent>(PlayerInventory))
@@ -614,9 +622,25 @@ void AUNPlayerCharacter::OnStunTagChange(const FGameplayTag CallbackTag, int32 N
 	TArray<FGameplayAbilitySpec*> AbilitySpecs;
 	ASC->GetActivatableGameplayAbilitySpecsByAllMatchingTags(CancelTagContainer, AbilitySpecs, true);
 	ASC->CancelAbilities(&CancelTagContainer, &IgnoreTagContainer);
+	
+	if (!bisDead)
+	{
+		PlayStunAnimation();
+		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+		return;
+	}
+	ServerRPCCharacterOnDeath();
+}
 
-	PlayStunAnimation();
-	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+void AUNPlayerCharacter::OnDeadTagChange(const FGameplayTag CallbackTag, int32 NewCount)
+{
+	// ªÁ∏¡ «ÿ¡¶ Ω√
+	if (NewCount <= 0)
+	{
+		return;
+	}
+	ServerRPCCharacterOnDeath();
+
 }
 
 void AUNPlayerCharacter::PlayStunAnimation_Implementation()
@@ -878,4 +902,16 @@ void AUNPlayerCharacter::UpdateSpringArmLength(float Start, float End, float Tim
 void AUNPlayerCharacter::ReturnSpringArmLength()
 {
 	SpringArm->TargetArmLength = 800.f;
+}
+
+void AUNPlayerCharacter::MenuPanelFunction()
+{
+	if (bisMenuPanelOpen)
+	{
+		HUD->CloseEndWidget();
+	}
+	else
+	{
+		HUD->OpenEndWidget();
+	}
 }

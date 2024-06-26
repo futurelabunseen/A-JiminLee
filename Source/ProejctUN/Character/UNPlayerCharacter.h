@@ -73,6 +73,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* InventoryAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* MenuPanelAction;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UDecalComponent* Decal;
 
@@ -147,6 +150,8 @@ protected:
 	void UnEquipWeapon(const FGameplayEventData* EventData);
 
 	void OnStunTagChange(const FGameplayTag CallbackTag, int32 NewCount);
+
+	void OnDeadTagChange(const FGameplayTag CallbackTag, int32 NewCount);
 
 	UFUNCTION(NetMulticast, Unreliable)
 	void PlayStunAnimation();
@@ -270,6 +275,12 @@ public:
 
 	UFUNCTION()
 	void ReturnSpringArmLength();
+
+	UFUNCTION()
+	void MenuPanelFunction();
+
+	UPROPERTY()
+	uint8 bisMenuPanelOpen;
 
 	UPROPERTY()
 	float SpringArmShortLength;

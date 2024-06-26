@@ -43,3 +43,4 @@ bool UUNGC_InvinsibleEffect::OnExecute_Implementation(AActor* Target, const FGam
 
 	return false;
 }
+

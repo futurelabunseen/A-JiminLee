@@ -217,7 +217,10 @@ void AUNGameMode::OnCharacterDeath(AUNCharacter* Character)
 
 	if (RemainingCharacterCount == 1)
 	{
-		GameEndFunction();
+		GetWorldTimerManager().SetTimer(GameEndFunctionHandle, [&]()
+		{
+			GameEndFunction();
+		}, 2.f, false);
 	}
 }
 

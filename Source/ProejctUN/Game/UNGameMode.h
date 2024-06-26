@@ -85,4 +85,7 @@ public:
 
 	UPROPERTY()
 	uint8 bisBattleState;
+
+	UPROPERTY()
+	FTimerHandle GameEndFunctionHandle;
 };

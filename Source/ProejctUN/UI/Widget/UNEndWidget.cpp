@@ -7,6 +7,7 @@
 #include "Components/Button.h"
 #include "MultiplayerSessionsSubsystem.h"
 #include "GameFramework/GameModeBase.h"
+#include "Game/UNGameMode.h"
 
 void UUNEndWidget::MenuSetup()
 {
@@ -60,7 +61,8 @@ void UUNEndWidget::OnDestroySession(bool bWasSuccessful)
 	UWorld* World = GetWorld();
 	if (World)
 	{
-		AGameModeBase* GameMode = World->GetAuthGameMode<AGameModeBase>();
+		//AGameModeBase* GameMode = World->GetAuthGameMode<AGameModeBase>();
+		AUNGameMode* GameMode = World->GetAuthGameMode<AUNGameMode>();
 		if (GameMode)
 		{
 			GameMode->ReturnToMainMenuHost();
@@ -80,15 +82,15 @@ void UUNEndWidget::MenuTearDown()
 {
 	RemoveFromParent();
 	UWorld* World = GetWorld();
-	if (World)
-	{
-		PlayerController = PlayerController == nullptr ? World->GetFirstPlayerController() : PlayerController;
-		if (PlayerController)
-		{
-			FInputModeGameAndUI InputModeData;
-			PlayerController->SetInputMode(InputModeData);
-		}
-	}
+	//if (World)
+	//{
+	//	PlayerController = PlayerController == nullptr ? World->GetFirstPlayerController() : PlayerController;
+	//	if (PlayerController)
+	//	{
+	//		FInputModeGameAndUI InputModeData;
+	//		PlayerController->SetInputMode(InputModeData);
+	//	}
+	//}
 	if (ReturnButton && !ReturnButton->OnClicked.IsBound())
 	{
 		ReturnButton->OnClicked.RemoveDynamic(this, &UUNEndWidget::ReturnButtonClicked);
