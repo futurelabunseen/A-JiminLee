@@ -805,7 +805,7 @@ void AUNPlayerCharacter::UpdateNiagara(UNiagaraSystem* NiagaraSystem)
 
 void AUNPlayerCharacter::UpdateHeadNiagara(UNiagaraSystem* NiagaraSystem)
 {
-	if (ASC->HasMatchingGameplayTag(UNTAG_CHARACTER_STATE_ISSTUNING))
+	if (HeadNiagara)
 	{
 		HeadNiagara->SetAsset(NiagaraSystem);
 		HeadNiagara->Activate(true);
