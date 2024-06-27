@@ -31,11 +31,13 @@ FReply UUNInventoryItemSlotWidget::NativeOnMouseButtonDown(const FGeometry& InGe
 {
 	FReply Reply = Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
 
+	// 좌클릭 시 아이템드래그
 	if (InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
 	{
 		return Reply.Handled().DetectDrag(TakeWidget(), EKeys::LeftMouseButton);
 	}
 
+	// 우클릭 시 아이템 장착 시도
 	else if (InMouseEvent.GetEffectingButton() == EKeys::RightMouseButton)
 	{
 		CheckItemTypeAndTryEquip();
@@ -55,11 +57,18 @@ void UUNInventoryItemSlotWidget::NativeOnDragDetected(const FGeometry& InGeometr
 
 	if (DragItemVisualClass)
 	{
+		// 아이템이 드래그될 때 DragWidget으로 전환
 		const TObjectPtr<UUNDragItemVisual> DragVisual = CreateWidget<UUNDragItemVisual>(this, DragItemVisualClass);
+		if (!DragVisual || !ItemReference)
+		{
+			UE_LOG(LogTemp, Log, TEXT("DragVisual is null"));
+			return;
+		}
 		DragVisual->ItemIcon->SetBrushFromTexture(ItemReference->AssetData.Icon);
 		DragVisual->ItemBorder->SetBrushColor(ItemBorder->GetBrushColor());
 
-		ItemReference->NumericData.bIsStackable ? DragVisual->ItemQuantity->SetText(FText::AsNumber(ItemReference->Quantity)) : DragVisual->ItemQuantity->SetVisibility(ESlateVisibility::Collapsed);
+		ItemReference->NumericData.bIsStackable ? DragVisual->ItemQuantity->SetText
+					(FText::AsNumber(ItemReference->Quantity)) : DragVisual->ItemQuantity->SetVisibility(ESlateVisibility::Collapsed);
 
 		UUNItemDragDropOperation* DragItemOperation = NewObject<UUNItemDragDropOperation>();
 		DragItemOperation->SourceItem = ItemReference;

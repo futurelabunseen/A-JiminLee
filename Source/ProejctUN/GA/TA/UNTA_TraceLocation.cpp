@@ -33,41 +33,45 @@ void AUNTA_TraceLocation::CancelTargeting()
 // 마우스 위치를 지점으로 FHitResult를 생성한뒤 핸들에 데이터넣고 반환
 FGameplayAbilityTargetDataHandle AUNTA_TraceLocation::MakeTargetData() const
 {
-	FHitResult OutHitResult;
-	FNavLocation NavLocation;
-
 	AUNPlayerCharacter* PlayerCharacter = Cast<AUNPlayerCharacter>(SourceActor);
-	if (PlayerCharacter)
+	#pragma region
+	if (!PlayerCharacter)
 	{
-		APlayerController* Controller = Cast<APlayerController>(SourceActor->GetInstigatorController());
-		if (Controller)
-		{
-			Controller->GetHitResultUnderCursor(ECC_Visibility, true, OutHitResult);
+		UE_LOG(LogTemp, Log, TEXT("PlayerCharacter is Null"));
+		return FGameplayAbilityTargetDataHandle();
+	}
+	#pragma endregion
 
-			float SkillRangeScale = PlayerCharacter->GetCurrentActiveDecalData().GetScale().Z;
-			float HitDistance = (OutHitResult.Location - PlayerCharacter->GetActorLocation()).Size();
+	APlayerController* Controller = Cast<APlayerController>(SourceActor->GetInstigatorController());
+	#pragma region
+	if (!Controller)
+	{
+		UE_LOG(LogTemp, Log, TEXT("Controller is Null"));
+		return FGameplayAbilityTargetDataHandle();
+	}
+	#pragma endregion
 
-			if (HitDistance > SkillRangeScale)
-			{
-				FVector SkillRangeEnd = PlayerCharacter->GetActorLocation() + (OutHitResult.Location - PlayerCharacter->GetActorLocation()).GetSafeNormal() * SkillRangeScale;
-				OutHitResult.Location = SkillRangeEnd;
-			}
+	// 마우스 히트 위치 체크
+	FHitResult OutHitResult;
+	Controller->GetHitResultUnderCursor(ECC_Visibility, true, OutHitResult);
 
-			UNavigationSystemV1* Nav = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
-			if (Nav)
-			{
-				// Hit위치에서 가장 가까운 네비게이션 Location 반환 (FVector 50.f으로 캐릭터가 땅에 박히는 것 방지)
-				bool bProjected = Nav->ProjectPointToNavigation(OutHitResult.Location, NavLocation);
-				if (bProjected)
-				{
-					OutHitResult.Location = NavLocation.Location + FVector(0.f, 0.f, 50.f);
-				}
-			}
-		}
+	// 스킬 거리와 히트 위치 비교
+	FVector PlayerLocation = PlayerCharacter->GetActorLocation();
+	float SkillRangeScale = PlayerCharacter->GetCurrentActiveDecalData().GetScale().Z;
+	float HitDistance = (OutHitResult.Location - PlayerLocation).Size();
+
+	// 히트 위치가 스킬 범위보다 크다면 위치 조정
+	if (HitDistance > SkillRangeScale)
+	{
+		FVector Dir = (OutHitResult.Location - PlayerLocation).GetSafeNormal();
+		FVector SkillRangeLimit = Dir * SkillRangeScale + PlayerLocation;
+		OutHitResult.Location = SkillRangeLimit;
 	}
 
+	// 핸들에 위치 데이터 넣고 반환
 	FGameplayAbilityTargetDataHandle DataHandle;
-	FGameplayAbilityTargetData_SingleTargetHit* TargetData = new FGameplayAbilityTargetData_SingleTargetHit(OutHitResult);
+	FGameplayAbilityTargetData_SingleTargetHit* TargetData =
+		new FGameplayAbilityTargetData_SingleTargetHit(OutHitResult);
 	DataHandle.Add(TargetData);
 	return DataHandle;
 }

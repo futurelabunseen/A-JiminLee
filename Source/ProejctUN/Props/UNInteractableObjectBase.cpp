@@ -18,6 +18,8 @@ AUNInteractableObjectBase::AUNInteractableObjectBase()
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	Mesh->SetupAttachment(BoxCollision);
 	Mesh->SetCollisionProfileName(TEXT("IgnoreOnlyPawn"));
+	
+	bReplicates = true;
 }
 
 void AUNInteractableObjectBase::BeginPlay()

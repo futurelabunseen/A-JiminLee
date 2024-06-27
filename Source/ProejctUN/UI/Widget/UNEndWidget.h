@@ -9,6 +9,7 @@
 /**
  * 
  */
+class UTextBlock;
 class UButton;
 class UMultiplayerSessionsSubsystem;
 class APlayerController;
@@ -19,7 +20,7 @@ class PROEJCTUN_API UUNEndWidget : public UUNGASUserWidget
 	GENERATED_BODY()
 	
 public:
-	void MenuSetup();
+	void MenuSetup(bool bisDead);
 	void MenuTearDown();
 
 protected:
@@ -32,6 +33,9 @@ private:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UButton> ReturnButton;
 
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> EndPanelText;
+
 	UFUNCTION()
 	void ReturnButtonClicked();
 
@@ -40,4 +44,7 @@ private:
 
 	UPROPERTY()
 	APlayerController* PlayerController;
+
+	UPROPERTY()
+	FTimerHandle GameEndTimerHandle;
 };

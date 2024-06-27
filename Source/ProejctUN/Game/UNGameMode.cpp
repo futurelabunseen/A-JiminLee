@@ -217,7 +217,10 @@ void AUNGameMode::OnCharacterDeath(AUNCharacter* Character)
 
 	if (RemainingCharacterCount == 1)
 	{
-		GameEndFunction();
+		GetWorldTimerManager().SetTimer(GameEndFunctionHandle, [&]()
+		{
+			GameEndFunction();
+		}, 2.f, false);
 	}
 }
 
@@ -230,6 +233,18 @@ void AUNGameMode::GameEndFunction()
 		{
 			PlayerController->MulticastRPCGameEndFunction();
 			PlayerController->ClientRPCOpenEndWidget();
+		}
+	}
+}
+
+void AUNGameMode::GameEndClearHandle()
+{
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; It++)
+	{
+		AUNPlayerController* PlayerController = Cast<AUNPlayerController>(*It);
+		if (PlayerController)
+		{
+			PlayerController->MulticastRPCGameEndFunction();
 		}
 	}
 }
@@ -249,4 +264,16 @@ AActor* AUNGameMode::ChoosePlayerStart_Implementation(AController* Player)
 
 	// Fall back to default behavior if no PlayerStart is found
 	return Super::ChoosePlayerStart_Implementation(Player);
+}
+
+void AUNGameMode::AllPlayerKick()
+{
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; It++)
+	{
+		AUNPlayerController* PlayerController = Cast<AUNPlayerController>(*It);
+		if (PlayerController && !HasAuthority())
+		{
+			PlayerController->ClientReturnToMainMenuWithTextReason(FText());
+		}
+	}
 }

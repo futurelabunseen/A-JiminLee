@@ -120,25 +120,31 @@ public:
 	// Sets default values for this component's properties
 	UUNInventoryComponent();
 	
+	// 아이템 추가
 	UFUNCTION(Category = "Inventory")
 	FItemAddResult HandleAddItem(UItemBase* InputItem);
 
+	// 아이템 검색
 	UFUNCTION(Category = "Inventory")
 	UItemBase* FindMatchingItem(UItemBase* ItemIn) const;
 
+	// 아이템 ID로 검색
 	UFUNCTION(Category = "Inventory")
 	UItemBase* FindNextItemByID(UItemBase* ItemIn) const;
 
+	// 아이템 스택값 확인
 	UFUNCTION(Category = "Inventory")
 	UItemBase* FindNextPartialStack(UItemBase* ItemIn) const;
 	
-
+	// 단일 아이템 제거
 	UFUNCTION(Category = "Inventory")
 	void RemoveSingleInstanceOfItem(UItemBase* ItemToRemove);
 
+	// 스택 아이템 제거
 	UFUNCTION(Category = "Inventory")
 	int32 RemoveAmountOfItem(UItemBase* ItemIn, int32 DesiresAmountToRemove);
 
+	// 스택 나누기
 	UFUNCTION(Category = "Inventory")
 	void SplitExistingStack(UItemBase* ItemIn, const int32 AmountToSplit);
 
@@ -160,7 +166,7 @@ public:
 	FORCEINLINE void SetSlotsCapacity(const int32 NewSlotsCapacity) { InventorySlotsCapacity = NewSlotsCapacity; };
 	UFUNCTION(Category = "Inventory")
 	FORCEINLINE void SetWeightCapacity(const int32 NewWeightCapacity) { InventoryWeightCapacity = NewWeightCapacity; };
-	///////////
+
 	void EquipItem(UItemBase* ItemIn);
 	void UnEquipItem(UItemBase* ItemIn);
 
@@ -189,12 +195,13 @@ protected:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	UPROPERTY(VisibleAnywhere, Category = "Inventory")
-	float InventoryTotalWeight;
+	float InventoryTotalWeight; // 무게 한계
 	UPROPERTY(EditInstanceOnly, Category = "Inventory")
-	int32 InventorySlotsCapacity;
+	int32 InventorySlotsCapacity; // 현재 사용 슬롯
 	UPROPERTY(EditInstanceOnly, Category = "Inventory")
-	float InventoryWeightCapacity;
+	float InventoryWeightCapacity; // 현재 무게
 
+	// [BUG] 이슈 관련 수정 진행 중
 	//UPROPERTY(ReplicatedUsing = OnRep_InventoryContents, VisibleAnywhere, Category = "Inventory")
 	//TArray<TObjectPtr<UItemBase>> InventoryContents;
 

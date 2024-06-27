@@ -6,6 +6,8 @@
 #include "MultiplayerSessionsSubsystem.h"
 #include "OnlineSessionSettings.h"
 #include "OnlineSubsystem.h"
+#include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 void UMenu::MenuSetup(int32 NumberOfPublicConnections, FString TypeOfMatch, FString LobbyPath)
 {
@@ -62,6 +64,12 @@ bool UMenu::Initialize()
 	{
 		JoinButton->OnClicked.AddDynamic(this, &ThisClass::JoinButtonClicked);
 	}
+	if (QuitButton)
+	{
+		QuitButton->OnClicked.AddDynamic(this, &ThisClass::QuitButtonClicked);
+	}
+
+
 
 	return true;
 }
@@ -86,12 +94,12 @@ void UMenu::OnCreateSession(bool bWasSuccessful)
 	{
 		if (GEngine)
 		{
-			GEngine->AddOnScreenDebugMessage(
-				-1,
-				15.f,
-				FColor::Red,
-				FString(TEXT("Failed to create session!"))
-			);
+			//GEngine->AddOnScreenDebugMessage(
+			//	-1,
+			//	15.f,
+			//	FColor::Red,
+			//	FString(TEXT("Failed to create session!"))
+			//);
 		}
 		HostButton->SetIsEnabled(true);
 	}
@@ -163,6 +171,22 @@ void UMenu::JoinButtonClicked()
 	if (MultiplayerSessionsSubsystem)
 	{
 		MultiplayerSessionsSubsystem->FindSessions(10000);
+	}
+}
+
+void UMenu::QuitButtonClicked()
+{
+	JoinButton->SetIsEnabled(false);
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		APlayerController* PlayerController = World->GetFirstPlayerController();
+		if (!PlayerController)
+		{
+			UE_LOG(LogTemp, Log, TEXT("PlayerController is null!"));
+			return;
+		}
+		UKismetSystemLibrary::QuitGame(World, PlayerController, EQuitPreference::Quit, false);
 	}
 }
 

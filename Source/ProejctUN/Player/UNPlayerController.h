@@ -109,6 +109,9 @@ public:
 	UFUNCTION(Client, Unreliable)
 	void ClientRPCOpenEndWidget();
 
+	UFUNCTION(Server, Unreliable)
+	void ServerRPCGameEndFunction();
+
 	UFUNCTION(NetMulticast, Unreliable)
 	void MulticastRPCGameEndFunction();
 

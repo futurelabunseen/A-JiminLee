@@ -32,4 +32,7 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<USoundBase> Sound;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USoundBase> CrashSound;
 };

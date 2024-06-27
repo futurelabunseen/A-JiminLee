@@ -114,6 +114,12 @@ AUNPlayerCharacter::AUNPlayerCharacter()
 		InventoryAction = InventoryActionConfirmRef.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionMenuPanelRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Action/IA_MenuPanel.IA_MenuPanel'"));
+	if (nullptr != InputActionMenuPanelRef.Object)
+	{
+		MenuPanelAction = InputActionMenuPanelRef.Object;
+	}
+
 	static ConstructorHelpers::FObjectFinder<UAnimMontage> ComboActionMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/OutsideAsset/ParagonGreystone/Characters/Heroes/Greystone/Animations/CustomAnimation/AM_ComboAttack.AM_ComboAttack'"));
 	if (ComboActionMontageRef.Object)
 	{
@@ -194,6 +200,7 @@ void AUNPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Completed, this, &AUNPlayerCharacter::OnSetDestinationReleased);
 		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Canceled, this, &AUNPlayerCharacter::OnSetDestinationReleased);
 
+		EnhancedInputComponent->BindAction(MenuPanelAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::MenuPanelFunction);
 		EnhancedInputComponent->BindAction(InventoryAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::InventoryInteraction);
 	}
 	SetupPlayerGASInputComponent();
@@ -314,6 +321,7 @@ void AUNPlayerCharacter::InitAbilityActorInfo()
 		ASC->GenericGameplayEventCallbacks.FindOrAdd(UNTAG_EVENT_CHARACTER_WEAPONEQUIP).AddUObject(this, &AUNPlayerCharacter::EquipWeapon);
 		ASC->GenericGameplayEventCallbacks.FindOrAdd(UNTAG_EVENT_CHARACTER_WEAPONUNEQUIP).AddUObject(this, &AUNPlayerCharacter::UnEquipWeapon);
 		ASC->RegisterGameplayTagEvent(UNTAG_CHARACTER_STATE_ISSTUNING, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &AUNPlayerCharacter::OnStunTagChange);
+		ASC->RegisterGameplayTagEvent(UNTAG_CHARACTER_STATE_ISDEAD, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &AUNPlayerCharacter::OnDeadTagChange);
 
 		//PlayerInventory->OnInventoryUpdated.AddUObject(this, &AUNPlayerCharacter::EquipItem);
 		if (UUNInventoryComponent* Inven = Cast<UUNInventoryComponent>(PlayerInventory))
@@ -589,31 +597,50 @@ void AUNPlayerCharacter::UnEquipWeapon(const FGameplayEventData* EventData)
 
 void AUNPlayerCharacter::OnStunTagChange(const FGameplayTag CallbackTag, int32 NewCount)
 {
-	if (NewCount > 0)
-	{
-		if (bisTargeting)
-		{
-			SendCancelToTargetActor();
-		}
-
-		FGameplayTagContainer CancelTagContainer;
-		CancelTagContainer.AddTag(UNTAG_CHARACTER_STATE_ISATTACKING);
-		CancelTagContainer.AddTag(UNTAG_CHARACTER_STATE_ISULTIMATING);
-		CancelTagContainer.AddTag(UNTAG_CHARACTER_STATE_ISSKILLING);
-
-		FGameplayTagContainer IgnoreTagContainer;
-		TArray<FGameplayAbilitySpec*> AbilitySpecs;
-		ASC->GetActivatableGameplayAbilitySpecsByAllMatchingTags(CancelTagContainer, AbilitySpecs, true);
-		ASC->CancelAbilities(&CancelTagContainer, &IgnoreTagContainer);
-
-		PlayStunAnimation();
-		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
-	}
-	else
+	// 기절 상태 해재
+	if (NewCount <= 0)
 	{
 		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 		StopStunAnimation();
+
+		return;
 	}
+
+	// 타겟팅 해제
+	if (bisTargeting)
+	{
+		SendCancelToTargetActor();
+	}
+
+	// 기절 상태 시 캔슬되어야 할 어빌리티를 태그를 통해 모두 캔슬
+	FGameplayTagContainer CancelTagContainer;
+	CancelTagContainer.AddTag(UNTAG_CHARACTER_STATE_ISATTACKING);
+	CancelTagContainer.AddTag(UNTAG_CHARACTER_STATE_ISULTIMATING);
+	CancelTagContainer.AddTag(UNTAG_CHARACTER_STATE_ISSKILLING);
+
+	FGameplayTagContainer IgnoreTagContainer;
+	TArray<FGameplayAbilitySpec*> AbilitySpecs;
+	ASC->GetActivatableGameplayAbilitySpecsByAllMatchingTags(CancelTagContainer, AbilitySpecs, true);
+	ASC->CancelAbilities(&CancelTagContainer, &IgnoreTagContainer);
+	
+	if (!bisDead)
+	{
+		PlayStunAnimation();
+		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+		return;
+	}
+	ServerRPCCharacterOnDeath();
+}
+
+void AUNPlayerCharacter::OnDeadTagChange(const FGameplayTag CallbackTag, int32 NewCount)
+{
+	// 사망 해제 시
+	if (NewCount <= 0)
+	{
+		return;
+	}
+	ServerRPCCharacterOnDeath();
+
 }
 
 void AUNPlayerCharacter::PlayStunAnimation_Implementation()
@@ -692,6 +719,7 @@ void AUNPlayerCharacter::UpdateArmor()
 
 void AUNPlayerCharacter::ServerRPCUpdateWeapon_Implementation()
 {
+	// 우선 AT를 기본 상태로
 	Weapon->SetSkeletalMesh(nullptr);
 
 	const float DefaultAttackRange = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetDefaultAttackRangeAttribute());
@@ -700,17 +728,18 @@ void AUNPlayerCharacter::ServerRPCUpdateWeapon_Implementation()
 	ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute(), DefaultAttackRange);
 	ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute(), DefaultAttackRate);
 
+	// 무기 착용 유무 확인
 	if (PlayerInventory->CurrentWeaponItemID == NAME_None)
 	{
 		MulticastRPCUpdateWeapon(nullptr);
 		return;
 	}
 
+	// 새로운 무기 장착 및 AT업데이트
 	if (UUNWorldSubsystem* WorldSubSystem = GetWorld()->GetSubsystem<UUNWorldSubsystem>())
 	{
 		UItemBase* CurrentEquipItem = WorldSubSystem->GetItemReference(PlayerInventory->CurrentWeaponItemID);
 		WeaponMesh = CurrentEquipItem->AssetData.SkeletalMesh;
-		//Weapon->SetSkeletalMesh(CurrentEquipItem->AssetData.SkeletalMesh);
 		Weapon->SetSkeletalMesh(WeaponMesh);
 
 		ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute(), DefaultAttackRange + CurrentEquipItem->ItemStatistics.WeaponRange);
@@ -767,9 +796,14 @@ void AUNPlayerCharacter::ActivateMovement()
 	GetCharacterMovement()->SetMovementMode(MOVE_Walking);
 }
 
-void AUNPlayerCharacter::ServerRPCDestoryActor_Implementation(AUNPickupObject* Obj)
+void AUNPlayerCharacter::ServerRPCDestroyActor_Implementation(AUNPickupObject* Obj)
 {
-	Obj->Destroy(true);
+	if (!IsValid(Obj))
+	{
+		return;
+	}
+
+	Obj->MulticastRPCDestroyActor();
 }
 
 void AUNPlayerCharacter::ServerRPCSpawnItem_Implementation(FName ID, FTransform SpawnLocaiton, const int32 Quantity)
@@ -795,7 +829,7 @@ void AUNPlayerCharacter::UpdateNiagara(UNiagaraSystem* NiagaraSystem)
 
 void AUNPlayerCharacter::UpdateHeadNiagara(UNiagaraSystem* NiagaraSystem)
 {
-	if (ASC->HasMatchingGameplayTag(UNTAG_CHARACTER_STATE_ISSTUNING))
+	if (HeadNiagara)
 	{
 		HeadNiagara->SetAsset(NiagaraSystem);
 		HeadNiagara->Activate(true);
@@ -840,7 +874,7 @@ void AUNPlayerCharacter::ServerRPCSCancelActionFunction_Implementation()
 }
 
 
-void AUNPlayerCharacter::UpdateSpringArmLength(float Start, float End, float Time)
+void AUNPlayerCharacter::UpdateSpringArmLength(float Start, float End, float Time, float Frame)
 {
 	SpringArmShortLength = Start;
 	SpringArmLongLength = End;
@@ -861,11 +895,25 @@ void AUNPlayerCharacter::UpdateSpringArmLength(float Start, float End, float Tim
 				SpringArmStartTime = 0.f;
 				GetWorld()->GetTimerManager().ClearTimer(SpringArmUpdateTimerHandle);
 			}
-		}, 0.016f, true);
+		}, Frame, true);
 
 }
 
 void AUNPlayerCharacter::ReturnSpringArmLength()
 {
 	SpringArm->TargetArmLength = 800.f;
+}
+
+void AUNPlayerCharacter::MenuPanelFunction()
+{
+	if (bisMenuPanelOpen)
+	{
+		HUD->CloseEndWidget();
+		bisMenuPanelOpen = false;
+	}
+	else
+	{
+		HUD->OpenEndWidget(bisDead);
+		bisMenuPanelOpen = true;
+	}
 }

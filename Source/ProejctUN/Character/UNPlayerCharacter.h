@@ -73,6 +73,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* InventoryAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* MenuPanelAction;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UDecalComponent* Decal;
 
@@ -147,6 +150,8 @@ protected:
 	void UnEquipWeapon(const FGameplayEventData* EventData);
 
 	void OnStunTagChange(const FGameplayTag CallbackTag, int32 NewCount);
+
+	void OnDeadTagChange(const FGameplayTag CallbackTag, int32 NewCount);
 
 	UFUNCTION(NetMulticast, Unreliable)
 	void PlayStunAnimation();
@@ -243,7 +248,7 @@ public:
 	void ServerRPCSpawnItem(FName ID, FTransform SpawnLocation, const int32 Quantity);
 
 	UFUNCTION(Server, Unreliable)
-	void ServerRPCDestoryActor(AUNPickupObject* Obj);
+	void ServerRPCDestroyActor(AUNPickupObject* Obj);
 
 // Niagara
 public:
@@ -266,10 +271,16 @@ public:
 	FVector UltimateLocation;
 
 	UFUNCTION()
-	void UpdateSpringArmLength(float Start, float End, float Time);
+	void UpdateSpringArmLength(float Start, float End, float Time, float Frame);
 
 	UFUNCTION()
 	void ReturnSpringArmLength();
+
+	UFUNCTION()
+	void MenuPanelFunction();
+
+	UPROPERTY()
+	uint8 bisMenuPanelOpen;
 
 	UPROPERTY()
 	float SpringArmShortLength;

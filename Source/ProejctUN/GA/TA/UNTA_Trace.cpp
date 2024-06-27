@@ -63,7 +63,10 @@ FGameplayAbilityTargetDataHandle AUNTA_Trace::MakeTargetData() const
 	const FVector Start = Character->GetActorLocation() + Forward * Character->GetCapsuleComponent()->GetScaledCapsuleRadius();
 	const FVector End = Start + Forward * AttackRange;
 
-	bool HitDetected = GetWorld()->SweepSingleByChannel(OutHitResult, Start, End, FQuat::Identity, CCHANNEL_UNACTION, FCollisionShape::MakeSphere(AttackRadius), Params);
+	const float NewRange = AttributeSet->GetAttackRange() / 2;
+	FRotator CharacterRotation = Character->GetActorRotation();
+	FQuat Rotation = FQuat(CharacterRotation + (FRotator(0.f, 0.f, 90.f))); //FVector(0.f, 1.f, 0.f)
+	bool HitDetected = GetWorld()->SweepSingleByChannel(OutHitResult, Start, End, Rotation, CCHANNEL_UNACTION, FCollisionShape::MakeCapsule(AttackRadius, NewRange), Params);
 
 	FGameplayAbilityTargetDataHandle DataHandle;
 	DataHandle.UniqueId = 0;
@@ -84,9 +87,9 @@ FGameplayAbilityTargetDataHandle AUNTA_Trace::MakeTargetData() const
 //	if (bShowDebug)
 //	{
 //		FVector CapsuleOrigin = Start + (End - Start) * 0.5f;
-//		float CapsuleHalfHeight = AttackRange * 0.5f;
+//		float CapsuleHalfHeight = NewRange;
 //		FColor DrawColor = HitDetected ? FColor::Green : FColor::Red;
-//		DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, AttackRadius, FRotationMatrix::MakeFromZ(Forward).ToQuat(), DrawColor, false, 5.f);
+//		DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, AttackRadius, Rotation, DrawColor, false, 5.f);
 //	}
 //
 //#endif

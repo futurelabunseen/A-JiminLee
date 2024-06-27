@@ -163,11 +163,19 @@ void AUNHUD::CloseInventory()
 	bisInventoryOpen = false;
 }
 
-void AUNHUD::OpenEndWidget()
+void AUNHUD::OpenEndWidget(bool bisDead)
 {
 	if (EndWidget)
 	{
-		EndWidget->MenuSetup();
+		EndWidget->MenuSetup(bisDead);
+	}
+}
+
+void AUNHUD::CloseEndWidget()
+{
+	if (EndWidget)
+	{
+		EndWidget->MenuTearDown();
 	}
 }
 

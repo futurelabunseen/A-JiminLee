@@ -36,7 +36,7 @@ AUNPickupObject::AUNPickupObject()
 void AUNPickupObject::BeginPlay()
 {
 	Super::BeginPlay();
-	
+		
 	InitializePickup(UItemBase::StaticClass(), ItemQuantity);
 
 	MoveToFloor();
@@ -51,22 +51,22 @@ void AUNPickupObject::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 
 void AUNPickupObject::InitializePickup(const TSubclassOf<UItemBase> BaseClass, const int32 InQuantity)
 {
+	// 회전값 랜덤
 	float RandomRotation = FMath::RandRange(0, 360);
 	float RandomLookAt = (FMath::RandRange(0, 1)) == 0 ? -90.f : 90.f;
 
 	this->SetActorRotation(FRotator(RandomLookAt, RandomRotation, 0.f));
 
+	// 데이터 테이블에 랜덤 ID반환
 	if (DesiredItemID.IsNone())
 	{
 		TArray<FName> ItemNames = ItemDataTable->GetRowNames();
 		const int32 NumRows = ItemNames.Num();
-		//const int32 NumRows = ItemDataTable->GetTableData().Num();
 		const int32 RandomRowIndex = FMath::RandRange(0, NumRows - 1);
 
 		const TArray<FName>& RowNames = ItemDataTable->GetRowNames();
 		DesiredItemID = RowNames[RandomRowIndex];
-		ItemQuantity = 1;
-		//ClientRPCSetRandomValue(DesiredItemID);
+
 	}
 
 	if (ItemDataTable && !DesiredItemID.IsNone())
@@ -99,7 +99,6 @@ void AUNPickupObject::InitializePickup(const TSubclassOf<UItemBase> BaseClass, c
 			SkeletalMesh->SetCollisionProfileName("UNPickUpObject");
 			SkeletalMesh->SetCollisionResponseToChannel(ECC_EngineTraceChannel1, ECollisionResponse::ECR_Ignore);
 			BoxCollision->SetCollisionProfileName("ItemTrigger");
-
 		}
 
 		UpdateInteractableData();
@@ -118,9 +117,9 @@ void AUNPickupObject::InitializeDropItem(FName ID, int32 Quantity)
 	InitializePickup(UItemBase::StaticClass(), Quantity);
 }
 
-void AUNPickupObject::ServerRPCDestoryActor_Implementation()
+void AUNPickupObject::ServerRPCDestroyActor_Implementation()
 {
-	this->Destroy(true);
+	MulticastRPCDestroyActor();
 }
 
 void AUNPickupObject::InitializeDrop(UItemBase* ItemToDrop, const int32 InQuantity)
@@ -155,44 +154,65 @@ void AUNPickupObject::UpdateInteractableData()
 
 void AUNPickupObject::TakePickUp(AActor* Taker)
 {
-	if (AUNPlayerCharacter* Player = Cast<AUNPlayerCharacter>(Taker))
-	{	
-		if (!IsPendingKillPending())
-		{
-			if (ItemReference)
-			{
-				if (UUNInventoryComponent* PlayerInventory = Player->GetInventoryComponent())
-				{
-					const FItemAddResult AddResult = PlayerInventory->HandleAddItem(ItemReference);
-
-					switch (AddResult.OperationResult)
-					{
-					case EItemAddResult::IAR_NoItemAdded:
-						break;
-					case EItemAddResult::IAR_PartialAmountItemAdded:
-						UpdateInteractableData();
-						// PlayerCharacter->UpdateInteractionWidget();
-						break;
-					case EItemAddResult::IAR_AllItemAddeed:
-						Player->ServerRPCDestoryActor(this);
-						//ServerRPCDestoryActor();
-						Destroy();
-						break;
-					}
-
-					UE_LOG(LogTemp, Log, TEXT("%s"), *AddResult.ResultMessage.ToString());
-				}
-				else
-				{
-					UE_LOG(LogTemp, Warning, TEXT("Player inventory component is null!"));
-				}
-			}
-			else
-			{
-				UE_LOG(LogTemp, Warning, TEXT("Pickup internal item reference was somehow null!"));
-			}
-		}
+	// Player 예외처리 & 리턴
+	AUNPlayerCharacter* Player = Cast<AUNPlayerCharacter>(Taker);
+	if (!Player)
+	{
+		UE_LOG(LogTemp, Log, TEXT("Player is null"));
+		return;
 	}
+
+	// 액터가 이미 삭제될 예정이라면 예외처리 & 리턴
+	if (IsPendingKillPending())
+	{
+		UE_LOG(LogTemp, Log, TEXT("IsPendingKillPending is true"));
+		return;
+	}
+
+	// ItemReference 예외처리 & 리턴
+	if (!ItemReference)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Pickup internal item reference was somehow null!"));
+		return;
+	}
+	
+	// 인벤토리 컴포넌트 예외처리 & 리턴
+	UUNInventoryComponent* PlayerInventory = Player->GetInventoryComponent();
+	if (!PlayerInventory)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Player inventory component is null!"));
+		return;
+	}
+
+
+	const FItemAddResult AddResult = PlayerInventory->HandleAddItem(ItemReference);
+	switch (AddResult.OperationResult)
+	{
+		// 아이템이 추가가 안됐다면(Ex. 가방 용량 초과) 아무 변화 없음
+	case EItemAddResult::IAR_NoItemAdded:
+		break;
+
+		// 일부만 먹었다면(Ex. 포션 5개 중 3개) 아이템 삭제 X. 개수 데이터만 업데이트
+	case EItemAddResult::IAR_PartialAmountItemAdded:
+		UpdateInteractableData();
+		break;
+
+		// 전부 먹었다면 필드 아이템은 삭제
+	case EItemAddResult::IAR_AllItemAddeed:
+		if (HasAuthority())
+		{
+			MulticastRPCDestroyActor();
+		}
+		else
+		{
+			Player->ServerRPCDestroyActor(this);
+		}
+		break;
+	}
+
+	// 결과 로그 출력
+	UE_LOG(LogTemp, Log, TEXT("%s"), *AddResult.ResultMessage.ToString());
+
 }
 
 void AUNPickupObject::OnBoxCollisionBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -290,5 +310,25 @@ void AUNPickupObject::MoveToFloor()
 		SetActorLocation(NewLocation);
 
 		//DrawDebugSphere(GetWorld(), NewLocation, 25.0f, 12, FColor::Red, false, 2.0f);
+	}
+}
+
+void AUNPickupObject::MulticastRPCDestroyActor_Implementation()
+{
+	BoxCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	SkeletalMesh->SetVisibility(false);
+	Mesh->SetVisibility(false);
+
+	if (HasAuthority())
+	{
+		GetWorld()->GetTimerManager().SetTimer(DestroyTimerHandle, [&]()
+			{
+				Destroy(true);
+
+				if (GetWorld()->GetTimerManager().IsTimerActive(DestroyTimerHandle))
+				{
+					GetWorld()->GetTimerManager().ClearTimer(DestroyTimerHandle);
+				}
+			}, 3.f, false);
 	}
 }

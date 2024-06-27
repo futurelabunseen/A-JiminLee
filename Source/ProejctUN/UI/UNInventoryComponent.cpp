@@ -341,6 +341,14 @@ void UUNInventoryComponent::RemoveArmorItemID_Implementation()
 }
 
 
+
+
+
+
+// 인벤토리 동기화 관련 수정 진행 중 . . .
+// ======================================================================================================
+// ======================================================================================================
+
 //bool UUNInventoryComponent::ServerRPCAddItem_Validate(const FRPCItemData& RPCItem)
 //{
 //	return true;
@@ -408,8 +416,13 @@ void UUNInventoryComponent::OnRep_InventoryContents()
 	//ClientRPCInvenUpdate();
 }
 
+// ======================================================================================================
+// ======================================================================================================
 
-////////////
+
+
+
+
 
 void UUNInventoryComponent::EquipItem(UItemBase* ItemIn)
 {

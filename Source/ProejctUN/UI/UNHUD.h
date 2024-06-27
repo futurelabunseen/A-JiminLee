@@ -132,7 +132,10 @@ public:
 	void CloseInventory();
 
 	UFUNCTION()
-	void OpenEndWidget();
+	void OpenEndWidget(bool bisDead);
+
+	UFUNCTION()
+	void CloseEndWidget();
 
 	UFUNCTION()
 	void ShowInteractionWidget();

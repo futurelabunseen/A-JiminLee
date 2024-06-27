@@ -52,7 +52,7 @@ AUNCharacter::AUNCharacter()
 	GetMesh()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
 
 	// 프로퍼티 기본값
-	DeadEventDelayTime = 5.f;
+	DeadEventDelayTime = 10.f;
 
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> CharacterMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/OutsideAsset/ParagonGreystone/Characters/Heroes/Greystone/Meshes/Greystone_NotWeapon.Greystone_NotWeapon'"));
 	if (CharacterMeshRef.Object)
@@ -90,6 +90,11 @@ AUNCharacter::AUNCharacter()
 void AUNCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
+}
+
+void AUNCharacter::ServerRPCCharacterOnDeath_Implementation()
+{
+	OnOutOfHealth();
 }
 
 // 델리게이트에 등록되는 함수. 사망 시 Attribute에서 Broadcast됨.
@@ -137,15 +142,19 @@ void AUNCharacter::MulticastRPCPlayAnimation_Implementation(AUNCharacter* Charac
 // 사망 시 실행되는 함수
 void AUNCharacter::SetDead()
 {
+	bisDead = true;
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 	PlayDeadAnimaition();
-	SetActorEnableCollision(false);
+	//SetActorEnableCollision(false);
 
-	FTimerHandle DeadTimerHandle;
-	GetWorld()->GetTimerManager().SetTimer(DeadTimerHandle, FTimerDelegate::CreateLambda([&]
-		{
-			Destroy();
-		}), DeadEventDelayTime, false);
+	//if (GetWorld()->GetTimerManager().IsTimerActive(DeadTimerHandle))
+	//{
+	//	return;
+	//}
+	//GetWorld()->GetTimerManager().SetTimer(DeadTimerHandle, FTimerDelegate::CreateLambda([&]
+	//	{
+	//		Destroy();
+	//	}), DeadEventDelayTime, false);
 }
 
 // 사망 애니메이션 재생

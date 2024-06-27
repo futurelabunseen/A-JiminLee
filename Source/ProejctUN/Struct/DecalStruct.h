@@ -10,10 +10,8 @@
 USTRUCT(BlueprintType)
 struct FDecalStruct
 {
-	GENERATED_BODY()
-	
-	//FDecalStruct()
-	
+	GENERATED_USTRUCT_BODY()
+
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UMaterial> Material;
@@ -32,12 +30,11 @@ public:
 	TObjectPtr<UMaterial> GetMaterial() { return Material; }
 
 	void SetLocation(FVector NewLocation) { Location = NewLocation; }
-	FVector GetLocation() { return Location; };
-	
+	FVector GetLocation() { return Location; }
+
 	void SetRotation(FRotator NewRotation) { Rotation = NewRotation; }
-	FRotator GetRotation() { return Rotation; };
+	FRotator GetRotation() { return Rotation; }
 
 	void SetScale(FVector NewScale) { Scale = NewScale; }
-	FVector GetScale() { return Scale; };
-	
+	FVector GetScale() { return Scale; }
 };

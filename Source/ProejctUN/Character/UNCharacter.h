@@ -23,6 +23,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "Delegate")
 	FOnDeathDelegate OnDeath;
+
+	UPROPERTY()
+	bool bisDead; 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* TopDownCameraComponent;
@@ -37,6 +40,10 @@ protected:
 	UFUNCTION(NetMulticast, Unreliable)
 	void MulticastRPCPlayAnimation(AUNCharacter* Character);
 
+	UFUNCTION(Server, Unreliable)
+	void ServerRPCCharacterOnDeath();
+
+
 	UFUNCTION()
 	virtual void OnOutOfHealth();
 
@@ -48,6 +55,9 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	float DeadEventDelayTime;
+
+	UPROPERTY()
+	FTimerHandle DeadTimerHandle;
 
 	void SetDead();
 	void PlayDeadAnimaition();

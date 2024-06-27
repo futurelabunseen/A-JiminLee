@@ -76,6 +76,9 @@ public:
 	UFUNCTION()
 	void GameEndFunction();
 
+	UFUNCTION()
+	void GameEndClearHandle();
+
 	UPROPERTY(VisibleAnywhere)
 	TArray<TObjectPtr<AUNPickupObject> > SpawnedItems;
 
@@ -83,6 +86,12 @@ public:
 
 	virtual AActor* ChoosePlayerStart_Implementation(AController* Player) override;
 
+	UFUNCTION()
+	void AllPlayerKick();
+
 	UPROPERTY()
 	uint8 bisBattleState;
+
+	UPROPERTY()
+	FTimerHandle GameEndFunctionHandle;
 };
