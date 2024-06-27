@@ -294,6 +294,9 @@ public:
 	UPROPERTY()
 	float SpringArmMoveTime;
 
+	UPROPERTY(EditAnywhere, Category = "Cursor")
+	UNiagaraSystem* CursorFX;
+
 	UPROPERTY()
 	TObjectPtr<USpringArmComponent> SpringArm;
 

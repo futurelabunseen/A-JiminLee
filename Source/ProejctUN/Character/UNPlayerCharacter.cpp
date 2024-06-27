@@ -14,6 +14,7 @@
 #include "Components/DecalComponent.h"
 #include "NiagaraComponent.h"
 #include "NiagaraSystem.h"
+#include "NiagaraFunctionLibrary.h"
 
 #include "Kismet/KismetMathLibrary.h"
 #include "Props/UNInteractableObjectBase.h"
@@ -410,6 +411,10 @@ void AUNPlayerCharacter::OnSetDestinationReleased()
 	if (FollowTime <= ShortPressThreshold)
 	{
 		UE_LOG(LogTemp, Log, TEXT("%s"), *CachedDestination.ToString());
+		if (CursorFX)
+		{
+			UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, CursorFX, CachedDestination, FRotator::ZeroRotator, FVector(1.f, 1.f, 1.f), true, true, ENCPoolMethod::None, true);
+		}
 		UAIBlueprintHelperLibrary::SimpleMoveToLocation(PlayerController, CachedDestination);
 	}
 
