@@ -110,6 +110,7 @@ void UUNEndWidget::MenuTearDown()
 	}
 }
 
+// ReturnToMainMenu버튼을 눌렀을 때
 void UUNEndWidget::ReturnButtonClicked()
 {
 	ReturnButton->SetIsEnabled(false);
@@ -127,26 +128,32 @@ void UUNEndWidget::ReturnButtonClicked()
 		return;
 	}
 
+	// 클라
 	if (!PC->HasAuthority())
 	{
 		UE_LOG(LogTemp, Log, TEXT("ClientPlayer!"));
 		
+		// ServerRPC->MulticastRPC를 통해 모든 타이머를 종료 (ServerRPCGameEndFunction = 타이머 종료 함수)
 		PC->ServerRPCGameEndFunction();
 		GetWorld()->GetTimerManager().SetTimer(GameEndTimerHandle, [PC]()
 			{
+				// 클라 세션 나가기 (3초 딜레이는 타이머 종료 시간이 필요하기 때문)
 				UE_LOG(LogTemp, Log, TEXT("ActivateTimer!"));
-				PC->ClientReturnToMainMenuWithTextReason(FText());
+				PC->ClientReturnToMainMenuWithTextReason(FText()); 
 			}, 3.f, false);
 
 		return;
 	}
-
+	
+	// 서버
 	UE_LOG(LogTemp, Log, TEXT("ServerPlayer!"));
 	AUNGameMode* GM = Cast<AUNGameMode>(GetWorld()->GetAuthGameMode());
 	if (GM)
 	{
+		// 자기 자신이 아닌 모든 플레이어의 Timer종료함수
 		GM->GameEndClearHandle();
 
+		// 1초뒤에 모든 PlayerController순회하며 ClientReturnToMainMenuWithTextReason발동
 		FTimerHandle AllPlayerKickTimerHandle;
 		GetWorld()->GetTimerManager().SetTimer(AllPlayerKickTimerHandle, [GM]()
 			{
@@ -155,6 +162,8 @@ void UUNEndWidget::ReturnButtonClicked()
 			}, 1.f, false);
 
 
+		// 세션 지우기
+		// To Do .. : if문으로 PlayerController가 서버만 남았는지 확인
 		FTimerHandle DestroySessionTimerHandle;
 		GetWorld()->GetTimerManager().SetTimer(DestroySessionTimerHandle, [this]()
 			{
