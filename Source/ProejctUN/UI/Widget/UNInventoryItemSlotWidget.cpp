@@ -59,6 +59,11 @@ void UUNInventoryItemSlotWidget::NativeOnDragDetected(const FGeometry& InGeometr
 	{
 		// 아이템이 드래그될 때 DragWidget으로 전환
 		const TObjectPtr<UUNDragItemVisual> DragVisual = CreateWidget<UUNDragItemVisual>(this, DragItemVisualClass);
+		if (!DragVisual || !ItemReference)
+		{
+			UE_LOG(LogTemp, Log, TEXT("DragVisual is null"));
+			return;
+		}
 		DragVisual->ItemIcon->SetBrushFromTexture(ItemReference->AssetData.Icon);
 		DragVisual->ItemBorder->SetBrushColor(ItemBorder->GetBrushColor());
 

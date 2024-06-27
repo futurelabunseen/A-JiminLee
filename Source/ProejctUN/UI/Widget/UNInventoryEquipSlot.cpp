@@ -43,6 +43,12 @@ void UUNInventoryEquipSlot::NativeOnDragDetected(const FGeometry& InGeometry, co
 	if (DragItemVisualClass)
 	{
 		const TObjectPtr<UUNDragItemVisual> DragVisual = CreateWidget<UUNDragItemVisual>(this, DragItemVisualClass);
+		
+		if (!DragVisual || !ItemReference)
+		{
+			UE_LOG(LogTemp, Log, TEXT("DragVisual is null"));
+			return;
+		}
 		DragVisual->ItemIcon->SetBrushFromTexture(ItemReference->AssetData.Icon);
 		DragVisual->ItemBorder->SetBrushColor(ItemBorder->GetBrushColor());
 

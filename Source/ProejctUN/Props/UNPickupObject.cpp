@@ -329,6 +329,6 @@ void AUNPickupObject::MulticastRPCDestroyActor_Implementation()
 				{
 					GetWorld()->GetTimerManager().ClearTimer(DestroyTimerHandle);
 				}
-			}, 1.f, false);
+			}, 3.f, false);
 	}
 }

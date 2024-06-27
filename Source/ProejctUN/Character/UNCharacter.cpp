@@ -147,14 +147,14 @@ void AUNCharacter::SetDead()
 	PlayDeadAnimaition();
 	//SetActorEnableCollision(false);
 
-	if (GetWorld()->GetTimerManager().IsTimerActive(DeadTimerHandle))
-	{
-		return;
-	}
-	GetWorld()->GetTimerManager().SetTimer(DeadTimerHandle, FTimerDelegate::CreateLambda([&]
-		{
-			Destroy();
-		}), DeadEventDelayTime, false);
+	//if (GetWorld()->GetTimerManager().IsTimerActive(DeadTimerHandle))
+	//{
+	//	return;
+	//}
+	//GetWorld()->GetTimerManager().SetTimer(DeadTimerHandle, FTimerDelegate::CreateLambda([&]
+	//	{
+	//		Destroy();
+	//	}), DeadEventDelayTime, false);
 }
 
 // 사망 애니메이션 재생

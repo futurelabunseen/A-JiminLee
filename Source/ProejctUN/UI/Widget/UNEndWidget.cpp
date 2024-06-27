@@ -114,30 +114,52 @@ void UUNEndWidget::ReturnButtonClicked()
 {
 	ReturnButton->SetIsEnabled(false);
 
-	if (MultiplayerSessionsSubsystem)
+	if (!MultiplayerSessionsSubsystem)
 	{
-		AUNGameMode* GM = Cast<AUNGameMode>(GetWorld()->GetAuthGameMode());
-		if (GM)
-		{
-			GM->GameEndClearHandle();
-		}
-		//if (AUNPlayerController* PC = Cast<AUNPlayerController>(GetWorld()->GetFirstPlayerController()))
-		//{
-		//	PC->MulticastRPCGameEndFunction();
+		UE_LOG(LogTemp, Log, TEXT("MultiplayerSessionsSubsystem is null!"));
+		return;
+	}
 
-		//	//if(PC->HasAuthority())
-		//	//{
-		//	//	MultiplayerSessionsSubsystem->DestroySession();
-		//	//}
-		//	//else
-		//	//{
-		//	//	PC->ClientReturnToMainMenuWithTextReason(FText());
-		//	//}
-		//}
+	AUNPlayerController* PC = Cast<AUNPlayerController>(GetWorld()->GetFirstPlayerController());
+	if (!PC)
+	{
+		UE_LOG(LogTemp, Log, TEXT("PlayerController is null!"));
+		return;
+	}
 
-		GetWorld()->GetTimerManager().SetTimer(GameEndTimerHandle, [&]()
+	if (!PC->HasAuthority())
+	{
+		UE_LOG(LogTemp, Log, TEXT("ClientPlayer!"));
+		
+		PC->ServerRPCGameEndFunction();
+		GetWorld()->GetTimerManager().SetTimer(GameEndTimerHandle, [PC]()
 			{
-				MultiplayerSessionsSubsystem->DestroySession();
+				UE_LOG(LogTemp, Log, TEXT("ActivateTimer!"));
+				PC->ClientReturnToMainMenuWithTextReason(FText());
+			}, 3.f, false);
+
+		return;
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("ServerPlayer!"));
+	AUNGameMode* GM = Cast<AUNGameMode>(GetWorld()->GetAuthGameMode());
+	if (GM)
+	{
+		GM->GameEndClearHandle();
+
+		FTimerHandle AllPlayerKickTimerHandle;
+		GetWorld()->GetTimerManager().SetTimer(AllPlayerKickTimerHandle, [GM]()
+			{
+				UE_LOG(LogTemp, Log, TEXT("ActivateKickTimer!"));
+				GM->AllPlayerKick();
 			}, 1.f, false);
+
+
+		FTimerHandle DestroySessionTimerHandle;
+		GetWorld()->GetTimerManager().SetTimer(DestroySessionTimerHandle, [this]()
+			{
+				UE_LOG(LogTemp, Log, TEXT("ActivateDestroyTimer!"));
+				MultiplayerSessionsSubsystem->DestroySession();
+			}, 3.f, false);
 	}
 }
