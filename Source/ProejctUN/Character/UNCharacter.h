@@ -25,7 +25,7 @@ public:
 	FOnDeathDelegate OnDeath;
 
 	UPROPERTY()
-	uint8 bisDead; 
+	bool bisDead; 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* TopDownCameraComponent;

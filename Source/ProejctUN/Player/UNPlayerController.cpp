@@ -421,7 +421,7 @@ void AUNPlayerController::MulticastRPCGameEndFunction_Implementation()
 
 void AUNPlayerController::ClientRPCOpenEndWidget_Implementation()
 {
-	HUD->OpenEndWidget();
+	HUD->OpenEndWidget(true);
 }
 
 void AUNPlayerController::SetKeyBoardInputMode(bool bKeyboard)

@@ -76,6 +76,9 @@ public:
 	UFUNCTION()
 	void GameEndFunction();
 
+	UFUNCTION()
+	void GameEndClearHandle();
+
 	UPROPERTY(VisibleAnywhere)
 	TArray<TObjectPtr<AUNPickupObject> > SpawnedItems;
 

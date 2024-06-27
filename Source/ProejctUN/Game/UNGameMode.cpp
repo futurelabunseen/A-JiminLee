@@ -237,6 +237,18 @@ void AUNGameMode::GameEndFunction()
 	}
 }
 
+void AUNGameMode::GameEndClearHandle()
+{
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; It++)
+	{
+		AUNPlayerController* PlayerController = Cast<AUNPlayerController>(*It);
+		if (PlayerController)
+		{
+			PlayerController->MulticastRPCGameEndFunction();
+		}
+	}
+}
+
 AActor* AUNGameMode::ChoosePlayerStart_Implementation(AController* Player)
 {
 	TArray<AActor*> PlayerStarts;

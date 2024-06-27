@@ -909,9 +909,11 @@ void AUNPlayerCharacter::MenuPanelFunction()
 	if (bisMenuPanelOpen)
 	{
 		HUD->CloseEndWidget();
+		bisMenuPanelOpen = false;
 	}
 	else
 	{
-		HUD->OpenEndWidget();
+		HUD->OpenEndWidget(bisDead);
+		bisMenuPanelOpen = true;
 	}
 }

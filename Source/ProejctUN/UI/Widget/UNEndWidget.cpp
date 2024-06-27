@@ -8,20 +8,29 @@
 #include "MultiplayerSessionsSubsystem.h"
 #include "GameFramework/GameModeBase.h"
 #include "Game/UNGameMode.h"
+#include "Components/TextBlock.h"
 
-void UUNEndWidget::MenuSetup()
+void UUNEndWidget::MenuSetup(bool bisDead)
 {
 	AddToViewport();
 	SetVisibility(ESlateVisibility::Visible);
-
-	UWorld* World = GetWorld();
-	if (World)
+	if (bisDead)
 	{
-		PlayerController = PlayerController == nullptr ? World->GetFirstPlayerController() : PlayerController;
-		if (AUNPlayerController* PC = Cast<AUNPlayerController>(PlayerController))
+		EndPanelText->SetVisibility(ESlateVisibility::Visible);
+
+		UWorld* World = GetWorld();
+		if (World)
 		{
-			PC->SetKeyBoardInputMode(false);
+			PlayerController = PlayerController == nullptr ? World->GetFirstPlayerController() : PlayerController;
+			if (AUNPlayerController* PC = Cast<AUNPlayerController>(PlayerController))
+			{
+				PC->SetKeyBoardInputMode(false);
+			}
 		}
+	}
+	else
+	{
+		EndPanelText->SetVisibility(ESlateVisibility::Collapsed);
 	}
 
 	if (ReturnButton && !ReturnButton->OnClicked.IsBound())
@@ -107,20 +116,28 @@ void UUNEndWidget::ReturnButtonClicked()
 
 	if (MultiplayerSessionsSubsystem)
 	{
-		if (AUNPlayerController* PC = Cast<AUNPlayerController>(GetWorld()->GetFirstPlayerController()))
+		AUNGameMode* GM = Cast<AUNGameMode>(GetWorld()->GetAuthGameMode());
+		if (GM)
 		{
-			PC->MulticastRPCGameEndFunction();
-
-			//if(PC->HasAuthority())
-			//{
-			//	MultiplayerSessionsSubsystem->DestroySession();
-			//}
-			//else
-			//{
-			//	PC->ClientReturnToMainMenuWithTextReason(FText());
-			//}
+			GM->GameEndClearHandle();
 		}
-		
-		MultiplayerSessionsSubsystem->DestroySession();
+		//if (AUNPlayerController* PC = Cast<AUNPlayerController>(GetWorld()->GetFirstPlayerController()))
+		//{
+		//	PC->MulticastRPCGameEndFunction();
+
+		//	//if(PC->HasAuthority())
+		//	//{
+		//	//	MultiplayerSessionsSubsystem->DestroySession();
+		//	//}
+		//	//else
+		//	//{
+		//	//	PC->ClientReturnToMainMenuWithTextReason(FText());
+		//	//}
+		//}
+
+		GetWorld()->GetTimerManager().SetTimer(GameEndTimerHandle, [&]()
+			{
+				MultiplayerSessionsSubsystem->DestroySession();
+			}, 1.f, false);
 	}
 }
