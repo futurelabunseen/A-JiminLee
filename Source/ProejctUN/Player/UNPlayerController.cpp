@@ -2,93 +2,454 @@
 
 
 #include "UNPlayerController.h"
-#include "GameFramework/Pawn.h"
-#include "InputMappingContext.h"
-#include "EnhancedInputComponent.h"
-#include "InputActionValue.h"
-#include "EnhancedInputSubsystems.h"
-#include "Blueprint/AIBlueprintHelperLibrary.h"
+#include "UNGASPlayerState.h"
+#include "UI/UNHUD.h"
+#include "Net/UnrealNetwork.h"
+#include "Game/UNGameMode.h"
+#include "Character/UNPlayerCharacter.h"
+#include "Interface/UNInteractionInterface.h"
+#include "Kismet/GameplayStatics.h"
+
+#include "ProejctUN.h"
 
 AUNPlayerController::AUNPlayerController()
 {
 	bShowMouseCursor = true;
+	bEnableMouseOverEvents = true;
 	DefaultMouseCursor = EMouseCursor::Default;
-	CachedDestination = FVector::ZeroVector;
-	FollowTime = 0.f;
-	ShortPressThreshold = 0.3f;
 
-	static ConstructorHelpers::FObjectFinder<UInputMappingContext> InputMappingContextRef(TEXT("/Script/EnhancedInput.InputMappingContext'/Game/Input/IMC_Character.IMC_Character'"));
-	if (nullptr != InputMappingContextRef.Object)
-	{
-		DefaultMappingContext = InputMappingContextRef.Object;
-	}
+	bEnableTouchEvents = false;
+	bReplicates = true;
+}
 
-	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionMoveRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Action/IA_Move.IA_Move'"));
-	if (nullptr != InputActionMoveRef.Object)
-	{
-		SetDestinationClickAction = InputActionMoveRef.Object;
-	}
+void AUNPlayerController::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
 }
 
 void AUNPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
+	//if (IsLocalController())
+	//{
+	//	FTimerHandle CheckingTimeTimerHandle;
+	//	GetWorld()->GetTimerManager().SetTimer(CheckingTimeTimerHandle,this, &AUNPlayerController::ServerRPCRequestCurrentTime, 3.f, true, 1.f);
+	//}
+}
+
+// NetInit후 실행
+void AUNPlayerController::PostNetInit()
+{
+	Super::PostNetInit();
+
+	UNetDriver* NetDriver = GetNetDriver();
+
+	if (NetDriver)
 	{
-		Subsystem->AddMappingContext(DefaultMappingContext, 0);
+		if (NetDriver->ServerConnection)
+		{
+			UN_LOG(LogUNNetwork, Log, TEXT("Server Connection: %s"), *NetDriver->ServerConnection->GetName());
+		}
+	}
+	else
+	{
+		UN_LOG(LogUNNetwork, Log, TEXT("%s"), TEXT("No NetDriver"));
+	}
+	UN_LOG(LogUNNetwork, Log, TEXT("%s"), TEXT("End"));
+}
+
+// 컨트롤러가 Possess될때 함수 실행
+void AUNPlayerController::OnPossess(APawn* InPawn)
+{
+	UN_LOG(LogUNNetwork, Log, TEXT("%s"), TEXT("Begin"));
+	Super::OnPossess(InPawn);
+	UN_LOG(LogUNNetwork, Log, TEXT("%s"), TEXT("End"));
+}
+
+void AUNPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AUNPlayerController, MatchState);
+}
+
+// Interact
+void AUNPlayerController::CheckCursorOverObject(AActor* CursorOverObject)
+{
+	if (!CursorOverObject) return;
+
+	UE_LOG(LogTemp, Log, TEXT("CheckCursorOverObject: CursorOverObject is valid: %s"), *CursorOverObject->GetName());
+	IUNInteractionInterface* Interface = Cast<IUNInteractionInterface>(CursorOverObject);
+	if (Interface)
+	{
+		BeginOverInteractable(CursorOverObject);
 	}
 }
 
-void AUNPlayerController::SetupInputComponent()
+void AUNPlayerController::ClearCursorOverObject(AActor* CursorOverObject)
 {
-	Super::SetupInputComponent();
+	EndOverInteractable();
+}
 
-	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent))
+void AUNPlayerController::OnMatchStateSet(FName State)
+{
+	MatchState = State;
+
+	if (MatchState == MatchState::InProgress)
 	{
-		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Started, this, &AUNPlayerController::OnInputStarted);
-		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Triggered, this, &AUNPlayerController::OnSetDestinationTriggered);
-		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Completed, this, &AUNPlayerController::OnSetDestinationReleased);
-		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Canceled, this, &AUNPlayerController::OnSetDestinationReleased);
+		// InProgress로직
+	}
+	else if (MatchState == MatchState::CountDown)
+	{
+		CountDownFunction(5);
+	}
+	else if (MatchState == MatchState::Farming)
+	{
+		FarmingFunction(20);
+	}
+	else if (MatchState == MatchState::Battle)
+	{
+		BattleFunction(99);
 	}
 }
 
-void AUNPlayerController::OnInputStarted()
+void AUNPlayerController::OnRep_MatchState()
 {
+	if (MatchState == MatchState::InProgress)
+	{
+		// InProgress로직
+	}
+	else if (MatchState == MatchState::CountDown)
+	{
+		CountDownFunction(5);
+	}
+	else if (MatchState == MatchState::Farming)
+	{
+		FarmingFunction(20);
+	}
+	else if (MatchState == MatchState::Battle)
+	{
+		BattleFunction(99);
+	}
+}
+
+void AUNPlayerController::CountDownFunction(int Value)
+{
+	SetKeyBoardInputMode(false);
+	FlushPressedKeys();
 	StopMovement();
+
+	HUD = Cast<AUNHUD>(GetHUD());
+	if (HUD)
+	{
+		HUD->SetGameTimeTextVisibility(false);
+		HUD->SetCountDownTextVisibility(true);
+		HUD->SetCountDownMsgVisibility(true);
+		if (bisFarmingDone)
+		{
+			HUD->SetCountDownMsg("Waiting Battle Turn ...");
+		}
+		else
+		{
+			HUD->SetCountDownMsg("Waiting Farming Turn ...");
+		}
+	}
+
+	CountDownValue = Value;
+	GetWorld()->GetTimerManager().SetTimer(CountDownTimerHandle, [&]() {
+		if(HUD)
+		{
+			HUD->SetCountDownText(FString::FromInt(CountDownValue));
+		}
+		CountDownValue -= 1;
+		if (CountDownValue < 0)
+		{
+			if (bisFarmingDone)
+			{
+				OnMatchStateSet(MatchState::Battle);
+			}
+			else
+			{
+				OnMatchStateSet(MatchState::Farming);
+			}
+			GetWorld()->GetTimerManager().ClearTimer(CountDownTimerHandle);
+		}
+		}, 1.f, true, 0.f);
 }
 
-void AUNPlayerController::OnSetDestinationTriggered()
+void AUNPlayerController::FarmingFunction(int Value)
 {
-	FollowTime += GetWorld()->GetDeltaSeconds();
-
-	FHitResult Hit;
-	bool bHitSuccessful = false;
-	bHitSuccessful = GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, true, Hit);
-
-	if (bHitSuccessful)
+	if (AUNGameMode* GM = Cast<AUNGameMode>(GetWorld()->GetAuthGameMode()))
 	{
-		CachedDestination = Hit.Location;
-		GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Green, FString::Printf(TEXT("%f"), CachedDestination.X));
+		GM->bisBattleState = false;
+	}
+	SetKeyBoardInputMode(true);
+
+	HUD = Cast<AUNHUD>(GetHUD());
+	if (HUD)
+	{
+		HUD->SetCountDownTextVisibility(false);
+		HUD->SetCountDownMsgVisibility(false);
+		HUD->SetGameTimeTextVisibility(true);
 	}
 
-	APawn* ControlledPawn = GetPawn();
-	if (ControlledPawn != nullptr)
-	{
-		FVector WorldDirection = (CachedDestination - ControlledPawn->GetActorLocation()).GetSafeNormal();
-		ControlledPawn->AddMovementInput(WorldDirection, 1.0, false);
-		GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Green, FString::Printf(TEXT("%f"), FollowTime));
-	}
+	GameTimeValue = Value;
+	GetWorld()->GetTimerManager().SetTimer(GameTimeTimerHandle, [&]() {
+		if(HUD)
+		{
+			HUD->SetGameTimeText(FString::FromInt(GameTimeValue));
+		}
+		GameTimeValue -= 1;
+		if (GameTimeValue < 0)
+		{
+			bisFarmingDone = true;
+			OnMatchStateSet(MatchState::CountDown);
+
+			GetWorld()->GetTimerManager().ClearTimer(GameTimeTimerHandle);
+		}
+		}, 1.f, true, 0.f);
 }
 
-void AUNPlayerController::OnSetDestinationReleased()
+void AUNPlayerController::BattleFunction(int Value)
 {
-	if (FollowTime <= ShortPressThreshold)
+	if (AUNGameMode* GM = Cast<AUNGameMode>(GetWorld()->GetAuthGameMode()))
 	{
-		UAIBlueprintHelperLibrary::SimpleMoveToLocation(this, CachedDestination);
+		GM->bisBattleState = true;
 	}
 
-	FollowTime = 0.f;
+	SetKeyBoardInputMode(true);
 
-	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Green, FString::Printf(TEXT("Released!")));
+	HUD = Cast<AUNHUD>(GetHUD());
+	if (HUD)
+	{
+		HUD->SetCountDownTextVisibility(false);
+		HUD->SetCountDownMsgVisibility(false);
+		HUD->SetGameTimeTextVisibility(true);
+	}
+	GameTimeValue = Value;
+	GetWorld()->GetTimerManager().SetTimer(GameTimeTimerHandle, [&]() {
+		if (HUD)
+		{
+			HUD->SetGameTimeText(FString::FromInt(GameTimeValue));
+		}
+		GameTimeValue -= 1;
+		if (GameTimeValue < 0)
+		{
+			bisFarmingDone = false;
+			OnMatchStateSet(MatchState::CountDown);
+
+			GetWorld()->GetTimerManager().ClearTimer(GameTimeTimerHandle);
+		}
+		}, 1.f, true, 0.f);
 }
+
+void AUNPlayerController::BeginOverInteractable(AActor* NewInteractable)
+{
+	//UE_LOG(LogTemp, Warning, TEXT("BeginOverInteractable called with: %s"), *NewInteractable->GetName());
+
+	if (IsInteracting())
+	{
+		EndInteract();
+	}
+
+	if (InteractionData.CurrentInteractable)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("CurrentInteractable : %s"), *InteractionData.CurrentInteractable->GetName());
+
+		IUNInteractionInterface* Interface = Cast<IUNInteractionInterface>(InteractionData.CurrentInteractable);
+		if (Interface)
+		{
+			TargetInteractable = InteractionData.CurrentInteractable;
+			if (TargetInteractable)
+			{
+				TargetInteractable->EndFocus();
+			}
+		}
+		InteractionData.CurrentInteractable = nullptr;
+	}
+
+	if (NewInteractable)
+	{
+		if (IUNInteractionInterface* Interface = Cast<IUNInteractionInterface>(NewInteractable))
+		{
+			InteractionData.CurrentInteractable = NewInteractable;
+			TargetInteractable = NewInteractable;
+		}
+	}
+
+	//if (AUNHUD* HUD = Cast<AUNHUD>(GetHUD()))
+	//{
+	//	HUD->UpdateInteractionWidget(&TargetInteractable->InteractableData);
+	//}
+
+	if (TargetInteractable)
+	{
+		TargetInteractable->BeginFocus();
+	}
+}
+
+void AUNPlayerController::EndOverInteractable()
+{
+	if(IsInteracting())
+	{
+		GetWorldTimerManager().ClearTimer(TimerHandle_Interaction);
+	}
+
+	if (InteractionData.CurrentInteractable)
+	{
+		if (IsValid(TargetInteractable.GetObject()))
+		{
+			TargetInteractable->EndFocus();
+		}
+
+		//if (AUNHUD* HUD = Cast<AUNHUD>(GetHUD()))
+		//{
+		//	HUD->HideInteractionWidget();
+		//}
+
+		InteractionData.CurrentInteractable = nullptr;
+		TargetInteractable = nullptr;
+	}
+}
+
+void AUNPlayerController::BeginInteract()
+{
+	if (InteractionData.CurrentInteractable)
+	{
+		if (IsValid(TargetInteractable.GetObject()))
+		{
+			TargetInteractable->BeginInteract();
+			CurrentInteractingObject = TargetInteractable;
+
+			if (FMath::IsNearlyZero(TargetInteractable->InteractableData.InteractionDuration, 0.1f))
+			{
+				Interact();
+			}
+			else
+			{
+				GetWorldTimerManager().SetTimer(TimerHandle_Interaction, this, 
+					&AUNPlayerController::Interact, TargetInteractable->InteractableData.InteractionDuration, false);
+			}
+		}
+	}
+	else
+	{
+		if (CurrentInteractingObject && CurrentInteractingObject != TargetInteractable)
+		{
+			CurrentInteractingObject->EndInteract();
+			CurrentInteractingObject = nullptr;
+		}
+	}
+}
+
+void AUNPlayerController::EndInteract()
+{
+	GetWorldTimerManager().ClearTimer(TimerHandle_Interaction);
+	
+	if (IsValid(TargetInteractable.GetObject()))
+	{
+		TargetInteractable->EndInteract();
+	}
+}
+
+void AUNPlayerController::Interact()
+{
+	GetWorldTimerManager().ClearTimer(TimerHandle_Interaction);
+
+	if (IsValid(TargetInteractable.GetObject()))
+	{
+		TargetInteractable->Interact(GetPawn());
+	}
+}
+
+void AUNPlayerController::ServerRPCRequestCurrentTime_Implementation()
+{
+	if (MatchState == MatchState::InProgress)
+	{
+		//ClientRPCRequestCurrentTime(MatchState, GameTimeValue);
+	}
+	else if (MatchState == MatchState::CountDown)
+	{
+		ClientRPCRequestCurrentTime(MatchState, CountDownValue);
+	}
+	else if (MatchState == MatchState::Farming)
+	{
+		ClientRPCRequestCurrentTime(MatchState, GameTimeValue);
+	}
+	else if (MatchState == MatchState::Battle)
+	{
+		ClientRPCRequestCurrentTime(MatchState, GameTimeValue);
+	}
+}
+
+void AUNPlayerController::ClientRPCRequestCurrentTime_Implementation(FName ServerMatchState, int ServerTime)
+{
+	if (ServerMatchState == MatchState::InProgress)
+	{
+
+	}
+	else if (ServerMatchState == MatchState::CountDown)
+	{
+		CountDownValue = ServerTime;
+	}
+	else if (MatchState == MatchState::Farming)
+	{
+		GameTimeValue = ServerTime;
+	}
+	else if (MatchState == MatchState::Battle)
+	{
+		GameTimeValue = ServerTime;
+	}
+}
+
+void AUNPlayerController::MulticastRPCGameEndFunction_Implementation()
+{
+	SetKeyBoardInputMode(false);
+	FlushPressedKeys();
+	StopMovement();
+
+	GetWorld()->GetTimerManager().ClearTimer(GameTimeTimerHandle);
+	GetWorld()->GetTimerManager().ClearTimer(CountDownTimerHandle);
+	if (AUNPlayerCharacter* PlayerCharacter = Cast<AUNPlayerCharacter>(GetCharacter()))
+	{
+		GetWorld()->GetTimerManager().ClearTimer(PlayerCharacter->SpringArmUpdateTimerHandle);
+
+		//PlayerCharacter->ReturnSpringArmLength();
+	}
+}
+
+void AUNPlayerController::ClientRPCOpenEndWidget_Implementation()
+{
+	HUD->OpenEndWidget(true);
+}
+
+void AUNPlayerController::ServerRPCGameEndFunction_Implementation()
+{
+	MulticastRPCGameEndFunction();
+}
+
+void AUNPlayerController::SetKeyBoardInputMode(bool bKeyboard)
+{
+	if (bKeyboard)
+	{
+		FInputModeGameOnly InputMode;
+		InputMode.SetConsumeCaptureMouseDown(false);
+		SetInputMode(InputMode);
+	}
+	else
+	{
+		FInputModeUIOnly InputMode;
+		SetInputMode(InputMode);
+	}
+}
+
+//void AUNPlayerController::ClientLeaveGame()
+//{
+//	ClientReturnToMainMenuWithTextReason(FText::FromString("You have left the game"));
+//}
+//
+//void AUNPlayerController::ClientReturnToMainMenuWithTextReason(const FText& ReturnReason)
+//{
+//	UGameplayStatics::OpenLevel(this, FName("MainMenu"));
+//}

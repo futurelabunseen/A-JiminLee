@@ -3,16 +3,31 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Interface/UNInteractionInterface.h"
 #include "GameFramework/PlayerController.h"
 #include "UNPlayerController.generated.h"
 
-class UInputAction;
-class UInputMappingContext;
+class AUNHUD;
+
+USTRUCT()
+struct FInteractionData
+{
+	GENERATED_USTRUCT_BODY()
+
+	FInteractionData() : CurrentInteractable(nullptr), LastInteractionCheckTime(0.f)
+	{
+
+	};
+
+	UPROPERTY()
+	AActor* CurrentInteractable;
+
+	UPROPERTY()
+	float LastInteractionCheckTime;
+};
 /**
  * 
  */
-
-
 UCLASS()
 class PROEJCTUN_API AUNPlayerController : public APlayerController
 {
@@ -21,29 +36,93 @@ class PROEJCTUN_API AUNPlayerController : public APlayerController
 public:
 	AUNPlayerController();
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
-	float ShortPressThreshold;
+protected:
+	virtual void PostInitializeComponents() override;
+	virtual void BeginPlay() override;
+	virtual void PostNetInit() override;
+	virtual void OnPossess(APawn* InPawn) override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	// Interaction
+public:
+	UFUNCTION()
+	void CheckCursorOverObject(AActor* CursorOverObject);
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UInputMappingContext> DefaultMappingContext;
+	UFUNCTION()
+	void ClearCursorOverObject(AActor* CursorOverObject);
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* SetDestinationClickAction;
-
+	void OnMatchStateSet(FName State);
 protected:
 
-	uint32 bMoveToMouseCursor : 1;
+	FORCEINLINE bool IsInteracting() const { return GetWorldTimerManager().IsTimerActive(TimerHandle_Interaction); }
 
-	virtual void SetupInputComponent() override;
+	UPROPERTY(VisibleAnywhere, Category = "Controller | Interaction")
+	TScriptInterface<IUNInteractionInterface> TargetInteractable;
 
-	virtual void BeginPlay();
 
-	void OnInputStarted();
-	void OnSetDestinationTriggered();
-	void OnSetDestinationReleased();
+	UPROPERTY(VisibleAnywhere, Category = "Controller | Interaction")
+	TScriptInterface<IUNInteractionInterface> CurrentInteractingObject;
 
-private:
-	FVector CachedDestination;
 
-	float FollowTime;
+	FTimerHandle TimerHandle_Interaction;
+
+	FInteractionData InteractionData;
+
+	UPROPERTY(ReplicatedUsing = OnRep_MatchState, VisibleAnywhere)
+	FName MatchState;
+
+	UFUNCTION()
+	void OnRep_MatchState();
+
+	UPROPERTY()
+	AUNHUD* HUD;
+
+	UPROPERTY()
+	int CountDownValue;
+
+	UPROPERTY()
+	int GameTimeValue;
+public:
+	UFUNCTION()
+	void CountDownFunction(int Value);
+
+	UFUNCTION()
+	void FarmingFunction(int Value);
+
+	UFUNCTION()
+	void BattleFunction(int Value);
+
+	void BeginOverInteractable(AActor* NewInteractable);
+	void EndOverInteractable();
+	void BeginInteract();
+	void EndInteract();
+	void Interact();
+
+	FTimerHandle CountDownTimerHandle;
+	FTimerHandle GameTimeTimerHandle;
+
+	UFUNCTION(Server, Unreliable)
+	void ServerRPCRequestCurrentTime();
+
+	UFUNCTION(Client, Unreliable)
+	void ClientRPCRequestCurrentTime(FName ServerMatchState, int ServerTime);
+
+	UFUNCTION(Client, Unreliable)
+	void ClientRPCOpenEndWidget();
+
+	UFUNCTION(Server, Unreliable)
+	void ServerRPCGameEndFunction();
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void MulticastRPCGameEndFunction();
+
+	UFUNCTION()
+	void SetKeyBoardInputMode(bool bKeyboard);
+
+	void SetCharacterMovementMode(bool bMovement);
+
+	int8 bisFarmingDone;
+
+	//void ClientLeaveGame();
+
+	//virtual void ClientReturnToMainMenuWithTextReason(const FText& ReturnReason) override;
 };
