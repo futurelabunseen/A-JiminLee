@@ -20,4 +20,6 @@ public:
 	void CharacterHandleClear();
 
 	void MoveMap();
+
+	void MoveToCastle();
 };

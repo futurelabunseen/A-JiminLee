@@ -14,7 +14,32 @@ void ALobbyGameMode::PostLogin(APlayerController* NewPlayer)
 	{
 		PC->SetKeyBoardInputMode(true);
 	}
+}
 
+void ALobbyGameMode::CharacterHandleClear()
+{
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; It++)
+	{
+		AUNPlayerController* PlayerController = Cast<AUNPlayerController>(*It);
+		if (PlayerController)
+		{
+			PlayerController->MulticastRPCGameEndFunction();
+		}
+	}
+}
+
+void ALobbyGameMode::MoveToCastle()
+{
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		bUseSeamlessTravel = true;
+		World->ServerTravel(FString("/Game/FantasyBundle/Maps/CustomCastle?listen"));
+	}
+}
+
+void ALobbyGameMode::MoveMap()
+{
 	int32 NumberOfPlayers = GameState.Get()->PlayerArray.Num();
 	if (NumberOfPlayers == 2)
 	{
@@ -25,43 +50,8 @@ void ALobbyGameMode::PostLogin(APlayerController* NewPlayer)
 			World->GetTimerManager().SetTimer(CharacterHandleCleartimerhandle, this, &ALobbyGameMode::CharacterHandleClear, 2.f, false);
 
 			FTimerHandle timerhandle;
-			World->GetTimerManager().SetTimer(timerhandle, this, &ALobbyGameMode::MoveMap, 6.f, false);
+			World->GetTimerManager().SetTimer(timerhandle, this, &ALobbyGameMode::MoveToCastle, 6.f, false);
 
-			//for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; It++)
-			//{
-			//	AUNPlayerController* PlayerController = Cast<AUNPlayerController>(*It);
-			//	if (PlayerController)
-			//	{
-			//		PlayerController->CountDownFunction(3);
-			//	}
-			//}
-
-			//World->ServerTravel(FString("/Game/FantasyBundle/Maps/CustomCastle?listen"));
 		}
-	}
-}
-
-void ALobbyGameMode::CharacterHandleClear()
-{
-	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; It++)
-	{
-		AUNPlayerController* PlayerController = Cast<AUNPlayerController>(*It);
-		if (PlayerController)
-		{
-			//PlayerController->SetKeyBoardInputMode(false);
-			//PlayerController->FlushPressedKeys();
-			//PlayerController->StopMovement();
-			PlayerController->MulticastRPCGameEndFunction();
-		}
-	}
-}
-
-void ALobbyGameMode::MoveMap()
-{
-	UWorld* World = GetWorld();
-	if (World)
-	{
-		bUseSeamlessTravel = true;
-		World->ServerTravel(FString("/Game/FantasyBundle/Maps/CustomCastle?listen"));
 	}
 }
