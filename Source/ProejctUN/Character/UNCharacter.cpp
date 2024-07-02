@@ -103,23 +103,6 @@ void AUNCharacter::OnOutOfHealth()
 	MulticastRPCPlayAnimation(this);
 
 	OnDeath.Broadcast(this);
-
-	//일단 멀티캐스트로 구현
-	
-	//for (APlayerController* PlayerController : TActorRange<APlayerController>(GetWorld()))
-	//{
-	//	if (PlayerController && GetController() != PlayerController)
-	//	{
-	//		if (!PlayerController->IsLocalController())
-	//		{
-	//			AUNCharacter* OtherPlayer = Cast<AUNCharacter>(PlayerController->GetPawn());
-	//			if (OtherPlayer)
-	//			{
-	//				OtherPlayer->ClientRPCPlayAnimation(this);
-	//			}
-	//		}
-	//	}
-	//}
 }
 
 // 멀티캐스트로 모든 플레이어에게 전달
@@ -145,16 +128,6 @@ void AUNCharacter::SetDead()
 	bisDead = true;
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 	PlayDeadAnimaition();
-	//SetActorEnableCollision(false);
-
-	//if (GetWorld()->GetTimerManager().IsTimerActive(DeadTimerHandle))
-	//{
-	//	return;
-	//}
-	//GetWorld()->GetTimerManager().SetTimer(DeadTimerHandle, FTimerDelegate::CreateLambda([&]
-	//	{
-	//		Destroy();
-	//	}), DeadEventDelayTime, false);
 }
 
 // 사망 애니메이션 재생

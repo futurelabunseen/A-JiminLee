@@ -216,12 +216,7 @@ void AUNPlayerCharacter::SetupPlayerGASInputComponent()
 	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
 	if (EnhancedInputComponent)
 	{
-	//if (IsValid(ASC) && IsValid(InputComponent))
-	//{
-	//	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
-
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::LeftClickAction); //&AUNPlayerCharacter::GASInputPressed, 0
-		//EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::GASInputPressed, 0);
 		EnhancedInputComponent->BindAction(SkillAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::GASInputPressed, 1);
 		EnhancedInputComponent->BindAction(TeleportAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::GASInputPressed, 2);
 		EnhancedInputComponent->BindAction(InvinsibleAction, ETriggerEvent::Triggered, this, &AUNPlayerCharacter::GASInputPressed, 3);
@@ -319,8 +314,8 @@ void AUNPlayerCharacter::InitAbilityActorInfo()
 		ASC = Cast<UUNAbilitySystemComponent>(GASPS->GetAbilitySystemComponent());
 		ASC->InitAbilityActorInfo(GASPS, this);
 
-		ASC->GenericGameplayEventCallbacks.FindOrAdd(UNTAG_EVENT_CHARACTER_WEAPONEQUIP).AddUObject(this, &AUNPlayerCharacter::EquipWeapon);
-		ASC->GenericGameplayEventCallbacks.FindOrAdd(UNTAG_EVENT_CHARACTER_WEAPONUNEQUIP).AddUObject(this, &AUNPlayerCharacter::UnEquipWeapon);
+		//ASC->GenericGameplayEventCallbacks.FindOrAdd(UNTAG_EVENT_CHARACTER_WEAPONEQUIP).AddUObject(this, &AUNPlayerCharacter::EquipWeapon);
+		//ASC->GenericGameplayEventCallbacks.FindOrAdd(UNTAG_EVENT_CHARACTER_WEAPONUNEQUIP).AddUObject(this, &AUNPlayerCharacter::UnEquipWeapon);
 		ASC->RegisterGameplayTagEvent(UNTAG_CHARACTER_STATE_ISSTUNING, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &AUNPlayerCharacter::OnStunTagChange);
 		ASC->RegisterGameplayTagEvent(UNTAG_CHARACTER_STATE_ISDEAD, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &AUNPlayerCharacter::OnDeadTagChange);
 
@@ -553,51 +548,51 @@ void AUNPlayerCharacter::SendCancelToTargetActor()
 // 무기 장착. 무기는 추후 액터로 변경
 void AUNPlayerCharacter::EquipWeapon(const FGameplayEventData* EventData)
 {
-	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
-	if (Weapon)
-	{
-		UN_LOG(LogUNNetwork, Log, TEXT("SetWeaponSkeletalMesh"));
-		Weapon->SetSkeletalMesh(WeaponMesh);
+	//UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
+	//if (Weapon)
+	//{
+	//	UN_LOG(LogUNNetwork, Log, TEXT("SetWeaponSkeletalMesh"));
+	//	Weapon->SetSkeletalMesh(WeaponMesh);
 
-		if (HasAuthority()) //IsLocallyControlled()
-		{
-			//FGameplayAbilitySpec NewSkillSpec(SkillAbilityClass);
-			//NewSkillSpec.InputID = 1;
+	//	if (HasAuthority()) //IsLocallyControlled()
+	//	{
+	//		//FGameplayAbilitySpec NewSkillSpec(SkillAbilityClass);
+	//		//NewSkillSpec.InputID = 1;
 
-			//if (!ASC->FindAbilitySpecFromClass(SkillAbilityClass))
-			//{
-			//	ASC->GiveAbility(NewSkillSpec);
-			//}
+	//		//if (!ASC->FindAbilitySpecFromClass(SkillAbilityClass))
+	//		//{
+	//		//	ASC->GiveAbility(NewSkillSpec);
+	//		//}
 
-			const float CurrentAttackRange = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute());
-			const float CurrentAttackRate = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute());
+	//		const float CurrentAttackRange = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute());
+	//		const float CurrentAttackRate = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute());
 
-			ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute(), WeaponRange);
-			ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute(), WeaponAttackRate);
-		}
-	}
-	UN_LOG(LogUNNetwork, Log, TEXT("End"));
+	//		ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute(), WeaponRange);
+	//		ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute(), WeaponAttackRate);
+	//	}
+	//}
+	//UN_LOG(LogUNNetwork, Log, TEXT("End"));
 }
 
 // 무기 장착 해제. 무기는 추후 액터로 변경
 void AUNPlayerCharacter::UnEquipWeapon(const FGameplayEventData* EventData)
 {
-	if (Weapon)
-	{
-		Weapon->SetSkeletalMesh(nullptr);
-		//FGameplayAbilitySpec* SKillAbilitySpec = ASC->FindAbilitySpecFromClass(SkillAbilityClass);
+	//if (Weapon)
+	//{
+	//	Weapon->SetSkeletalMesh(nullptr);
+	//	//FGameplayAbilitySpec* SKillAbilitySpec = ASC->FindAbilitySpecFromClass(SkillAbilityClass);
 
-		//if (SKillAbilitySpec)
-		//{
-		//	ASC->ClearAbility(SKillAbilitySpec->Handle);
-		//}
+	//	//if (SKillAbilitySpec)
+	//	//{
+	//	//	ASC->ClearAbility(SKillAbilitySpec->Handle);
+	//	//}
 
-		const float CurrentAttackRange = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute());
-		const float CurrentAttackRate = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute());
+	//	const float CurrentAttackRange = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute());
+	//	const float CurrentAttackRate = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute());
 
-		ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute(), CurrentAttackRange - WeaponRange);
-		ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute(), CurrentAttackRate - WeaponAttackRate);
-	}
+	//	ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute(), CurrentAttackRange - WeaponRange);
+	//	ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute(), CurrentAttackRate - WeaponAttackRate);
+	//}
 }
 
 void AUNPlayerCharacter::OnStunTagChange(const FGameplayTag CallbackTag, int32 NewCount)
@@ -639,13 +634,12 @@ void AUNPlayerCharacter::OnStunTagChange(const FGameplayTag CallbackTag, int32 N
 
 void AUNPlayerCharacter::OnDeadTagChange(const FGameplayTag CallbackTag, int32 NewCount)
 {
-	// 사망 해제 시
+	// 사망 해제 시. 추후 리스폰 요소 추가되면 사용
 	if (NewCount <= 0)
 	{
 		return;
 	}
 	ServerRPCCharacterOnDeath();
-
 }
 
 void AUNPlayerCharacter::PlayStunAnimation_Implementation()
@@ -702,10 +696,8 @@ void AUNPlayerCharacter::DropItem(UItemBase* ItemToDrop, const int32 QuantityToD
 		const int32 RemovedQuantity = PlayerInventory->RemoveAmountOfItem(ItemToDrop, QuantityToDrop);
 
 		ServerRPCSpawnItem(ItemToDrop->ID, SpawnTransform, QuantityToDrop);
-		//AUNPickupObject* PickUpObject = GetWorld()->SpawnActor<AUNPickupObject>(AUNPickupObject::StaticClass(), SpawnTransform, SpawnParams);
-
-		//PickUpObject->InitializeDrop(ItemToDrop, RemovedQuantity);
 	}
+
 	else
 	{
 		UE_LOG(LogTemp, Log, TEXT("Item Drop Failed. Item to drop was somehow null"));
@@ -781,7 +773,6 @@ void AUNPlayerCharacter::ServerRPCUpdateArmor_Implementation()
 void AUNPlayerCharacter::MulticastRPCUpdateWeapon_Implementation(USkeletalMesh* ItemID)
 {
 	WeaponMesh = ItemID;
-	//UE_LOG(LogTemp, Log, TEXT("%s"), *ItemID->GetName());
 	Weapon->SetSkeletalMesh(ItemID);
 }
 
