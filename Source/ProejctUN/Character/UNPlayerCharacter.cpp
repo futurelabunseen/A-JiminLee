@@ -49,12 +49,6 @@ AUNPlayerCharacter::AUNPlayerCharacter()
 		DefaultMappingContext = InputMappingContextRef.Object;
 	}
 
-	static ConstructorHelpers::FObjectFinder<UInputMappingContext> ConfirmCancelMappingContextRef(TEXT("/Script/EnhancedInput.InputMappingContext'/Game/Input/IMC_ConfirmCancel.IMC_ConfirmCancel'"));
-	if (nullptr != ConfirmCancelMappingContextRef.Object)
-	{
-		ConfirmCancelMappingContext = ConfirmCancelMappingContextRef.Object;
-	}
-
 	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionMoveRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Action/IA_Move.IA_Move'"));
 	if (nullptr != InputActionMoveRef.Object)
 	{
@@ -545,56 +539,6 @@ void AUNPlayerCharacter::SendCancelToTargetActor()
 	ASC->GetCurrentActiveTargetActor()->CancelTargeting();
 }
 
-// 무기 장착. 무기는 추후 액터로 변경
-void AUNPlayerCharacter::EquipWeapon(const FGameplayEventData* EventData)
-{
-	//UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
-	//if (Weapon)
-	//{
-	//	UN_LOG(LogUNNetwork, Log, TEXT("SetWeaponSkeletalMesh"));
-	//	Weapon->SetSkeletalMesh(WeaponMesh);
-
-	//	if (HasAuthority()) //IsLocallyControlled()
-	//	{
-	//		//FGameplayAbilitySpec NewSkillSpec(SkillAbilityClass);
-	//		//NewSkillSpec.InputID = 1;
-
-	//		//if (!ASC->FindAbilitySpecFromClass(SkillAbilityClass))
-	//		//{
-	//		//	ASC->GiveAbility(NewSkillSpec);
-	//		//}
-
-	//		const float CurrentAttackRange = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute());
-	//		const float CurrentAttackRate = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute());
-
-	//		ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute(), WeaponRange);
-	//		ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute(), WeaponAttackRate);
-	//	}
-	//}
-	//UN_LOG(LogUNNetwork, Log, TEXT("End"));
-}
-
-// 무기 장착 해제. 무기는 추후 액터로 변경
-void AUNPlayerCharacter::UnEquipWeapon(const FGameplayEventData* EventData)
-{
-	//if (Weapon)
-	//{
-	//	Weapon->SetSkeletalMesh(nullptr);
-	//	//FGameplayAbilitySpec* SKillAbilitySpec = ASC->FindAbilitySpecFromClass(SkillAbilityClass);
-
-	//	//if (SKillAbilitySpec)
-	//	//{
-	//	//	ASC->ClearAbility(SKillAbilitySpec->Handle);
-	//	//}
-
-	//	const float CurrentAttackRange = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute());
-	//	const float CurrentAttackRate = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute());
-
-	//	ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute(), CurrentAttackRange - WeaponRange);
-	//	ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute(), CurrentAttackRate - WeaponAttackRate);
-	//}
-}
-
 void AUNPlayerCharacter::OnStunTagChange(const FGameplayTag CallbackTag, int32 NewCount)
 {
 	// 기절 상태 해재
@@ -655,9 +599,15 @@ void AUNPlayerCharacter::StopStunAnimation_Implementation()
 	AnimInstance->Montage_Stop(0.5f, StunMontage);
 }
 
-void AUNPlayerCharacter::ActivateDecal(FDecalStruct DecalStruct)
+void AUNPlayerCharacter::ActivateDecal_Implementation(FDecalStruct DecalStruct)
 {
-	SetCurrentActiveDecalData(DecalStruct);
+	if (!Decal)
+	{
+		UE_LOG(LogTemp, Log, TEXT("[null] : Decal"));
+		return;
+	}
+
+	SetCurrentActiveDecalData_Implementation(DecalStruct);
 	Decal->SetMaterial(0, DecalStruct.GetMaterial());
 	Decal->SetRelativeLocationAndRotation(DecalStruct.GetLocation(), DecalStruct.GetRotation());
 	Decal->DecalSize = DecalStruct.GetScale();
@@ -665,11 +615,17 @@ void AUNPlayerCharacter::ActivateDecal(FDecalStruct DecalStruct)
 	bisTargeting = true;
 }
 
-void AUNPlayerCharacter::EndDecal()
+void AUNPlayerCharacter::EndDecal_Implementation()
 {
+	if (!Decal)
+	{
+		UE_LOG(LogTemp, Log, TEXT("[null] : Decal"));
+		return;
+	}
+
 	Decal->SetMaterial(0, nullptr);
 	Decal->DecalSize = FVector();
-	ClearCurrentActiveDecalData();
+	ClearCurrentActiveDecalData_Implementation();
 
 	bisTargeting = false;
 }
@@ -913,3 +869,53 @@ void AUNPlayerCharacter::MenuPanelFunction()
 		bisMenuPanelOpen = true;
 	}
 }
+
+//// 무기 장착. 무기는 추후 액터로 변경
+//void AUNPlayerCharacter::EquipWeapon(const FGameplayEventData* EventData)
+//{
+//	UN_LOG(LogUNNetwork, Log, TEXT("Begin"));
+//	if (Weapon)
+//	{
+//		UN_LOG(LogUNNetwork, Log, TEXT("SetWeaponSkeletalMesh"));
+//		Weapon->SetSkeletalMesh(WeaponMesh);
+//
+//		if (HasAuthority()) //IsLocallyControlled()
+//		{
+//			//FGameplayAbilitySpec NewSkillSpec(SkillAbilityClass);
+//			//NewSkillSpec.InputID = 1;
+//
+//			//if (!ASC->FindAbilitySpecFromClass(SkillAbilityClass))
+//			//{
+//			//	ASC->GiveAbility(NewSkillSpec);
+//			//}
+//
+//			const float CurrentAttackRange = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute());
+//			const float CurrentAttackRate = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute());
+//
+//			ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute(), WeaponRange);
+//			ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute(), WeaponAttackRate);
+//		}
+//	}
+//	UN_LOG(LogUNNetwork, Log, TEXT("End"));
+//}
+//
+//// 무기 장착 해제. 무기는 추후 액터로 변경
+//void AUNPlayerCharacter::UnEquipWeapon(const FGameplayEventData* EventData)
+//{
+//	if (Weapon)
+//	{
+//		Weapon->SetSkeletalMesh(nullptr);
+//		//FGameplayAbilitySpec* SKillAbilitySpec = ASC->FindAbilitySpecFromClass(SkillAbilityClass);
+//
+//		//if (SKillAbilitySpec)
+//		//{
+//		//	ASC->ClearAbility(SKillAbilitySpec->Handle);
+//		//}
+//
+//		const float CurrentAttackRange = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute());
+//		const float CurrentAttackRate = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute());
+//
+//		ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute(), CurrentAttackRange - WeaponRange);
+//		ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute(), CurrentAttackRate - WeaponAttackRate);
+//	}
+//}
