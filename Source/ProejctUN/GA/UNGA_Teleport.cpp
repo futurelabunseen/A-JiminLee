@@ -129,12 +129,12 @@ void UUNGA_Teleport::OnCancelCallback(const FGameplayAbilityTargetDataHandle& Ta
 // Decal을 이용한 범위 표시
 void UUNGA_Teleport::ActivateDecal()
 {
-	PlayerCharacter->ActivateDecal(DecalStruct);
+	PlayerCharacter->ActivateDecal_Implementation(DecalStruct);
 }
 
 void UUNGA_Teleport::EndDecal()
 {
-	PlayerCharacter->EndDecal();
+	PlayerCharacter->EndDecal_Implementation();
 }
 
 bool UUNGA_Teleport::ServerRPCTeleportToLocation_Validate(FVector NewLocation, FGameplayCueParameters Params)
@@ -160,8 +160,7 @@ bool UUNGA_Teleport::ServerRPCTeleportToLocation_Validate(FVector NewLocation, F
 	return true;
 }
 
-void UUNGA_Teleport::ServerRPCTeleportToLocation_Implementation
-						(FVector NewLocation, FGameplayCueParameters Params)
+void UUNGA_Teleport::ServerRPCTeleportToLocation_Implementation(FVector NewLocation, FGameplayCueParameters Params)
 {
 	UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo_Checked();
 	#pragma region SourceASC NullCheck & return

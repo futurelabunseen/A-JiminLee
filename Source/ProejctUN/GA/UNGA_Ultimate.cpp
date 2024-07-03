@@ -88,7 +88,7 @@ void UUNGA_Ultimate::ActivateDecal()
 {
 	if (PlayerCharacter)
 	{
-		PlayerCharacter->ActivateDecal(DecalStruct);
+		PlayerCharacter->ActivateDecal_Implementation(DecalStruct);
 	}
 }
 
@@ -96,7 +96,7 @@ void UUNGA_Ultimate::EndDecal()
 {
 	if (PlayerCharacter)
 	{
-		PlayerCharacter->EndDecal();
+		PlayerCharacter->EndDecal_Implementation();
 	}
 }
 

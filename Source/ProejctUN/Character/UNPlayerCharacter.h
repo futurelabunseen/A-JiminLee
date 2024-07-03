@@ -7,6 +7,7 @@
 #include "Abilities/GameplayAbilityTypes.h"
 #include "AbilitySystemInterface.h"
 #include "Struct/DecalStruct.h"
+#include "Interface/DecalSystemInterface.h"
 #include "UNPlayerCharacter.generated.h"
 
 class UInputAction;
@@ -19,7 +20,7 @@ class USpringArmComponent;
  * 
  */
 UCLASS()
-class PROEJCTUN_API AUNPlayerCharacter : public AUNCharacter, public IAbilitySystemInterface
+class PROEJCTUN_API AUNPlayerCharacter : public AUNCharacter, public IAbilitySystemInterface, public IDecalSystemInterface
 {
 	GENERATED_BODY()
 	
@@ -39,9 +40,6 @@ public:
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputMappingContext> DefaultMappingContext;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UInputMappingContext> ConfirmCancelMappingContext;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* SetDestinationClickAction;
@@ -85,7 +83,6 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UNiagaraComponent* HeadNiagara;
 
-
 	UPROPERTY(EditAnywhere)
 	APlayerController* PlayerController;
 
@@ -112,6 +109,7 @@ protected:
 	uint8 bisTargeting;
 	uint8 bisCanceled;
 
+// Combo
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
 	TObjectPtr<class UAnimMontage> ComboActionMontage;
@@ -145,9 +143,6 @@ protected:
 	
 	UPROPERTY(EditAnywhere, Category = Weapon)
 	float WeaponAttackRate;
-
-	void EquipWeapon(const FGameplayEventData* EventData);
-	void UnEquipWeapon(const FGameplayEventData* EventData);
 
 	void OnStunTagChange(const FGameplayTag CallbackTag, int32 NewCount);
 
@@ -196,20 +191,12 @@ private:
 	FDecalStruct CurrentActiveDecalData;
 
 public:
-	UFUNCTION(BlueprintCallable)
-	void ActivateDecal(FDecalStruct DecalStruct);
-
-	UFUNCTION(BlueprintCallable)
-	void EndDecal();
-
-	UFUNCTION(BlueprintCallable)
-	FDecalStruct GetCurrentActiveDecalData() { return CurrentActiveDecalData; }
-
-	UFUNCTION(BlueprintCallable)
-	void SetCurrentActiveDecalData(FDecalStruct NewDecalData) { CurrentActiveDecalData = NewDecalData; }
-
-	UFUNCTION(BlueprintCallable)
-	void ClearCurrentActiveDecalData() { CurrentActiveDecalData = FDecalStruct(); }
+	virtual UDecalComponent* GetDecalComponent_Implementation() { return Decal; };
+	virtual FDecalStruct GetCurrentActiveDacalData_Implementation() { return CurrentActiveDecalData; }
+	virtual void ActivateDecal_Implementation(FDecalStruct DecalStruct);
+	virtual void EndDecal_Implementation();
+	void SetCurrentActiveDecalData_Implementation(FDecalStruct NewDecalData) { CurrentActiveDecalData = NewDecalData; }
+	void ClearCurrentActiveDecalData_Implementation() { CurrentActiveDecalData = FDecalStruct(); }
 
 // UI
 public:
@@ -250,31 +237,14 @@ public:
 	UFUNCTION(Server, Unreliable)
 	void ServerRPCDestroyActor(AUNPickupObject* Obj);
 
-// Niagara
+// SkillProperty
 public:
-	UFUNCTION()
-	void UpdateNiagara(UNiagaraSystem* NiagaraSystem);
-
-	UFUNCTION()
-	void UpdateHeadNiagara(UNiagaraSystem* NiagaraSystem);
 
 	UFUNCTION()
 	void SCancelActionFunction();
 
 	UFUNCTION(Server, Unreliable)
 	void ServerRPCSCancelActionFunction();
-
-	UFUNCTION()
-	void StartUltimate(FVector Location);
-
-	UPROPERTY()
-	FVector UltimateLocation;
-
-	UFUNCTION()
-	void UpdateSpringArmLength(float Start, float End, float Time, float Frame);
-
-	UFUNCTION()
-	void ReturnSpringArmLength();
 
 	UFUNCTION()
 	void MenuPanelFunction();
@@ -302,4 +272,25 @@ public:
 
 	UPROPERTY()
 	FTimerHandle SpringArmUpdateTimerHandle;
+
+	UFUNCTION()
+	void UpdateSpringArmLength(float Start, float End, float Time, float Frame);
+
+	UFUNCTION()
+	void ReturnSpringArmLength();
+
+	UPROPERTY()
+	FVector UltimateLocation;
+
+	UFUNCTION()
+	void StartUltimate(FVector Location);
+
+	UFUNCTION()
+	void UpdateNiagara(UNiagaraSystem* NiagaraSystem);
+
+	UFUNCTION()
+	void UpdateHeadNiagara(UNiagaraSystem* NiagaraSystem);
+
+	//void EquipWeapon(const FGameplayEventData* EventData);
+	//void UnEquipWeapon(const FGameplayEventData* EventData);
 };

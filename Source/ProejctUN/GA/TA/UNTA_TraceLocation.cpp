@@ -57,7 +57,7 @@ FGameplayAbilityTargetDataHandle AUNTA_TraceLocation::MakeTargetData() const
 
 	// 스킬 거리와 히트 위치 비교
 	FVector PlayerLocation = PlayerCharacter->GetActorLocation();
-	float SkillRangeScale = PlayerCharacter->GetCurrentActiveDecalData().GetScale().Z;
+	float SkillRangeScale = PlayerCharacter->GetCurrentActiveDacalData_Implementation().GetScale().Z;
 	float HitDistance = (OutHitResult.Location - PlayerLocation).Size();
 
 	// 히트 위치가 스킬 범위보다 크다면 위치 조정
