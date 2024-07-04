@@ -11,6 +11,11 @@
 /**
  * 
  */
+class AUNTA_TraceLocation;
+class IDecalSystemInterface;
+class UGameplayEffect;
+class AActor;
+
 UCLASS()
 class PROEJCTUN_API UUNGA_Teleport : public UGameplayAbility
 {
@@ -20,7 +25,6 @@ public:
 	UUNGA_Teleport();
 
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData);
-	//virtual void CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateCancelAbility);
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled);
 protected:
 	UFUNCTION()
@@ -42,17 +46,19 @@ protected:
 	void ServerRPCTeleportToLocation(FVector NewLocation, FGameplayCueParameters Params);
 
 	UPROPERTY(EditAnywhere, Category = GAS)
-	TSubclassOf<class AUNTA_TraceLocation> TargetActorClass;
+	TSubclassOf<AUNTA_TraceLocation> TargetActorClass;
 
 	UPROPERTY()
-	TObjectPtr<class AUNPlayerCharacter> PlayerCharacter;
+	TObjectPtr<AActor> AvatarActor;
+
+	UPROPERTY()
+	TScriptInterface<IDecalSystemInterface> SourceInterface;
 
 	UPROPERTY(EditAnywhere, Category = GAS)
-	TSubclassOf<class UGameplayEffect> TeleportEffect;
+	TSubclassOf<UGameplayEffect> TeleportEffect;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	FVector HalfCapsuleVector;
-
 
 public:
 	UFUNCTION(Server, Unreliable)

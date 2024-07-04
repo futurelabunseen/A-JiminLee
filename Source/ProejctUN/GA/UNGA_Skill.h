@@ -9,6 +9,10 @@
 /**
  * 
  */
+class UUNAbilitySystemComponent;
+class UCharacterMovementComponent;
+class UAnimMontage;
+
 UCLASS()
 class PROEJCTUN_API UUNGA_Skill : public UGameplayAbility
 {
@@ -29,5 +33,14 @@ protected:
 	void OnInterruptedCallback();
 
 	UPROPERTY()
-	TObjectPtr<class UAnimMontage> ActiveSkillActionMontage;
+	TObjectPtr<UAnimMontage> ActiveSkillActionMontage;
+
+	UPROPERTY()
+	TObjectPtr<UUNAbilitySystemComponent> SourceASC;
+
+	UPROPERTY()
+	TObjectPtr<AActor> AvatarActor;
+
+	UPROPERTY()
+	TObjectPtr<UCharacterMovementComponent> MovementComp;
 };

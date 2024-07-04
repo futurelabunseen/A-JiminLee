@@ -2,15 +2,16 @@
 
 
 #include "GA/UNGA_Teleport.h"
+#include "ASC/UNAbilitySystemComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
-#include "Abilities/Tasks/AbilityTask_WaitTargetData.h"
+
 #include "TA/UNTA_TraceLocation.h"
 #include "AT/UNAT_TraceLocation.h"
-#include "Character/UNPlayerCharacter.h"
-#include "Tag/UNGameplayTag.h"
-#include "AbilitySystemComponent.h"
-#include "ASC/UNAbilitySystemComponent.h"
+
+#include "Interface/DecalSystemInterface.h"
 #include "NavigationSystem.h"
+
+#include "Tag/UNGameplayTag.h"
 
 UUNGA_Teleport::UUNGA_Teleport()
 {
@@ -23,13 +24,29 @@ void UUNGA_Teleport::ActivateAbility(const FGameplayAbilitySpecHandle Handle, co
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	
-	PlayerCharacter = Cast<AUNPlayerCharacter>(CurrentActorInfo->AvatarActor.Get());
-	if (!PlayerCharacter)
+	AvatarActor = CurrentActorInfo->AvatarActor.Get();
+	#pragma region AvatarActor NullCheck & return
+	if (!AvatarActor)
 	{
-		UE_LOG(LogTemp, Log, TEXT("Can't find Character!"));
+		UE_LOG(LogTemp, Log, TEXT("AvatarActor is Null!"));
+		return;
+	}
+#pragma endregion
+	#pragma region InterfaceImplements NullCheck & return
+		if (!AvatarActor->GetClass()->ImplementsInterface(UDecalSystemInterface::StaticClass()))
+		{
+			UE_LOG(LogTemp, Log, TEXT("SourceActor Not Implements DecalInterface!"));
+			return;
+		}
+#pragma endregion
+
+	SourceInterface = TScriptInterface<IDecalSystemInterface>(AvatarActor);
+	if (!SourceInterface)
+	{
+		UE_LOG(LogTemp, Log, TEXT("Not Have DecalInterface!"));
 		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
 	}
-
+	
 	if (IsLocallyControlled())
 	{
 		ActivateDecal();
@@ -95,7 +112,11 @@ void UUNGA_Teleport::OnTraceResultCallback(const FGameplayAbilityTargetDataHandl
 				CueParam.EffectContext = CueContextHandle;
 				SourceASC->ExecuteGameplayCue(UNTAG_GAMEPLAYCUE_CHARACTER_TELEPORTEFFECT, CueParam);
 
-				PlayerCharacter->GetController()->StopMovement();
+				if (APawn* Pawn = Cast<APawn>(AvatarActor))
+				{
+					Pawn->GetController()->StopMovement();
+				}
+					
 				ServerRPCTeleportToLocation(TargetLocation, CueParam);
 				StartCoolDown();
 			}
@@ -129,12 +150,12 @@ void UUNGA_Teleport::OnCancelCallback(const FGameplayAbilityTargetDataHandle& Ta
 // Decal을 이용한 범위 표시
 void UUNGA_Teleport::ActivateDecal()
 {
-	PlayerCharacter->ActivateDecal_Implementation(DecalStruct);
+	SourceInterface->ActivateDecal_Implementation(DecalStruct);
 }
 
 void UUNGA_Teleport::EndDecal()
 {
-	PlayerCharacter->EndDecal_Implementation();
+	SourceInterface->EndDecal_Implementation();
 }
 
 bool UUNGA_Teleport::ServerRPCTeleportToLocation_Validate(FVector NewLocation, FGameplayCueParameters Params)
@@ -171,11 +192,11 @@ void UUNGA_Teleport::ServerRPCTeleportToLocation_Implementation(FVector NewLocat
 	}
 #pragma endregion
 
-	FVector PlayerLocation = PlayerCharacter->GetActorLocation();
+	FVector PlayerLocation = AvatarActor->GetActorLocation();
 	Params.Location = SourceASC->GetAvatarActor()->GetActorLocation();
 	SourceASC->ExecuteGameplayCue(UNTAG_GAMEPLAYCUE_CHARACTER_TELEPORTEFFECT, Params);
 
-	PlayerCharacter->TeleportTo(NewLocation, (NewLocation - PlayerLocation).Rotation(), false, true);
+	AvatarActor->TeleportTo(NewLocation, (NewLocation - PlayerLocation).Rotation(), false, true);
 }
 
 void UUNGA_Teleport::StartCoolDown_Implementation()

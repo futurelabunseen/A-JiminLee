@@ -10,6 +10,9 @@
 /**
  * 
  */
+class UUNAbilitySystemComponent;
+class AUNTA_TraceLocation;
+class IDecalSystemInterface;
 UCLASS()
 class PROEJCTUN_API UUNGA_Ultimate : public UGameplayAbility
 {
@@ -45,8 +48,14 @@ protected:
 	void OnCancelCallback(const FGameplayAbilityTargetDataHandle& TargetDataHandle);
 
 	UPROPERTY(EditAnywhere, Category = GAS)
-	TSubclassOf<class AUNTA_TraceLocation> TargetActorClass;
+	TSubclassOf<AUNTA_TraceLocation> TargetActorClass;
 
 	UPROPERTY()
-	TObjectPtr<class AUNPlayerCharacter> PlayerCharacter;
+	TScriptInterface<IDecalSystemInterface> SourceInterface;
+
+	UPROPERTY()
+	TObjectPtr<UUNAbilitySystemComponent> SourceASC;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UGameplayAbility> UltimateLogicAbility;
 };

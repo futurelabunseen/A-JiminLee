@@ -3,7 +3,6 @@
 
 #include "Game/LobbyGameMode.h"
 #include "Player/UNPlayerController.h"
-#include "Character/UNPlayerCharacter.h"
 #include "GameFramework/GameStateBase.h"
 
 void ALobbyGameMode::PostLogin(APlayerController* NewPlayer)

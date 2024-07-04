@@ -4,15 +4,17 @@
 #include "UNCharacter.h"
 
 #include "Components/CapsuleComponent.h"
-#include "Physics/UNCollision.h"
 #include "Camera/CameraComponent.h"
-#include "GameFramework/SpringArmComponent.h"
+#include "Physics/UNCollision.h"
+
+#include "Camera/UNSpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 #include "UI/UNGASWidgetComponent.h"
 #include "UI/Widget/UNGASUserWidget.h"
-#include "EngineUtils.h"
+
 #include "Game/UNGameMode.h"
+#include "EngineUtils.h"
 #include "ProejctUN.h"
 
 AUNCharacter::AUNCharacter()
@@ -33,7 +35,7 @@ AUNCharacter::AUNCharacter()
 	GetCharacterMovement()->bSnapToPlaneAtStart = true;
 
 	// 스프링 암
-	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
+	CameraBoom = CreateDefaultSubobject<UUNSpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->SetUsingAbsoluteRotation(true);
 	CameraBoom->TargetArmLength = 800.f;
@@ -42,7 +44,7 @@ AUNCharacter::AUNCharacter()
 
 	// 카메라
 	TopDownCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("TopDownCamera"));
-	TopDownCameraComponent->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
+	TopDownCameraComponent->SetupAttachment(CameraBoom, UUNSpringArmComponent::SocketName);
 	TopDownCameraComponent->bUsePawnControlRotation = false;
 
 	// 메쉬

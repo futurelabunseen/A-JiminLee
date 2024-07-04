@@ -5,7 +5,7 @@
 #include "Item/ItemBase.h"
 #include "Game/UNWorldSubsystem.h"
 #include "Net/UnrealNetwork.h"
-#include "Character/UNPlayerCharacter.h"
+//#include "Character/UNPlayerCharacter.h"
 
 // Sets default values for this component's properties
 UUNInventoryComponent::UUNInventoryComponent()
