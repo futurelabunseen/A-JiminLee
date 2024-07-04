@@ -2,11 +2,13 @@
 
 
 #include "GA/UNGA_Skill.h"
-#include "Character/UNPlayerCharacter.h"
+
 #include "GameFramework/CharacterMovementComponent.h"
+
+#include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "ASC/UNAbilitySystemComponent.h"
 #include "Tag/UNGameplayTag.h"
-#include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
+
 
 UUNGA_Skill::UUNGA_Skill()
 {
@@ -19,27 +21,51 @@ void UUNGA_Skill::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	AUNPlayerCharacter* PlayerCharacter = Cast<AUNPlayerCharacter>(ActorInfo->AvatarActor.Get());
-	if (!PlayerCharacter)
+	AvatarActor = ActorInfo->AvatarActor.Get();
+	#pragma region AvatarActor NullCheck & return
+	if (!AvatarActor)
 	{
+		UE_LOG(LogTemp, Log, TEXT("AvatarActor is Null!"));
 		return;
 	}
+#pragma endregion
 
-	ActiveSkillActionMontage = PlayerCharacter->GetSkillActionMontage();
-	if (!ActiveSkillActionMontage)
+	SourceASC = Cast<UUNAbilitySystemComponent>(GetAbilitySystemComponentFromActorInfo_Checked());
+	#pragma region SourceASC NullCheck & return
+	if (!SourceASC)
 	{
+		UE_LOG(LogTemp, Log, TEXT("SourceASC is Null!"));
 		return;
 	}
+#pragma endregion
 
-	PlayerCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+	ActiveSkillActionMontage = SourceASC->GetSkillActionMontage();
+	#pragma region ActiveSkillActionMontage NullCheck & return
+		if (!ActiveSkillActionMontage)
+		{
+			UE_LOG(LogTemp, Log, TEXT("ActiveSkillActionMontage is Null!"));
+			return;
+		}
+	#pragma endregion
 
-	// 필요한 델리게이트를 지정하고 AT를 실행
-	
+	MovementComp = AvatarActor->FindComponentByClass<UCharacterMovementComponent>();
+	#pragma region MovementComp NullCheck & return
+		if (!MovementComp)
+		{
+			UE_LOG(LogTemp, Log, TEXT("MovementComp is Null!"));
+			return;
+		}
+	#pragma endregion
+
+	MovementComp->SetMovementMode(EMovementMode::MOVE_None);
+
+	// 스킬 캔슬을 위한 어빌리티 등록
 	if (UUNAbilitySystemComponent* ASC = Cast<UUNAbilitySystemComponent>(GetAbilitySystemComponentFromActorInfo_Checked()))
 	{
 		ASC->SetCurrentActiveAbility(this);
 	}
 
+	// 필요한 델리게이트를 지정하고 AT를 실행
 	UAbilityTask_PlayMontageAndWait* PlayMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, TEXT("SKillMontage"), ActiveSkillActionMontage, 1.f);
 	PlayMontageTask->OnCompleted.AddDynamic(this, &UUNGA_Skill::OnCompleteCallback);
 	PlayMontageTask->OnInterrupted.AddDynamic(this, &UUNGA_Skill::OnInterruptedCallback);
@@ -69,11 +95,9 @@ void UUNGA_Skill::CancelAbility(const FGameplayAbilitySpecHandle Handle, const F
 
 void UUNGA_Skill::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
-	UAbilitySystemComponent* AvatarActorASC = GetAbilitySystemComponentFromActorInfo();
-	AUNPlayerCharacter* PlayerCharacter = Cast<AUNPlayerCharacter>(ActorInfo->AvatarActor.Get());
-	if (PlayerCharacter && !AvatarActorASC->HasMatchingGameplayTag(UNTAG_CHARACTER_STATE_ISSTUNING))
+	if (AvatarActor && !SourceASC->HasMatchingGameplayTag(UNTAG_CHARACTER_STATE_ISSTUNING))
 	{
-		PlayerCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+		MovementComp->SetMovementMode(EMovementMode::MOVE_Walking);
 	}
 
 	if (bWasCancelled == false)

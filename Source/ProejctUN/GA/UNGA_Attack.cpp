@@ -2,11 +2,11 @@
 
 
 #include "GA/UNGA_Attack.h"
-#include "Character/UNPlayerCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Character/UNComboActionData.h"
 #include "AbilitySystemComponent.h"
 #include "Tag/UNGameplayTag.h"
+#include "ASC/UNAbilitySystemComponent.h"
 
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 
@@ -22,23 +22,46 @@ void UUNGA_Attack::ActivateAbility(const FGameplayAbilitySpecHandle Handle, cons
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	AUNPlayerCharacter* UNCharacter = Cast<AUNPlayerCharacter>(ActorInfo->AvatarActor.Get());
-	if (!UNCharacter)
+	AvatarActor = ActorInfo->AvatarActor.Get();
+	#pragma region AvatarActor NullCheck & return
+	if (!AvatarActor)
 	{
-		UE_LOG(LogTemp, Log, TEXT("Can't find Character!"));
-		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
+		UE_LOG(LogTemp, Log, TEXT("AvatarActor is Null!"));
+		return;
 	}
-	CurrentComboData = UNCharacter->GetComboActionData();
-	UNCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+#pragma endregion
+
+	SourceASC = Cast<UUNAbilitySystemComponent>(GetAbilitySystemComponentFromActorInfo_Checked());
+	#pragma region SourceASC NullCheck & return
+	if (!SourceASC)
+	{
+		UE_LOG(LogTemp, Log, TEXT("SourceASC is Null!"));
+		return;
+	}
+#pragma endregion
+
+	MovementComp = AvatarActor->FindComponentByClass<UCharacterMovementComponent>();
+	#pragma region MovementComp NullCheck & return
+	if (!MovementComp)
+	{
+		UE_LOG(LogTemp, Log, TEXT("MovementComp is Null!"));
+		return;
+	}
+#pragma endregion
+
+	CurrentComboData = SourceASC->GetComboActionData();
+	MovementComp->SetMovementMode(EMovementMode::MOVE_None);
 
 	// 필요한 델리게이트를 지정하고 AT를 실행
-	UAbilityTask_PlayMontageAndWait* PlayAttackTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, TEXT("PlayAttack"), UNCharacter->GetComboActionMontage(), 1.f, GetNextSection());
+	UAbilityTask_PlayMontageAndWait* PlayAttackTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, TEXT("PlayAttack"), SourceASC->GetComboActionMontage(), 1.f, GetNextSection());
 	PlayAttackTask->OnCompleted.AddDynamic(this, &UUNGA_Attack::OnCompleteCallback);
 	PlayAttackTask->OnInterrupted.AddDynamic(this, &UUNGA_Attack::OnInterruptedCallback);
 	PlayAttackTask->ReadyForActivation();
 
 	// 콤보 타이머 실행
 	StartComboTimer();
+
+	//CancelAbility(Handle, ActorInfo, ActivationInfo, true);
 }
 
 // 공격 키가 눌렸을 때 다음 콤보가 작동될지 체크
@@ -62,17 +85,13 @@ void UUNGA_Attack::CancelAbility(const FGameplayAbilitySpecHandle Handle, const 
 // 공격 사이클이 끝날 시 콤보 데이터 초기화 
 void UUNGA_Attack::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
-	AUNPlayerCharacter* UNCharacter = Cast<AUNPlayerCharacter>(ActorInfo->AvatarActor.Get());
-	UAbilitySystemComponent* AvatarActorASC = GetAbilitySystemComponentFromActorInfo();
-
 	CurrentComboData = nullptr;
 	CurrentCombo = 0;
 	HasNextComboInput = false;
 
-	//UNCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
-	if (UNCharacter && !AvatarActorASC->HasMatchingGameplayTag(UNTAG_CHARACTER_STATE_ISSTUNING))
+	if (AvatarActor && !SourceASC->HasMatchingGameplayTag(UNTAG_CHARACTER_STATE_ISSTUNING))
 	{
-		UNCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+		MovementComp->SetMovementMode(EMovementMode::MOVE_Walking);
 	}
 
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);

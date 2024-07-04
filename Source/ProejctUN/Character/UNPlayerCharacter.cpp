@@ -318,6 +318,10 @@ void AUNPlayerCharacter::InitAbilityActorInfo()
 		//ASC->GenericGameplayEventCallbacks.FindOrAdd(UNTAG_EVENT_CHARACTER_WEAPONUNEQUIP).AddUObject(this, &AUNPlayerCharacter::UnEquipWeapon);
 		ASC->RegisterGameplayTagEvent(UNTAG_CHARACTER_STATE_ISSTUNING, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &AUNPlayerCharacter::OnStunTagChange);
 		ASC->RegisterGameplayTagEvent(UNTAG_CHARACTER_STATE_ISDEAD, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &AUNPlayerCharacter::OnDeadTagChange);
+		
+		ASC->SetComboActionData(ComboActionData);
+		ASC->SetComboActionMontage(ComboActionMontage);
+		ASC->SetSkillActionMontage(SkillActionMontage);
 
 		//PlayerInventory->OnInventoryUpdated.AddUObject(this, &AUNPlayerCharacter::EquipItem);
 		if (UUNInventoryComponent* Inven = Cast<UUNInventoryComponent>(PlayerInventory))

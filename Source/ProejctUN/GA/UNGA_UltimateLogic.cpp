@@ -29,11 +29,23 @@ void UUNGA_UltimateLogic::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
 	AvatarActor = ActorInfo->AvatarActor.Get();
-	SpringArm = AvatarActor->FindComponentByClass<UUNSpringArmComponent>();
-	if (!SpringArm)
+	#pragma region AvatarActor NullCheck & return
+	if (!AvatarActor)
 	{
+		UE_LOG(LogTemp, Log, TEXT("AvatarActor is Null!"));
 		return;
 	}
+#pragma endregion
+
+	SpringArm = AvatarActor->FindComponentByClass<UUNSpringArmComponent>();
+	#pragma region SpringArm NullCheck & return
+	if (!SpringArm)
+	{
+		UE_LOG(LogTemp, Log, TEXT("SpringArm is Null!"));
+		return;
+	}
+#pragma endregion
+
 	SourceASC = Cast<UUNAbilitySystemComponent>(GetAbilitySystemComponentFromActorInfo_Checked());
 	#pragma region SourceASC NullCheck & return
 	if (!SourceASC)
@@ -51,6 +63,7 @@ void UUNGA_UltimateLogic::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 			return;
 		}
 	#pragma endregion
+
 	MovementComp->SetMovementMode(EMovementMode::MOVE_None);
 
 	UAbilityTask_PlayMontageAndWait* PlayMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, TEXT("UltimateMontage"), UltimateActionMontage, 1.f);

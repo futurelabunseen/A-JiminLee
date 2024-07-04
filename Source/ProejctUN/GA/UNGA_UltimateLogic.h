@@ -12,6 +12,7 @@
 class UUNSpringArmComponent;
 class UCharacterMovementComponent;
 class UUNAbilitySystemComponent;
+class UAnimMontage;
 
 UCLASS()
 class PROEJCTUN_API UUNGA_UltimateLogic : public UGameplayAbility
@@ -33,7 +34,7 @@ protected:
 	void OnInterruptedCallback();
 
 	UPROPERTY(EditAnywhere)
-	TObjectPtr<class UAnimMontage> UltimateActionMontage;
+	TObjectPtr<UAnimMontage> UltimateActionMontage;
 
 	UPROPERTY(EditAnywhere, Category = "Spawning")
 	TSubclassOf<AActor> UltimateSword;
