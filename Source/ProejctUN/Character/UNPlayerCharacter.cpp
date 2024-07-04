@@ -1,41 +1,47 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "UNPlayerCharacter.h"
+
 #include "Player/UNGASPlayerState.h"
 #include "Player/UNPlayerController.h"
-#include "UI/UNHUD.h"
+
 #include "Blueprint/AIBlueprintHelperLibrary.h"
 
+#include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "InputMappingContext.h"
 #include "InputActionValue.h"
-#include "EnhancedInputSubsystems.h"
+
 #include "GameFramework/CharacterMovementComponent.h"
+
+#include "UI/UNHUD.h"
+#include "UI/UNGASWidgetComponent.h"
+#include "UI/Widget/UNGASUserWidget.h"
+#include "UI/UNInventoryComponent.h"
+
 #include "Components/DecalComponent.h"
 #include "NiagaraComponent.h"
 #include "NiagaraSystem.h"
 #include "NiagaraFunctionLibrary.h"
 
-#include "Kismet/KismetMathLibrary.h"
-#include "Props/UNInteractableObjectBase.h"
 #include "ASC/UNAbilitySystemComponent.h"
-#include "UNComboActionData.h"
 #include "Attribute/UNCharacterAttributeSet.h"
-#include "Tag/UNGameplayTag.h"
-#include "UI/UNGASWidgetComponent.h"
-#include "UI/Widget/UNGASUserWidget.h"
-#include "UI/UNInventoryComponent.h"
 #include "Abilities/GameplayAbilityTargetActor.h"
 #include "GameplayTagContainer.h"
+#include "Tag/UNGameplayTag.h"
+
+#include "Game/UNWorldSubsystem.h"
 #include "Props/UNPickupObject.h"
 #include "Item/ItemBase.h"
-#include "Game/UNWorldSubsystem.h"
-#include "GameFramework/SpringArmComponent.h"
+
+#include "Props/UNInteractableObjectBase.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "UNComboActionData.h"
 
 #include "ProejctUN.h"
 
 
-AUNPlayerCharacter::AUNPlayerCharacter() 
+AUNPlayerCharacter::AUNPlayerCharacter()
 {
 	ASC = nullptr;
 
@@ -823,37 +829,6 @@ void AUNPlayerCharacter::ServerRPCSCancelActionFunction_Implementation()
 
 		ASC->CancelAbilityHandle(Handle);
 	}
-}
-
-
-void AUNPlayerCharacter::UpdateSpringArmLength(float Start, float End, float Time, float Frame)
-{
-	SpringArmShortLength = Start;
-	SpringArmLongLength = End;
-	SpringArmStartTime = 0.f;
-	SpringArmMoveTime = Time;
-	SpringArm = GetCameraBoom();
-
-	GetWorld()->GetTimerManager().SetTimer(SpringArmUpdateTimerHandle, [&]()
-		{
-			SpringArmStartTime += 0.01f;
-
-			float Alpha = FMath::Clamp(SpringArmStartTime / SpringArmMoveTime, 0.0f, 1.0f);
-			float NewArmLength = FMath::Lerp(SpringArmShortLength, SpringArmLongLength, Alpha);
-			SpringArm->TargetArmLength = NewArmLength;
-
-			if (Alpha >= 1.0f)
-			{
-				SpringArmStartTime = 0.f;
-				GetWorld()->GetTimerManager().ClearTimer(SpringArmUpdateTimerHandle);
-			}
-		}, Frame, true);
-
-}
-
-void AUNPlayerCharacter::ReturnSpringArmLength()
-{
-	SpringArm->TargetArmLength = 800.f;
 }
 
 void AUNPlayerCharacter::MenuPanelFunction()

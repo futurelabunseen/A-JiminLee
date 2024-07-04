@@ -252,32 +252,8 @@ public:
 	UPROPERTY()
 	uint8 bisMenuPanelOpen;
 
-	UPROPERTY()
-	float SpringArmShortLength;
-
-	UPROPERTY()
-	float SpringArmLongLength;
-
-	UPROPERTY()
-	float SpringArmStartTime;
-
-	UPROPERTY()
-	float SpringArmMoveTime;
-
 	UPROPERTY(EditAnywhere, Category = "Cursor")
 	UNiagaraSystem* CursorFX;
-
-	UPROPERTY()
-	TObjectPtr<USpringArmComponent> SpringArm;
-
-	UPROPERTY()
-	FTimerHandle SpringArmUpdateTimerHandle;
-
-	UFUNCTION()
-	void UpdateSpringArmLength(float Start, float End, float Time, float Frame);
-
-	UFUNCTION()
-	void ReturnSpringArmLength();
 
 	UPROPERTY()
 	FVector UltimateLocation;

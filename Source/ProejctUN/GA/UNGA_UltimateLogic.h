@@ -9,6 +9,7 @@
 /**
  * 
  */
+class UUNSpringArmComponent;
 UCLASS()
 class PROEJCTUN_API UUNGA_UltimateLogic : public UGameplayAbility
 {
@@ -43,4 +44,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GameplayCue)
 	TArray<TObjectPtr<USoundBase>> Sounds;
+
+	UPROPERTY()
+	UUNSpringArmComponent* SpringArm;
 };

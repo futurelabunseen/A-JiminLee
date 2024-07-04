@@ -3,6 +3,7 @@
 
 #include "GA/UNGA_UltimateLogic.h"
 #include "Character/UNPlayerCharacter.h"
+#include "Camera/UNSpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "ASC/UNAbilitySystemComponent.h"
 #include "Tag/UNGameplayTag.h"
@@ -24,6 +25,11 @@ void UUNGA_UltimateLogic::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 
 	PlayerCharacter = Cast<AUNPlayerCharacter>(ActorInfo->AvatarActor.Get());
 	if (!PlayerCharacter)
+	{
+		return;
+	}
+	SpringArm = PlayerCharacter->FindComponentByClass<UUNSpringArmComponent>();
+	if (!SpringArm)
 	{
 		return;
 	}
@@ -61,7 +67,10 @@ void UUNGA_UltimateLogic::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 	}
 
 	//ServerRPCSpawnSword(SpawnLocation);
-	PlayerCharacter->UpdateSpringArmLength(800.f, 1600.f, 0.15f, 0.016f);
+
+	SpringArm->UpdateSpringArmLength(800.f, 1600.f, 0.15f, 0.016f);
+	//PlayerCharacter->UpdateSpringArmLength(800.f, 1600.f, 0.15f, 0.016f);
+
 
 	PlayMontageTask->ReadyForActivation();
 }
@@ -78,7 +87,7 @@ void UUNGA_UltimateLogic::EndAbility(const FGameplayAbilitySpecHandle Handle, co
 {
 	if(PlayerCharacter)
 	{ 
-		PlayerCharacter->UpdateSpringArmLength(1600.f, 800.f, 0.5f, 0.016f);
+		SpringArm->UpdateSpringArmLength(1600.f, 800.f, 0.5f, 0.016f);
 	}
 
 	UAbilitySystemComponent* AvatarActorASC = GetAbilitySystemComponentFromActorInfo();

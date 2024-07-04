@@ -109,6 +109,15 @@ public:
 };
 
 
+/*/////////////////  인벤토리 관련 어떤 것을 더 할 수 있을까? //////////////////////////////
+
+1. FFastArraySerializer로 리팩터링
+2. 클라이언트 예측 시스템 사용 (사용자 경험 관련)
+3. RPC -> Replicate_Notify로 바꿀 수 있는 것 바꾸기
+
+/////////////////////////////////////////////////////////////////////////////////////*/
+
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class PROEJCTUN_API UUNInventoryComponent : public UActorComponent
 {

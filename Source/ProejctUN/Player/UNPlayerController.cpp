@@ -2,13 +2,16 @@
 
 
 #include "UNPlayerController.h"
+#include "Game/UNGameMode.h"
 #include "UNGASPlayerState.h"
 #include "UI/UNHUD.h"
+
 #include "Net/UnrealNetwork.h"
-#include "Game/UNGameMode.h"
-#include "Character/UNPlayerCharacter.h"
-#include "Interface/UNInteractionInterface.h"
 #include "Kismet/GameplayStatics.h"
+
+#include "GameFramework/Character.h"	
+#include "Interface/UNInteractionInterface.h"
+#include "Camera/UNSpringArmComponent.h"
 
 #include "ProejctUN.h"
 
@@ -20,6 +23,10 @@ AUNPlayerController::AUNPlayerController()
 
 	bEnableTouchEvents = false;
 	bReplicates = true;
+
+	CountDownTime = 5;
+	FarmingTime = 20;
+	BattleTime = 100;
 }
 
 void AUNPlayerController::PostInitializeComponents()
@@ -30,12 +37,6 @@ void AUNPlayerController::PostInitializeComponents()
 void AUNPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-
-	//if (IsLocalController())
-	//{
-	//	FTimerHandle CheckingTimeTimerHandle;
-	//	GetWorld()->GetTimerManager().SetTimer(CheckingTimeTimerHandle,this, &AUNPlayerController::ServerRPCRequestCurrentTime, 3.f, true, 1.f);
-	//}
 }
 
 // NetInitÈÄ ½ÇÇà
@@ -102,15 +103,15 @@ void AUNPlayerController::OnMatchStateSet(FName State)
 	}
 	else if (MatchState == MatchState::CountDown)
 	{
-		CountDownFunction(5);
+		CountDownFunction(CountDownTime);
 	}
 	else if (MatchState == MatchState::Farming)
 	{
-		FarmingFunction(20);
+		FarmingFunction(FarmingTime);
 	}
 	else if (MatchState == MatchState::Battle)
 	{
-		BattleFunction(99);
+		BattleFunction(BattleTime);
 	}
 }
 
@@ -122,15 +123,15 @@ void AUNPlayerController::OnRep_MatchState()
 	}
 	else if (MatchState == MatchState::CountDown)
 	{
-		CountDownFunction(5);
+		CountDownFunction(CountDownTime);
 	}
 	else if (MatchState == MatchState::Farming)
 	{
-		FarmingFunction(20);
+		FarmingFunction(FarmingTime);
 	}
 	else if (MatchState == MatchState::Battle)
 	{
-		BattleFunction(99);
+		BattleFunction(BattleTime);
 	}
 }
 
@@ -411,11 +412,10 @@ void AUNPlayerController::MulticastRPCGameEndFunction_Implementation()
 
 	GetWorld()->GetTimerManager().ClearTimer(GameTimeTimerHandle);
 	GetWorld()->GetTimerManager().ClearTimer(CountDownTimerHandle);
-	if (AUNPlayerCharacter* PlayerCharacter = Cast<AUNPlayerCharacter>(GetCharacter()))
-	{
-		GetWorld()->GetTimerManager().ClearTimer(PlayerCharacter->SpringArmUpdateTimerHandle);
 
-		//PlayerCharacter->ReturnSpringArmLength();
+	if (UUNSpringArmComponent* SpringArm = GetCharacter()->FindComponentByClass<UUNSpringArmComponent>())
+	{
+		SpringArm->ClearSpringArmTimerHandle();
 	}
 }
 

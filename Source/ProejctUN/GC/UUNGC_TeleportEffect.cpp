@@ -7,7 +7,7 @@
 
 #include "Kismet/GameplayStatics.h"
 #include "NiagaraFunctionLibrary.h"
-#include "Character/UNPlayerCharacter.h"
+//#include "Character/UNPlayerCharacter.h"
 #include "NiagaraSystem.h"
 
 UUUNGC_TeleportEffect::UUUNGC_TeleportEffect()
