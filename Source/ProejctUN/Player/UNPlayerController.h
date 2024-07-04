@@ -122,6 +122,15 @@ public:
 
 	int8 bisFarmingDone;
 
+	UPROPERTY(EditAnywhere)
+	int32 CountDownTime;
+
+	UPROPERTY(EditAnywhere)
+	int32 FarmingTime;
+
+	UPROPERTY(EditAnywhere)
+	int32 BattleTime;
+
 	//void ClientLeaveGame();
 
 	//virtual void ClientReturnToMainMenuWithTextReason(const FText& ReturnReason) override;

@@ -1,41 +1,47 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "UNPlayerCharacter.h"
+
 #include "Player/UNGASPlayerState.h"
 #include "Player/UNPlayerController.h"
-#include "UI/UNHUD.h"
+
 #include "Blueprint/AIBlueprintHelperLibrary.h"
 
+#include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "InputMappingContext.h"
 #include "InputActionValue.h"
-#include "EnhancedInputSubsystems.h"
+
 #include "GameFramework/CharacterMovementComponent.h"
+
+#include "UI/UNHUD.h"
+#include "UI/UNGASWidgetComponent.h"
+#include "UI/Widget/UNGASUserWidget.h"
+#include "UI/UNInventoryComponent.h"
+
 #include "Components/DecalComponent.h"
 #include "NiagaraComponent.h"
 #include "NiagaraSystem.h"
 #include "NiagaraFunctionLibrary.h"
 
-#include "Kismet/KismetMathLibrary.h"
-#include "Props/UNInteractableObjectBase.h"
 #include "ASC/UNAbilitySystemComponent.h"
-#include "UNComboActionData.h"
 #include "Attribute/UNCharacterAttributeSet.h"
-#include "Tag/UNGameplayTag.h"
-#include "UI/UNGASWidgetComponent.h"
-#include "UI/Widget/UNGASUserWidget.h"
-#include "UI/UNInventoryComponent.h"
 #include "Abilities/GameplayAbilityTargetActor.h"
 #include "GameplayTagContainer.h"
+#include "Tag/UNGameplayTag.h"
+
+#include "Game/UNWorldSubsystem.h"
 #include "Props/UNPickupObject.h"
 #include "Item/ItemBase.h"
-#include "Game/UNWorldSubsystem.h"
-#include "GameFramework/SpringArmComponent.h"
+
+#include "Props/UNInteractableObjectBase.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "UNComboActionData.h"
 
 #include "ProejctUN.h"
 
 
-AUNPlayerCharacter::AUNPlayerCharacter() 
+AUNPlayerCharacter::AUNPlayerCharacter()
 {
 	ASC = nullptr;
 
@@ -312,6 +318,10 @@ void AUNPlayerCharacter::InitAbilityActorInfo()
 		//ASC->GenericGameplayEventCallbacks.FindOrAdd(UNTAG_EVENT_CHARACTER_WEAPONUNEQUIP).AddUObject(this, &AUNPlayerCharacter::UnEquipWeapon);
 		ASC->RegisterGameplayTagEvent(UNTAG_CHARACTER_STATE_ISSTUNING, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &AUNPlayerCharacter::OnStunTagChange);
 		ASC->RegisterGameplayTagEvent(UNTAG_CHARACTER_STATE_ISDEAD, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &AUNPlayerCharacter::OnDeadTagChange);
+		
+		ASC->SetComboActionData(ComboActionData);
+		ASC->SetComboActionMontage(ComboActionMontage);
+		ASC->SetSkillActionMontage(SkillActionMontage);
 
 		//PlayerInventory->OnInventoryUpdated.AddUObject(this, &AUNPlayerCharacter::EquipItem);
 		if (UUNInventoryComponent* Inven = Cast<UUNInventoryComponent>(PlayerInventory))
@@ -674,6 +684,7 @@ void AUNPlayerCharacter::ServerRPCUpdateWeapon_Implementation()
 {
 	// 우선 AT를 기본 상태로
 	Weapon->SetSkeletalMesh(nullptr);
+	ASC->SetUltimateMesh(nullptr);
 
 	const float DefaultAttackRange = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetDefaultAttackRangeAttribute());
 	const float DefaultAttackRate = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetDefaultAttackRateAttribute());
@@ -694,6 +705,7 @@ void AUNPlayerCharacter::ServerRPCUpdateWeapon_Implementation()
 		UItemBase* CurrentEquipItem = WorldSubSystem->GetItemReference(PlayerInventory->CurrentWeaponItemID);
 		WeaponMesh = CurrentEquipItem->AssetData.SkeletalMesh;
 		Weapon->SetSkeletalMesh(WeaponMesh);
+		ASC->SetUltimateMesh(WeaponMesh);
 
 		ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute(), DefaultAttackRange + CurrentEquipItem->ItemStatistics.WeaponRange);
 		ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute(), DefaultAttackRate + CurrentEquipItem->ItemStatistics.DamageValue);
@@ -823,37 +835,6 @@ void AUNPlayerCharacter::ServerRPCSCancelActionFunction_Implementation()
 
 		ASC->CancelAbilityHandle(Handle);
 	}
-}
-
-
-void AUNPlayerCharacter::UpdateSpringArmLength(float Start, float End, float Time, float Frame)
-{
-	SpringArmShortLength = Start;
-	SpringArmLongLength = End;
-	SpringArmStartTime = 0.f;
-	SpringArmMoveTime = Time;
-	SpringArm = GetCameraBoom();
-
-	GetWorld()->GetTimerManager().SetTimer(SpringArmUpdateTimerHandle, [&]()
-		{
-			SpringArmStartTime += 0.01f;
-
-			float Alpha = FMath::Clamp(SpringArmStartTime / SpringArmMoveTime, 0.0f, 1.0f);
-			float NewArmLength = FMath::Lerp(SpringArmShortLength, SpringArmLongLength, Alpha);
-			SpringArm->TargetArmLength = NewArmLength;
-
-			if (Alpha >= 1.0f)
-			{
-				SpringArmStartTime = 0.f;
-				GetWorld()->GetTimerManager().ClearTimer(SpringArmUpdateTimerHandle);
-			}
-		}, Frame, true);
-
-}
-
-void AUNPlayerCharacter::ReturnSpringArmLength()
-{
-	SpringArm->TargetArmLength = 800.f;
 }
 
 void AUNPlayerCharacter::MenuPanelFunction()

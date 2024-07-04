@@ -9,6 +9,10 @@
 /**
  * 
  */
+class UUNAbilitySystemComponent;
+class UCharacterMovementComponent;
+class UAnimMontage;
+
 UCLASS()
 class PROEJCTUN_API UUNGA_Attack : public UGameplayAbility
 {
@@ -36,6 +40,15 @@ protected:
 protected:
 	UPROPERTY()
 	TObjectPtr<class UUNComboActionData> CurrentComboData;
+
+	UPROPERTY()
+	TObjectPtr<UUNAbilitySystemComponent> SourceASC;
+
+	UPROPERTY()
+	TObjectPtr<AActor> AvatarActor;
+
+	UPROPERTY()
+	TObjectPtr<UCharacterMovementComponent> MovementComp;
 
 	uint8 CurrentCombo = 0;
 	FTimerHandle ComboTimerHandle;

@@ -9,6 +9,11 @@
 /**
  * 
  */
+class UUNSpringArmComponent;
+class UCharacterMovementComponent;
+class UUNAbilitySystemComponent;
+class UAnimMontage;
+
 UCLASS()
 class PROEJCTUN_API UUNGA_UltimateLogic : public UGameplayAbility
 {
@@ -29,7 +34,7 @@ protected:
 	void OnInterruptedCallback();
 
 	UPROPERTY(EditAnywhere)
-	TObjectPtr<class UAnimMontage> UltimateActionMontage;
+	TObjectPtr<UAnimMontage> UltimateActionMontage;
 
 	UPROPERTY(EditAnywhere, Category = "Spawning")
 	TSubclassOf<AActor> UltimateSword;
@@ -43,4 +48,16 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GameplayCue)
 	TArray<TObjectPtr<USoundBase>> Sounds;
+
+	UPROPERTY()
+	UUNSpringArmComponent* SpringArm;
+
+	UPROPERTY()
+	TObjectPtr<AActor> AvatarActor;
+
+	UPROPERTY()
+	TObjectPtr<UCharacterMovementComponent> MovementComp;
+
+	UPROPERTY()
+	TObjectPtr<UUNAbilitySystemComponent> SourceASC;
 };

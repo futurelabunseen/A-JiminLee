@@ -19,7 +19,7 @@ public:
 	virtual void PostInitializeComponents() override;
 
 	FORCEINLINE class UCameraComponent* GetTopDownCameraComponent() const { return TopDownCameraComponent; }
-	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+	FORCEINLINE class UUNSpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 
 	UPROPERTY(BlueprintAssignable, Category = "Delegate")
 	FOnDeathDelegate OnDeath;
@@ -31,7 +31,7 @@ private:
 	class UCameraComponent* TopDownCameraComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	class USpringArmComponent* CameraBoom;
+	class UUNSpringArmComponent* CameraBoom;
 
 // Dead
 protected:
