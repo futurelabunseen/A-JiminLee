@@ -51,7 +51,7 @@ protected:
 	TSubclassOf<AUNTA_TraceLocation> TargetActorClass;
 
 	UPROPERTY()
-	TObjectPtr<IDecalSystemInterface> SourceInterface;
+	TScriptInterface<IDecalSystemInterface> SourceInterface;
 
 	UPROPERTY()
 	TObjectPtr<UUNAbilitySystemComponent> SourceASC;

@@ -24,14 +24,29 @@ void UUNGA_Teleport::ActivateAbility(const FGameplayAbilitySpecHandle Handle, co
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	
-	AvatarActor = Cast<AActor>(CurrentActorInfo->AvatarActor.Get());
-	//PlayerCharacter = Cast<AUNPlayerCharacter>(CurrentActorInfo->AvatarActor.Get());
+	AvatarActor = CurrentActorInfo->AvatarActor.Get();
+	#pragma region AvatarActor NullCheck & return
 	if (!AvatarActor)
 	{
-		UE_LOG(LogTemp, Log, TEXT("Can't find Character!"));
+		UE_LOG(LogTemp, Log, TEXT("AvatarActor is Null!"));
+		return;
+	}
+#pragma endregion
+	#pragma region InterfaceImplements NullCheck & return
+		if (!AvatarActor->GetClass()->ImplementsInterface(UDecalSystemInterface::StaticClass()))
+		{
+			UE_LOG(LogTemp, Log, TEXT("SourceActor Not Implements DecalInterface!"));
+			return;
+		}
+#pragma endregion
+
+	SourceInterface = TScriptInterface<IDecalSystemInterface>(AvatarActor);
+	if (!SourceInterface)
+	{
+		UE_LOG(LogTemp, Log, TEXT("Not Have DecalInterface!"));
 		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
 	}
-
+	
 	if (IsLocallyControlled())
 	{
 		ActivateDecal();
@@ -135,14 +150,12 @@ void UUNGA_Teleport::OnCancelCallback(const FGameplayAbilityTargetDataHandle& Ta
 // Decal을 이용한 범위 표시
 void UUNGA_Teleport::ActivateDecal()
 {
-	if(IDecalSystemInterface* DecalActor = Cast<IDecalSystemInterface>(AvatarActor))
-	DecalActor->ActivateDecal_Implementation(DecalStruct);
+	SourceInterface->ActivateDecal_Implementation(DecalStruct);
 }
 
 void UUNGA_Teleport::EndDecal()
 {
-	if (IDecalSystemInterface* DecalActor = Cast<IDecalSystemInterface>(AvatarActor))
-	DecalActor->EndDecal_Implementation();
+	SourceInterface->EndDecal_Implementation();
 }
 
 bool UUNGA_Teleport::ServerRPCTeleportToLocation_Validate(FVector NewLocation, FGameplayCueParameters Params)

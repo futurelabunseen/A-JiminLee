@@ -5,7 +5,6 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "TA/UNTA_TraceLocation.h"
 #include "AT/UNAT_TraceLocation.h"
-//#include "Character/UNPlayerCharacter.h"
 #include "Interface/DecalSystemInterface.h"
 
 #include "Tag/UNGameplayTag.h"
@@ -24,12 +23,29 @@ void UUNGA_Ultimate::ActivateAbility(const FGameplayAbilitySpecHandle Handle, co
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	SourceInterface = Cast<IDecalSystemInterface>(CurrentActorInfo->AvatarActor.Get());
+	AActor* SourceActor = CurrentActorInfo->AvatarActor.Get();
+	#pragma region SourceActor NullCheck & return
+		if (!SourceActor)
+		{
+			UE_LOG(LogTemp, Log, TEXT("SourceActor is Null!"));
+			return;
+		}
+#pragma endregion
+	#pragma region InterfaceImplements NullCheck & return
+			if (!SourceActor->GetClass()->ImplementsInterface(UDecalSystemInterface::StaticClass()))
+			{
+				UE_LOG(LogTemp, Log, TEXT("SourceActor Not Implements DecalInterface!"));
+				return;
+			}
+	#pragma endregion
+
+	SourceInterface = TScriptInterface<IDecalSystemInterface>(SourceActor);
 	if (!SourceInterface)
 	{
-		UE_LOG(LogTemp, Log, TEXT("AvatarActor Not have DecalInterface!"));
+		UE_LOG(LogTemp, Log, TEXT("Not Have DecalInterface!"));
 		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
 	}
+
 	SourceASC = Cast<UUNAbilitySystemComponent>(GetAbilitySystemComponentFromActorInfo_Checked());
 	#pragma region SourceASC NullCheck & return
 	if (!SourceASC)
