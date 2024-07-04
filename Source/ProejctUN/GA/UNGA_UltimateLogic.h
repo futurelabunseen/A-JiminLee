@@ -10,6 +10,9 @@
  * 
  */
 class UUNSpringArmComponent;
+class UCharacterMovementComponent;
+class UUNAbilitySystemComponent;
+
 UCLASS()
 class PROEJCTUN_API UUNGA_UltimateLogic : public UGameplayAbility
 {
@@ -47,4 +50,13 @@ public:
 
 	UPROPERTY()
 	UUNSpringArmComponent* SpringArm;
+
+	UPROPERTY()
+	TObjectPtr<AActor> AvatarActor;
+
+	UPROPERTY()
+	TObjectPtr<UCharacterMovementComponent> MovementComp;
+
+	UPROPERTY()
+	TObjectPtr<UUNAbilitySystemComponent> SourceASC;
 };

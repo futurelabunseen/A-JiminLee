@@ -21,6 +21,12 @@ protected:
 
 	TObjectPtr<UGameplayAbility> CurrentActiveAbility;
 
+	UPROPERTY()
+	FVector UltimateLocation;
+
+	UPROPERTY()
+	TObjectPtr<class USkeletalMesh> UltimateMesh;
+
 public:
 	TObjectPtr<AGameplayAbilityTargetActor> GetCurrentActiveTargetActor() { return CurrentActiveTargetActor; }
 	void SetCurrentActiveTargetActor(TObjectPtr<AGameplayAbilityTargetActor> NewCurrentActiveTargetActor) { CurrentActiveTargetActor = NewCurrentActiveTargetActor; }
@@ -30,4 +36,20 @@ public:
 
 	UPROPERTY()
 	uint32 bAbilityAlreadyActivate;
+
+	UFUNCTION()
+	void ActivateGameplayAbilityWithClass(TSubclassOf<UGameplayAbility> ability);
+
+	UFUNCTION()
+	void SetUltimateLocation(FVector Location) { UltimateLocation = Location; }
+	
+	UFUNCTION()
+	FVector GetUltimateLocation() { return UltimateLocation; }
+		
+	UFUNCTION()
+	void SetUltimateMesh(USkeletalMesh* Mesh) { UltimateMesh = Mesh; }
+
+	UFUNCTION()
+	USkeletalMesh* GetUltimateMesh() { return UltimateMesh; }
+
 };

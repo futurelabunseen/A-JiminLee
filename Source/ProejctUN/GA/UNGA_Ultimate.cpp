@@ -5,7 +5,8 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "TA/UNTA_TraceLocation.h"
 #include "AT/UNAT_TraceLocation.h"
-#include "Character/UNPlayerCharacter.h"
+//#include "Character/UNPlayerCharacter.h"
+#include "Interface/DecalSystemInterface.h"
 
 #include "Tag/UNGameplayTag.h"
 #include "ASC/UNAbilitySystemComponent.h"
@@ -23,12 +24,20 @@ void UUNGA_Ultimate::ActivateAbility(const FGameplayAbilitySpecHandle Handle, co
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	PlayerCharacter = Cast<AUNPlayerCharacter>(CurrentActorInfo->AvatarActor.Get());
-	if (!PlayerCharacter)
+	SourceInterface = Cast<IDecalSystemInterface>(CurrentActorInfo->AvatarActor.Get());
+	if (!SourceInterface)
 	{
-		UE_LOG(LogTemp, Log, TEXT("Can't find Character!"));
+		UE_LOG(LogTemp, Log, TEXT("AvatarActor Not have DecalInterface!"));
 		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
 	}
+	SourceASC = Cast<UUNAbilitySystemComponent>(GetAbilitySystemComponentFromActorInfo_Checked());
+	#pragma region SourceASC NullCheck & return
+	if (!SourceASC)
+	{
+		UE_LOG(LogTemp, Log, TEXT("SourceASC is Null!"));
+		return;
+	}
+#pragma endregion
 
 	if (IsLocallyControlled())
 	{
@@ -59,9 +68,9 @@ void UUNGA_Ultimate::OnTraceResultCallback(const FGameplayAbilityTargetDataHandl
 		FVector TargetLocation = HitResult.Location;
 		if (UAbilitySystemBlueprintLibrary::TargetDataHasActor(TargetDataHandle, 0))
 		{
-			PlayerCharacter->UltimateLocation = TargetLocation;
+			SourceASC->SetUltimateLocation(TargetLocation);
+			//PlayerCharacter->UltimateLocation = TargetLocation;
 			ServerRPCSendHitLocation(TargetLocation);
-			//DrawDebugSphere(GetWorld(), TargetLocation, 25.0f, 12, FColor::Red, false, 2.0f);
 		}
 	}
 
@@ -86,24 +95,30 @@ void UUNGA_Ultimate::OnCancelCallback(const FGameplayAbilityTargetDataHandle& Ta
 
 void UUNGA_Ultimate::ActivateDecal()
 {
-	if (PlayerCharacter)
+	if (SourceInterface)
 	{
-		PlayerCharacter->ActivateDecal_Implementation(DecalStruct);
+		SourceInterface->ActivateDecal_Implementation(DecalStruct);
 	}
 }
 
 void UUNGA_Ultimate::EndDecal()
 {
-	if (PlayerCharacter)
+	if (SourceInterface)
 	{
-		PlayerCharacter->EndDecal_Implementation();
+		SourceInterface->EndDecal_Implementation();
 	}
 }
 
 void UUNGA_Ultimate::ServerRPCSendHitLocation_Implementation(FVector Location)
 {
-	if (PlayerCharacter)
+	SourceASC->SetUltimateLocation(Location);
+	if (UltimateLogicAbility)
 	{
-		PlayerCharacter->StartUltimate(Location);
+		SourceASC->ActivateGameplayAbilityWithClass(UltimateLogicAbility);
 	}
+
+	//if (PlayerCharacter)
+	//{
+	//	PlayerCharacter->StartUltimate(Location);
+	//}
 }

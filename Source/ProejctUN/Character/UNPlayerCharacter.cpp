@@ -680,6 +680,7 @@ void AUNPlayerCharacter::ServerRPCUpdateWeapon_Implementation()
 {
 	// 우선 AT를 기본 상태로
 	Weapon->SetSkeletalMesh(nullptr);
+	ASC->SetUltimateMesh(nullptr);
 
 	const float DefaultAttackRange = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetDefaultAttackRangeAttribute());
 	const float DefaultAttackRate = ASC->GetNumericAttributeBase(UUNCharacterAttributeSet::GetDefaultAttackRateAttribute());
@@ -700,6 +701,7 @@ void AUNPlayerCharacter::ServerRPCUpdateWeapon_Implementation()
 		UItemBase* CurrentEquipItem = WorldSubSystem->GetItemReference(PlayerInventory->CurrentWeaponItemID);
 		WeaponMesh = CurrentEquipItem->AssetData.SkeletalMesh;
 		Weapon->SetSkeletalMesh(WeaponMesh);
+		ASC->SetUltimateMesh(WeaponMesh);
 
 		ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRangeAttribute(), DefaultAttackRange + CurrentEquipItem->ItemStatistics.WeaponRange);
 		ASC->SetNumericAttributeBase(UUNCharacterAttributeSet::GetAttackRateAttribute(), DefaultAttackRate + CurrentEquipItem->ItemStatistics.DamageValue);
