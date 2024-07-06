@@ -47,20 +47,39 @@ void UUNPlayerInventoryWidget::SetInfoText() const
 
 void UUNPlayerInventoryWidget::RefreshInventory()
 {
-	if (InventoryReference && InventorySlotClass)
+	#pragma region InventoryReference NullCheck & return
+	if (!InventoryReference)
 	{
-		InventoryWrapBox->ClearChildren();
-
-		for (UItemBase* const& InventoryItem : InventoryReference->GetInventoryContents())
-		{
-			UUNInventoryItemSlotWidget* ItemSlot = CreateWidget<UUNInventoryItemSlotWidget>(this, InventorySlotClass);
-			ItemSlot->SetItemReference(InventoryItem);
-
-			InventoryWrapBox->AddChildToWrapBox(ItemSlot);
-		}
-
-		SetInfoText();
+		UE_LOG(LogTemp, Log, TEXT("InventoryReference is Null!"));
+		return;
 	}
+#pragma endregion
+	#pragma region InventorySlotClass NullCheck & return
+		if (!InventorySlotClass)
+		{
+			UE_LOG(LogTemp, Log, TEXT("InventorySlotClass is Null!"));
+			return;
+		}
+#pragma endregion
+	#pragma region InventoryWrapBox NullCheck & return
+		if (!InventoryWrapBox)
+		{
+			UE_LOG(LogTemp, Log, TEXT("InventoryWrapBox is Null!"));
+			return;
+		}
+#pragma endregion
+
+	InventoryWrapBox->ClearChildren();
+
+	for (UItemBase* const& InventoryItem : InventoryReference->GetInventoryContents())
+	{
+		UUNInventoryItemSlotWidget* ItemSlot = GetEmptyItemSlot();
+		ItemSlot->SetItemReference(InventoryItem);
+
+		InventoryWrapBox->AddChildToWrapBox(ItemSlot);
+	}
+
+	SetInfoText();
 }
 
 bool UUNPlayerInventoryWidget::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
@@ -77,4 +96,10 @@ bool UUNPlayerInventoryWidget::NativeOnDrop(const FGeometry& InGeometry, const F
 	
 	// 드롭 진행
 	return false;
+}
+
+UUNInventoryItemSlotWidget* UUNPlayerInventoryWidget::GetEmptyItemSlot()
+{
+	UUNInventoryItemSlotWidget* ItemSlot = CreateWidget<UUNInventoryItemSlotWidget>(this, InventorySlotClass);
+	return ItemSlot;
 }

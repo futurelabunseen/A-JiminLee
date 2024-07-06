@@ -162,21 +162,23 @@ bool UUNGA_Teleport::ServerRPCTeleportToLocation_Validate(FVector NewLocation, F
 {
 	// [BUG] 현재 크래시 이슈 때문에 true반환
 	return true;
+	float ParamLocationDistance = FVector::Dist(Params.Location, AvatarActor->GetActorLocation());
+	float NewLocationDistance = FVector::Dist(NewLocation, AvatarActor->GetActorLocation());
+	float MaxDistance = DecalStruct.GetScale().Z;
 
-	if (Params.Location == FVector::ZeroVector)
+	// Location의 값이 없을 때, 데이터가 없다고 판단하여 false리턴
+	if (Params.Location.IsNearlyZero() || NewLocation.IsNearlyZero())
 	{
-		UE_LOG(LogTemp, Log, TEXT("Params.Location is not valid"));
+		UE_LOG(LogTemp, Log, TEXT("[ParamLocation | NewLocation] is not valid"));
 		return false;
 	}
 
-	if (NewLocation == FVector::ZeroVector)
+	// Location의 값이 최대치를 넘었을 때(계산식이 들어간 이후) false리턴 (핵 방지)
+	if (ParamLocationDistance > MaxDistance || NewLocationDistance > MaxDistance)
 	{
 		UE_LOG(LogTemp, Log, TEXT("NewLocation is not valid"));
 		return false;
 	}
-
-	// To Do .. : NewLocation & Params의 위칫값이 이동 가능한 범위가 아니라면(Ex. 스테이지 밖)
-	//			  해킹의 위험성이 있을 수 있으므로 false return
 
 	return true;
 }

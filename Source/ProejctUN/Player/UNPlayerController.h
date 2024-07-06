@@ -83,13 +83,13 @@ protected:
 	int GameTimeValue;
 public:
 	UFUNCTION()
-	void CountDownFunction(int Value);
+	void CountDownProcess(int Value);
 
 	UFUNCTION()
-	void FarmingFunction(int Value);
+	void FarmingProcess(int Value);
 
 	UFUNCTION()
-	void BattleFunction(int Value);
+	void BattleProcess(int Value);
 
 	void BeginOverInteractable(AActor* NewInteractable);
 	void EndOverInteractable();

@@ -103,15 +103,15 @@ void AUNPlayerController::OnMatchStateSet(FName State)
 	}
 	else if (MatchState == MatchState::CountDown)
 	{
-		CountDownFunction(CountDownTime);
+		CountDownProcess(CountDownTime);
 	}
 	else if (MatchState == MatchState::Farming)
 	{
-		FarmingFunction(FarmingTime);
+		FarmingProcess(FarmingTime);
 	}
 	else if (MatchState == MatchState::Battle)
 	{
-		BattleFunction(BattleTime);
+		BattleProcess(BattleTime);
 	}
 }
 
@@ -123,19 +123,19 @@ void AUNPlayerController::OnRep_MatchState()
 	}
 	else if (MatchState == MatchState::CountDown)
 	{
-		CountDownFunction(CountDownTime);
+		CountDownProcess(CountDownTime);
 	}
 	else if (MatchState == MatchState::Farming)
 	{
-		FarmingFunction(FarmingTime);
+		FarmingProcess(FarmingTime);
 	}
 	else if (MatchState == MatchState::Battle)
 	{
-		BattleFunction(BattleTime);
+		BattleProcess(BattleTime);
 	}
 }
 
-void AUNPlayerController::CountDownFunction(int Value)
+void AUNPlayerController::CountDownProcess(int Value)
 {
 	SetKeyBoardInputMode(false);
 	FlushPressedKeys();
@@ -179,7 +179,7 @@ void AUNPlayerController::CountDownFunction(int Value)
 		}, 1.f, true, 0.f);
 }
 
-void AUNPlayerController::FarmingFunction(int Value)
+void AUNPlayerController::FarmingProcess(int Value)
 {
 	if (AUNGameMode* GM = Cast<AUNGameMode>(GetWorld()->GetAuthGameMode()))
 	{
@@ -212,7 +212,7 @@ void AUNPlayerController::FarmingFunction(int Value)
 		}, 1.f, true, 0.f);
 }
 
-void AUNPlayerController::BattleFunction(int Value)
+void AUNPlayerController::BattleProcess(int Value)
 {
 	if (AUNGameMode* GM = Cast<AUNGameMode>(GetWorld()->GetAuthGameMode()))
 	{
